@@ -1,24 +1,49 @@
 # EduNeko
 
-Proyecto raíz compartido.
+Aplicación web educativa orientada a estudiantes de secundaria.
 
-## Estructura
-- `backend/`: Spring Boot + Java 21 + Maven global
-- `frontend/`: reservado para Angular
-- `docs/`: documentación del equipo
+## Tecnologías
+
+### Frontend
+- Angular
+- TypeScript
+- Node.js / npm
+
+### Backend
+- Java 21
+- Spring Boot
+- Maven
+
+### Base de datos
+- PostgreSQL
 
 ## Requisitos
-Git, JDK 21, Apache Maven global, Node.js/npm, Angular CLI, PostgreSQL y VS Code.
 
-## Verificar Maven
-```powershell
-mvn -version
-```
+- Java JDK 21
+- Maven 3.9.x
+- Node.js
+- npm
+- Angular CLI
+- PostgreSQL
+- Git
+- Visual Studio Code
 
 ## Ejecutar backend
-```powershell
+
 cd backend
 mvn spring-boot:run
-```
 
-Este proyecto no incluye Maven Wrapper. El frontend Angular se inicializará en el siguiente paso para definir juntos su configuración.
+Backend:
+http://localhost:8080
+
+Health:
+http://localhost:8080/api/health
+
+## Ejecutar frontend
+
+cd frontend
+npm install
+npm start
+
+Frontend:
+http://localhost:4200
