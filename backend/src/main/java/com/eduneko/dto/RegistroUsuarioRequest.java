@@ -36,7 +36,7 @@ public class RegistroUsuarioRequest {
     }
 
     public void setCorreo(String correo) {
-        this.correo = correo;
+        this.correo = correo == null ? null : correo.trim();
     }
 
     public String getPassword() {
