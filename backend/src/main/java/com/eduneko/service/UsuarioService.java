@@ -84,4 +84,27 @@ public class UsuarioService {
     return usuarioGuardado;
 
     }
+
+    public Usuario autenticar(String correo, String password) {
+
+    String correoNormalizado = normalizarCorreo(correo);
+
+    Usuario usuario = usuarioRepository
+            .findByCorreo(correoNormalizado)
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Correo o contraseña incorrectos"));
+
+    if (!usuario.isActivo()) {
+        throw new IllegalArgumentException(
+                "Correo o contraseña incorrectos");
+    }
+
+    if (!passwordCoincide(password, usuario.getPasswordHash())) {
+        throw new IllegalArgumentException(
+                "Correo o contraseña incorrectos");
+    }
+
+    return usuario;
+    }
 }

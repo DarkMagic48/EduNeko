@@ -1,4 +1,5 @@
 package com.eduneko.controller;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.eduneko.dto.RegistroUsuarioRequest;
 import com.eduneko.dto.RegistroUsuarioResponse;
+import com.eduneko.dto.LoginRequest;
+import com.eduneko.dto.LoginResponse;
 import com.eduneko.entity.Usuario;
 import com.eduneko.service.UsuarioService;
 
@@ -39,6 +42,19 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        
+        Usuario usuario = usuarioService.autenticar(
+                request.getCorreo(), 
+                request.getPassword());
+
+        LoginResponse response = 
+                new LoginResponse(usuario.getId(), usuario.getNombre(), usuario.getCorreo(), "Inicio de sesión correcto");
+        
+        return ResponseEntity.ok(response);
     }
     
 }

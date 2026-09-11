@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
                         errores.put(error.getField(), error.getDefaultMessage()));
        
         Map<String, Object> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "Datos de registro inválidos");
+        respuesta.put("mensaje", "Datos inválidos");
         respuesta.put("errores", errores);
 
         return ResponseEntity
