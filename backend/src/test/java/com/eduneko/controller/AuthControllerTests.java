@@ -175,6 +175,7 @@ class AuthControllerTests {
                 .andExpect(jsonPath("$.nombre").value("Daniela"))
                 .andExpect(jsonPath("$.correo").value("daniela@correo.com"))
                 .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.rol").value("ESTUDIANTE"))
                 .andExpect(jsonPath("$.mensaje")
                         .value("Inicio de sesión correcto"))
                 .andExpect(jsonPath("$.password").doesNotExist())

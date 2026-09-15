@@ -57,7 +57,7 @@ public class AuthController {
         String token = jwtService.generarToken(usuario.getId(), usuario.getCorreo(), usuario.getRol());
 
         LoginResponse response = 
-                new LoginResponse(usuario.getId(), usuario.getNombre(), usuario.getCorreo(), token, "Inicio de sesión correcto");
+                new LoginResponse(usuario.getId(), usuario.getNombre(), usuario.getCorreo(), usuario.getRol(), token, "Inicio de sesión correcto");
         
         return ResponseEntity.ok(response);
     }
