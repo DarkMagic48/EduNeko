@@ -1,5 +1,6 @@
 package com.eduneko.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import com.eduneko.security.JwtService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -21,6 +23,8 @@ class AuthControllerTests {
     
     @Autowired
     private MockMvc mockMvc;
+    @Autowired 
+    private JwtService jwtService;
 
     @Test
     void debeRegistrarUsuarioDesdeEndpoint() throws Exception {
@@ -164,6 +168,7 @@ class AuthControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Daniela"))
                 .andExpect(jsonPath("$.correo").value("daniela@correo.com"))
+                .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(jsonPath("$.mensaje")
                         .value("Inicio de sesión correcto"))
                 .andExpect(jsonPath("$.password").doesNotExist())
@@ -269,5 +274,36 @@ class AuthControllerTests {
                         .value("Datos inválidos"))
                 .andExpect(jsonPath("$.errores.correo")
                         .value("El correo no tiene un formato válido"));
+    }
+
+    @Test 
+    void debeRechazarEndpointProtegidoSinToken() throws Exception {
+
+        mockMvc.perform(get("/api/usuario/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test 
+    void deberPermitirEndpointProtegidoConTokenValido() throws Exception {
+
+        String token = jwtService.generarToken(1L, "daniela@correo.com", "ESTUDIANTE");
+
+        mockMvc.perform(get("/api/usuario/me")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.correo")
+                        .value("daniela@correo.com"));
+    }
+
+    @Test 
+    void debeRechazarEndpointProtegidoConTokenAlterado() throws Exception {
+
+        String token = jwtService.generarToken(1L, "daniela@correo.com", "ESTUDIANTE");
+
+        String tokenAlterado = token + "abc";
+
+        mockMvc.perform(get("/api/usuario/me")
+                .header("Authorization", "Bearer " + tokenAlterado))
+                .andExpect(status().isUnauthorized());       
     }
 }

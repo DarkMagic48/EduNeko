@@ -12,6 +12,7 @@ import com.eduneko.dto.RegistroUsuarioResponse;
 import com.eduneko.dto.LoginRequest;
 import com.eduneko.dto.LoginResponse;
 import com.eduneko.entity.Usuario;
+import com.eduneko.security.JwtService;
 import com.eduneko.service.UsuarioService;
 
 import jakarta.validation.Valid;
@@ -20,10 +21,12 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+     private final JwtService jwtService;
      private final UsuarioService usuarioService;
 
-    public AuthController(UsuarioService usuarioService) {
+    public AuthController(UsuarioService usuarioService, JwtService jwtService) {
         this.usuarioService = usuarioService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -51,8 +54,10 @@ public class AuthController {
                 request.getCorreo(), 
                 request.getPassword());
 
+        String token = jwtService.generarToken(usuario.getId(), usuario.getCorreo(), usuario.getRol());
+
         LoginResponse response = 
-                new LoginResponse(usuario.getId(), usuario.getNombre(), usuario.getCorreo(), "Inicio de sesión correcto");
+                new LoginResponse(usuario.getId(), usuario.getNombre(), usuario.getCorreo(), token, "Inicio de sesión correcto");
         
         return ResponseEntity.ok(response);
     }
