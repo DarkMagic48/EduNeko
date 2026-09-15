@@ -15,6 +15,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import com.eduneko.security.JwtService;
 
+import com.eduneko.dto.RegistroUsuarioRequest;
+import com.eduneko.entity.Usuario;
+import com.eduneko.service.UsuarioService;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -25,6 +29,8 @@ class AuthControllerTests {
     private MockMvc mockMvc;
     @Autowired 
     private JwtService jwtService;
+    @Autowired 
+    private UsuarioService usuarioService;
 
     @Test
     void debeRegistrarUsuarioDesdeEndpoint() throws Exception {
@@ -286,13 +292,29 @@ class AuthControllerTests {
     @Test 
     void deberPermitirEndpointProtegidoConTokenValido() throws Exception {
 
-        String token = jwtService.generarToken(1L, "daniela@correo.com", "ESTUDIANTE");
+        RegistroUsuarioRequest registro =
+            new RegistroUsuarioRequest();
 
-        mockMvc.perform(get("/api/usuario/me")
-                .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.correo")
-                        .value("daniela@correo.com"));
+    registro.setNombre("Daniela");
+    registro.setCorreo("daniela@correo.com");
+    registro.setPassword("MiClave123!");
+    registro.setConfirmarPassword("MiClave123!");
+
+    Usuario usuario =
+            usuarioService.registrarUsuario(registro);
+
+    String token = jwtService.generarToken(
+            usuario.getId(),
+            usuario.getCorreo(),
+            usuario.getRol());
+
+    mockMvc.perform(get("/api/usuario/me")
+            .header(
+                    "Authorization",
+                    "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.correo")
+                    .value("daniela@correo.com"));
     }
 
     @Test 
@@ -305,5 +327,33 @@ class AuthControllerTests {
         mockMvc.perform(get("/api/usuario/me")
                 .header("Authorization", "Bearer " + tokenAlterado))
                 .andExpect(status().isUnauthorized());       
+    }
+
+    @Test
+    void debeRechazarTokenDeUsuarioInactivo() throws Exception {
+
+    RegistroUsuarioRequest registro =
+            new RegistroUsuarioRequest();
+
+    registro.setNombre("Daniela");
+    registro.setCorreo("daniela@correo.com");
+    registro.setPassword("MiClave123!");
+    registro.setConfirmarPassword("MiClave123!");
+
+    Usuario usuario =
+            usuarioService.registrarUsuario(registro);
+
+    String token = jwtService.generarToken(
+            usuario.getId(),
+            usuario.getCorreo(),
+            usuario.getRol());
+
+    usuario.setActivo(false);
+
+    mockMvc.perform(get("/api/usuario/me")
+            .header(
+                    "Authorization",
+                    "Bearer " + token))
+            .andExpect(status().isUnauthorized());
     }
 }

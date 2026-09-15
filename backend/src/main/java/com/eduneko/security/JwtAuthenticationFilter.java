@@ -14,16 +14,24 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@Component 
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    
-    private final JwtService jwtService;
+import com.eduneko.entity.Usuario;
+import com.eduneko.service.UsuarioService;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtService jwtService;
+    private final UsuarioService usuarioService;
+
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UsuarioService usuarioService) {
+
         this.jwtService = jwtService;
+        this.usuarioService = usuarioService;
     }
 
-    @Override 
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -32,24 +40,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authorizationHeader =
                 request.getHeader("Authorization");
-        
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
 
-            String token = authorizationHeader.substring(7);
+        if (authorizationHeader != null
+                && authorizationHeader.startsWith("Bearer ")) {
+
+            String token =
+                    authorizationHeader.substring(7);
 
             if (jwtService.tokenValido(token)) {
 
-                String correo = jwtService.obtenerCorreo(token);
+                String correo =
+                        jwtService.obtenerCorreo(token);
 
-                String rol = jwtService.obtenerRol(token);
+                Usuario usuario = usuarioService
+                        .buscarPorCorreo(correo)
+                        .orElse(null);
 
-                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + rol);
+                if (usuario != null && usuario.isActivo()) {
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(correo, null, List.of(authority));
+                    SimpleGrantedAuthority authority =
+                            new SimpleGrantedAuthority(
+                                    "ROLE_" + usuario.getRol());
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authentication);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    usuario.getCorreo(),
+                                    null,
+                                    List.of(authority));
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(authentication);
+                }
             }
         }
 
