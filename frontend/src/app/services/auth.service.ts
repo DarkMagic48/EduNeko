@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, tap } from "rxjs";
 
 import {
     LoginRequest,
@@ -15,6 +15,7 @@ import {
 export class AuthService {
 
     private readonly authUrl = 'http://localhost:8080/api/auth';
+    private readonly tokenKey = 'eduneko_token';
 
     constructor(private readonly http: HttpClient) {}
 
@@ -29,7 +30,27 @@ export class AuthService {
         return this.http.post<LoginResponse>(
             `${this.authUrl}/login`,
             datos
+        ).pipe(
+            tap(response => {
+                this.guardarToken(response.token);
+            })
         );
     }
 
+    guardarToken(token: string): void {
+        sessionStorage.setItem(this.tokenKey, token);
+    }
+
+    obtenerToken(): string | null {
+        return sessionStorage.getItem(this.tokenKey);
+    }
+
+    estaAutenticado(): boolean {
+        return this.obtenerToken() !== null;
+    }
+
+    logout(): void {
+        sessionStorage.removeItem(this.tokenKey);
+    }
+    
 }
