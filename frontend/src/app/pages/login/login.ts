@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models/auth.models';
@@ -13,9 +14,17 @@ import { LoginRequest } from '../../models/auth.models';
 })
 export class Login {
 
+  mensajeError = '';
+  cargando = false;
+
   formularioLogin = new FormGroup({
-    correo: new FormControl(''),
-    password: new FormControl('')
+    correo: new FormControl('', [
+      Validators.required,
+      Validators.email
+    ]),
+    password: new FormControl('', [
+      Validators.required
+    ])
   });
 
   constructor(
@@ -25,17 +34,33 @@ export class Login {
 
   iniciarSesion(): void {
 
+    this.mensajeError = '';
+
+    if(this.formularioLogin.invalid) {
+      this.formularioLogin.markAllAsTouched();
+      return;
+    }
+
     const datosLogin: LoginRequest = {
       correo: this.formularioLogin.value.correo ?? '',
       password: this.formularioLogin.value.password ?? ''
     };
 
-    this.authService.login(datosLogin).subscribe({
+    this.cargando = true;
+
+    this.authService.login(datosLogin)
+      .pipe(
+        finalize(() => {
+          this.cargando = false;
+        })
+    )
+    .subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
       error: error => {
-        console.error('Error al iniciar sesión:', error);
+        this.mensajeError =
+          error.error?.mensaje ?? 'No fue posible iniciar sesión.';
       }
     });
   }
