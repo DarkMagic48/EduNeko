@@ -1,0 +1,101 @@
+<h1>Crear cuenta</h1>
+
+<form [formGroup]="formularioRegistro" (ngSubmit)="registrar()">
+
+  <div>
+    <label for="nombre">Nombre</label>
+
+    <input
+      id="nombre"
+      type="text"
+      formControlName="nombre"
+    >
+
+    @if (
+      formularioRegistro.controls.nombre.hasError('required') &&
+      formularioRegistro.controls.nombre.touched
+    ) {
+      <p>El nombre es obligatorio.</p>
+    }
+  </div>
+
+  <div>
+    <label for="correo">Correo electrónico</label>
+
+    <input
+      id="correo"
+      type="email"
+      formControlName="correo"
+    >
+
+    @if (
+      formularioRegistro.controls.correo.hasError('required') &&
+      formularioRegistro.controls.correo.touched
+    ) {
+      <p>El correo electrónico es obligatorio.</p>
+    }
+
+    @if (
+      formularioRegistro.controls.correo.hasError('email') &&
+      formularioRegistro.controls.correo.touched
+    ) {
+      <p>Ingresa un correo electrónico válido.</p>
+    }
+  </div>
+
+  <div>
+    <label for="password">Contraseña</label>
+
+    <input
+      id="password"
+      type="password"
+      formControlName="password"
+    >
+
+    @if (
+      formularioRegistro.controls.password.hasError('required') &&
+      formularioRegistro.controls.password.touched
+    ) {
+      <p>La contraseña es obligatoria.</p>
+    }
+  </div>
+
+  <div>
+    <label for="confirmarPassword">Confirmar contraseña</label>
+
+    <input
+      id="confirmarPassword"
+      type="password"
+      formControlName="confirmarPassword"
+    >
+
+    @if (
+      formularioRegistro.controls.confirmarPassword.hasError('required') &&
+      formularioRegistro.controls.confirmarPassword.touched
+    ) {
+      <p>Debes confirmar la contraseña.</p>
+    }
+  </div>
+
+    @if (mensajePassword) {
+        <p>{{ mensajePassword }}</p>
+    }
+
+    @if (mensajeError) {
+        <p>{{ mensajeError }}</p>
+    }
+
+    <button type="submit" [disabled]="cargando">
+    @if (cargando) {
+    Creando cuenta...
+    } @else {
+        Crear cuenta
+    }
+    </button>
+
+</form>
+
+<p>
+  ¿Ya tienes una cuenta?
+  <a routerLink="/login">Iniciar sesión</a>
+</p>
