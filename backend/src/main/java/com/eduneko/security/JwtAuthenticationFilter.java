@@ -47,6 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token =
                     authorizationHeader.substring(7);
 
+
             if (jwtService.tokenValido(token)) {
 
                 String correo =

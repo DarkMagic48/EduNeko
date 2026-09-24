@@ -6,7 +6,8 @@ import {
     LoginRequest,
     LoginResponse,
     RegistroRequest,
-    RegistroResponse
+    RegistroResponse,
+    UsuarioActualResponse
 } from '../models/auth.models';
 
 @Injectable({
@@ -53,4 +54,9 @@ export class AuthService {
         sessionStorage.removeItem(this.tokenKey);
     }
     
+    obtenerUsuarioActual(): Observable<UsuarioActualResponse> {
+        return this.http.get<UsuarioActualResponse>(
+            'http://localhost:8080/api/usuario/me'
+        );
+    }
 }

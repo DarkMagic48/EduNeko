@@ -25,3 +25,7 @@ export interface LoginResponse {
     token: string;
     mensaje: string;
 }
+
+export interface UsuarioActualResponse {
+    correo: string;
+}

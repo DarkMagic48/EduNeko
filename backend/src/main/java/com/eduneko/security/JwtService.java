@@ -63,13 +63,13 @@ public class JwtService {
     }
 
     public boolean tokenValido(String token) {
-        try {
-            obtenerClaims(token);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
+    try {
+        obtenerClaims(token);
+        return true;
+    } catch (Exception ex) {
+        return false;
     }
+}
 
     private Claims obtenerClaims(String token) {
         return Jwts.parser()
