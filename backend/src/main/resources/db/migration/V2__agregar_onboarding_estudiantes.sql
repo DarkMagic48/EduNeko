@@ -1,0 +1,2 @@
+ALTER TABLE estudiante
+ADD COLUMN onboarding_completado BOOLEAN NOT NULL DEFAULT FALSE;

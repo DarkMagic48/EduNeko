@@ -28,6 +28,9 @@ public class Estudiante {
     @Column(name = "grado_escolar")
     private Short gradoEscolar;
 
+    @Column(name = "onboarding_completado", nullable = false)
+    private boolean onboardingCompletado = false;
+
     public Estudiante() {
     }
 
@@ -61,6 +64,14 @@ public class Estudiante {
 
     public void setGradoEscolar(Short gradoEscolar) {
         this.gradoEscolar = gradoEscolar;
+    }
+
+    public boolean isOnboardingCompletado() {
+        return onboardingCompletado;
+    }
+
+    public void setOnboardingCompletado(boolean onboardingCompletado) {
+        this.onboardingCompletado = onboardingCompletado;
     }
 
 }
