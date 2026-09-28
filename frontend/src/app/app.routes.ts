@@ -4,6 +4,7 @@ import { authGuard } from './guards/auth.guard';
 import { Login } from './pages/login/login';
 import { Registro } from './pages/registro/registro';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { Onboarding } from './pages/onboarding/onboarding';
 
 export const routes: Routes = [
     {
@@ -13,6 +14,11 @@ export const routes: Routes = [
     {
         path: 'registro',
         component: Registro
+    },
+    {
+        path: 'onboarding',
+        component: Onboarding,
+        canActivate: [authGuard]
     },
     {
         path: 'dashboard',

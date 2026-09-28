@@ -1,0 +1,96 @@
+<div class="onboarding-container">
+
+  <h1>¡Bienvenido a EduNeko!</h1>
+
+  <p>
+    Antes de comenzar, queremos conocerte un poco mejor
+    para personalizar tu experiencia de aprendizaje.
+  </p>
+
+  <form
+    [formGroup]="perfilForm"
+    (ngSubmit)="guardarPerfil()"
+  >
+
+    <div>
+      <label for="edad">Edad</label>
+
+      <input
+        id="edad"
+        type="number"
+        formControlName="edad"
+        min="10"
+        max="18"
+      >
+
+      @if (
+        perfilForm.get('edad')?.touched &&
+        perfilForm.get('edad')?.invalid
+      ) {
+        <p class="error">
+          Ingresa una edad entre 10 y 18 años.
+        </p>
+      }
+    </div>
+
+
+    <div>
+      <label for="gradoEscolar">
+        Grado escolar
+      </label>
+
+      <select
+        id="gradoEscolar"
+        formControlName="gradoEscolar"
+      >
+        <option [ngValue]="null">
+          Selecciona tu grado
+        </option>
+
+        <option [ngValue]="1">
+          1° de secundaria
+        </option>
+
+        <option [ngValue]="2">
+          2° de secundaria
+        </option>
+
+        <option [ngValue]="3">
+          3° de secundaria
+        </option>
+      </select>
+
+      @if (
+        perfilForm.get('gradoEscolar')?.touched &&
+        perfilForm.get('gradoEscolar')?.invalid
+      ) {
+        <p class="error">
+          Selecciona tu grado escolar.
+        </p>
+      }
+    </div>
+
+
+    @if (mensajeError) {
+      <p class="error">
+        {{ mensajeError }}
+      </p>
+    }
+
+    @if (mensajeExito) {
+      <p class="exito">
+        {{ mensajeExito }}
+      </p>
+    }
+
+
+    <button
+      type="submit"
+      [disabled]="cargando"
+    >
+      {{ cargando ? 'Guardando...' : 'Continuar' }}
+    </button>
+
+  </form>
+
+</div>
