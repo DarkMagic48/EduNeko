@@ -7,6 +7,10 @@
     para personalizar tu experiencia de aprendizaje.
   </p>
 
+  @if (pasoActual === 1) {
+
+    <h2>Cuentanos sobre ti</h2>
+
   <form
     [formGroup]="perfilForm"
     (ngSubmit)="guardarPerfil()"
@@ -92,5 +96,189 @@
     </button>
 
   </form>
+  }
+
+  @if (pasoActual === 2) {
+
+  <h2>¿Cómo prefieres aprender?</h2>
+
+  <p>
+    Cuéntanos qué tipo de experiencia te resulta más cómoda.
+    EduNeko utilizará estas preferencias junto con tu progreso
+    para personalizar tu aprendizaje.
+  </p>
+
+  <form
+    [formGroup]="preferenciasForm"
+    (ngSubmit)="guardarPreferencias()"
+  >
+
+    <!-- NIVEL DE EXPLICACIÓN -->
+    <div>
+      <label for="nivelExplicacion">
+        ¿Cómo prefieres tus explicaciones?
+      </label>
+
+      <select
+        id="nivelExplicacion"
+        formControlName="nivelExplicacion"
+      >
+        <option [ngValue]="null">
+          Selecciona una opción
+        </option>
+
+        <option value="BREVE">
+          Breves - Solo lo esencial
+        </option>
+
+        <option value="EQUILIBRADA">
+          Equilibradas - Lo necesario para comprender bien
+        </option>
+
+        <option value="DETALLADA">
+          Detalladas - Quiero profundizar y entender cada parte
+        </option>
+      </select>
+    </div>
+
+
+    <!-- NIVEL DE RETO -->
+    <div>
+      <label for="nivelRetoPreferido">
+        ¿Cuánto te gusta que te reten las actividades?
+      </label>
+
+      <select
+        id="nivelRetoPreferido"
+        formControlName="nivelRetoPreferido"
+      >
+        <option [ngValue]="null">
+          Selecciona una opción
+        </option>
+
+        <option value="BAJO">
+          Prefiero avanzar poco a poco
+        </option>
+
+        <option value="EQUILIBRADO">
+          Me gusta un reto equilibrado
+        </option>
+
+        <option value="ALTO">
+          Me gustan los retos difíciles
+        </option>
+      </select>
+    </div>
+
+
+    <!-- RITMO DE ESTUDIO -->
+    <div>
+      <label for="ritmoEstudio">
+        ¿Qué ritmo de estudio prefieres?
+      </label>
+
+      <select
+        id="ritmoEstudio"
+        formControlName="ritmoEstudio"
+      >
+        <option [ngValue]="null">
+          Selecciona una opción
+        </option>
+
+        <option value="TRANQUILO">
+          Tranquilo
+        </option>
+
+        <option value="NORMAL">
+          Normal
+        </option>
+
+        <option value="INTENSIVO">
+          Intensivo
+        </option>
+      </select>
+    </div>
+
+
+    <!-- MODALIDADES -->
+    <div>
+      <p>
+        <strong>
+          ¿Qué formas de aprender te ayudan más?
+        </strong>
+      </p>
+
+      <p>
+        Puedes seleccionar más de una.
+      </p>
+
+
+      <label>
+        <input
+          type="checkbox"
+          formControlName="prefiereLecturaEscritura"
+        >
+        Leer explicaciones, resúmenes y tomar notas
+      </label>
+
+
+      <label>
+        <input
+          type="checkbox"
+          formControlName="prefiereVisual"
+        >
+        Ver diagramas, imágenes, esquemas o gráficos
+      </label>
+
+
+      <label>
+        <input
+          type="checkbox"
+          formControlName="prefiereAuditivo"
+        >
+        Escuchar explicaciones
+      </label>
+
+
+      <label>
+        <input
+          type="checkbox"
+          formControlName="prefierePractica"
+        >
+        Resolver ejercicios y aprender practicando
+      </label>
+    </div>
+
+
+    @if (preferenciasForm.touched && preferenciasForm.invalid) {
+      <p class="error">
+        Completa las preferencias para continuar.
+      </p>
+    }
+
+
+    @if (mensajeError) {
+      <p class="error">
+        {{ mensajeError }}
+      </p>
+    }
+
+
+    @if (mensajeExito) {
+      <p class="exito">
+        {{ mensajeExito }}
+      </p>
+    }
+
+
+    <button
+      type="submit"
+      [disabled]="cargando"
+    >
+      {{ cargando ? 'Guardando...' : 'Continuar' }}
+    </button>
+
+  </form>
+}
 
 </div>

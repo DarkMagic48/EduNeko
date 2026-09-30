@@ -4,7 +4,9 @@ import { from, Observable } from "rxjs";
 
 import {
     ActualizarPerfilEstudianteRequest,
-    ActualizarPerfilEstudianteResponse
+    ActualizarPerfilEstudianteResponse,
+    ActualizarPreferenciasRequest,
+    ActualizarPreferenciasResponse
 } from '../models/estudiante.models';
 
 @Injectable({
@@ -22,6 +24,16 @@ export class EstudianteService {
 
         return this.http.put<ActualizarPerfilEstudianteResponse>(
             `${this.estudianteUrl}/perfil`,
+            datos
+        );
+    }
+
+    actualizarPreferencias(
+        datos: ActualizarPreferenciasRequest
+    ): Observable<ActualizarPreferenciasResponse> {
+
+        return this.http.put<ActualizarPreferenciasResponse>(
+            `${this.estudianteUrl}/preferencias`,
             datos
         );
     }
