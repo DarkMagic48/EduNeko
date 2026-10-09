@@ -280,5 +280,76 @@
 
   </form>
 }
+@if (pasoActual === 3) {
 
+  <h2>¿Qué materias quieres estudiar?</h2>
+
+  <p>
+    Selecciona las materias que te gustaría aprender
+    con EduNeko. Puedes elegir una o varias.
+  </p>
+
+  @if (cargando) {
+    <p>Cargando materias disponibles...</p>
+  }
+
+  @if (!cargando && materiasDisponibles.length === 0) {
+    <p>
+      No hay materias disponibles para mostrar.
+    </p>
+  }
+
+  @if (materiasDisponibles.length > 0) {
+
+    <div class="lista-materias">
+
+      @for (materia of materiasDisponibles; track materia.id) {
+
+        <label class="materia-opcion">
+
+          <input
+            type="checkbox"
+            [value]="materia.id"
+            [checked]="materiasSeleccionadas.includes(materia.id)"
+            (change)="alternarMateria(materia.id)"
+            [disabled]="cargando"
+          >
+
+          <span>{{ materia.nombre }}</span>
+
+        </label>
+
+      }
+
+    </div>
+
+    <p>
+      Materias seleccionadas:
+      {{ materiasSeleccionadas.length }}
+      de {{ materiasDisponibles.length }}
+    </p>
+
+    @if (mensajeError) {
+      <p class="error">
+        {{ mensajeError }}
+      </p>
+    }
+
+    @if (mensajeExito) {
+      <p class="exito">
+        {{ mensajeExito }}
+      </p>
+    }
+
+    <button
+      type="button"
+      (click)="guardarMaterias()"
+      [disabled]="cargando || materiasSeleccionadas.length === 0"
+    >
+      {{ cargando ? 'Guardando...' : 'Guardar materias' }}
+    </button>
+
+  }
+
+}
 </div>

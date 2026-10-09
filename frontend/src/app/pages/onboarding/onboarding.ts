@@ -9,6 +9,7 @@ import {
 import { finalize } from 'rxjs';
 
 import { EstudianteService } from '../../services/estudiante.service';
+import { Materia } from '../../models/estudiante.models';
 
 @Component({
   selector: 'app-onboarding',
@@ -28,6 +29,8 @@ export class Onboarding {
   mensajeError = '';
   mensajeExito = '';
   pasoActual = 1;
+  materiasDisponibles: Materia[] = [];
+  materiasSeleccionadas: number[] = [];
 
   constructor(
     private readonly fb: FormBuilder,
@@ -122,7 +125,9 @@ export class Onboarding {
       )
       .subscribe({
         next: response => {
-          this.mensajeExito = response.mensaje;
+          this.mensajeExito = '';
+          this.pasoActual = 3;
+          this.cargarMaterias();
         },
 
         error: error => {
@@ -133,6 +138,92 @@ export class Onboarding {
       });
   }
 
+  cargarMaterias(): void {
+  this.mensajeError = '';
+  this.materiasDisponibles = [];
+  this.materiasSeleccionadas = [];
+  this.cargando = true;
+
+  this.estudianteService
+    .obtenerMateriasDisponibles()
+    .pipe(
+      finalize(() => {
+        this.cargando = false;
+      })
+    )
+    .subscribe({
+      next: materias => {
+        this.materiasDisponibles = materias;
+      },
+
+      error: error => {
+        this.mensajeError =
+          error.error?.mensaje ??
+          'No fue posible cargar las materias disponibles.';
+      }
+    });
+  }
+
+  alternarMateria(materiaId: number): void {
+
+    if (this.cargando) {
+      return;
+    }
+
+    const indice = this.materiasSeleccionadas.indexOf(materiaId);
+
+    if (indice >= 0) {
+      this.materiasSeleccionadas.splice(indice, 1);
+    } else {
+      this.materiasSeleccionadas.push(materiaId);
+    }
+
+    this.mensajeError = '';
+  }
+
+  guardarMaterias(): void {
+
+  this.mensajeError = '';
+  this.mensajeExito = '';
+
+  if (this.cargando) {
+    return;
+  }
+
+  if (this.materiasSeleccionadas.length === 0) {
+    this.mensajeError =
+      'Debes seleccionar al menos una materia.';
+    return;
+  }
+
+  this.cargando = true;
+
+  this.estudianteService
+    .seleccionarMaterias({
+      materiaIds: this.materiasSeleccionadas
+    })
+    .pipe(
+      finalize(() => {
+        this.cargando = false;
+      })
+    )
+    .subscribe({
+      next: materias => {
+        this.materiasSeleccionadas =
+          materias.map(materia => materia.id);
+
+        this.mensajeExito =
+          'Materias guardadas correctamente.';
+      },
+
+      error: error => {
+        this.mensajeError =
+          error.error?.mensaje ??
+          'No fue posible guardar las materias.';
+      }
+    });
+  }
+  
   algunaModalidadSeleccionada(): boolean {
     const preferencias = this.preferenciasForm.value;
 

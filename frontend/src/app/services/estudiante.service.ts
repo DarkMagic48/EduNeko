@@ -1,12 +1,15 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { from, Observable } from "rxjs";
+import { Observable } from "rxjs";
 
 import {
     ActualizarPerfilEstudianteRequest,
     ActualizarPerfilEstudianteResponse,
     ActualizarPreferenciasRequest,
-    ActualizarPreferenciasResponse
+    ActualizarPreferenciasResponse,
+    Materia,
+    SeleccionarMateriasRequest,
+    SeleccionarMateriasResponse
 } from '../models/estudiante.models';
 
 @Injectable({
@@ -34,6 +37,22 @@ export class EstudianteService {
 
         return this.http.put<ActualizarPreferenciasResponse>(
             `${this.estudianteUrl}/preferencias`,
+            datos
+        );
+    }
+
+    obtenerMateriasDisponibles(): Observable<Materia[]> {
+        return this.http.get<Materia[]>(
+            'http://localhost:8080/api/materias'
+        );
+    }
+
+    seleccionarMaterias(
+        datos: SeleccionarMateriasRequest
+    ): Observable<SeleccionarMateriasResponse> {
+
+        return this.http.put<SeleccionarMateriasResponse>(
+            `${this.estudianteUrl}/materias`,
             datos
         );
     }

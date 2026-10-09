@@ -47,3 +47,15 @@ export interface ActualizarPreferenciasResponse {
 
   mensaje: string;
 }
+
+export interface Materia {
+  id: number;
+  nombre: string;
+  activo: boolean;
+}
+
+export interface SeleccionarMateriasRequest {
+  materiaIds: number[];
+}
+
+export type SeleccionarMateriasResponse = Materia[];
