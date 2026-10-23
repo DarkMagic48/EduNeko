@@ -5,6 +5,7 @@ import { Login } from './pages/login/login';
 import { Registro } from './pages/registro/registro';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Onboarding } from './pages/onboarding/onboarding';
+import { DiagnosticoMatematicas } from './pages/diagnostico-matematicas/diagnostico-matematicas';
 
 export const routes: Routes = [
     {
@@ -19,6 +20,11 @@ export const routes: Routes = [
         path: 'onboarding',
         component: Onboarding,
         canActivate: [authGuard]
+    },
+    {
+    path: 'diagnostico/matematicas',
+    component: DiagnosticoMatematicas,
+    canActivate: [authGuard]
     },
     {
         path: 'dashboard',

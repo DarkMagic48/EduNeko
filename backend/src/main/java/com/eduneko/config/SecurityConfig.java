@@ -19,6 +19,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.eduneko.security.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.DispatcherType;
 import java.util.List;
 
 @Configuration 
@@ -53,13 +54,15 @@ public class SecurityConfig {
                                 "No autorizado")))       
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/register",
-                                "/api/auth/login",
-                                "/api/health")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
+                .dispatcherTypeMatchers(DispatcherType.ERROR)
+                .permitAll()
+                .requestMatchers(
+                        "/api/auth/register",
+                        "/api/auth/login",
+                        "/api/health")
+                .permitAll()
+                .anyRequest()
+                .authenticated())
 
                 .addFilterBefore(
                         jwtAuthenticationFilter,

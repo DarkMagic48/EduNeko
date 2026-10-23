@@ -1,0 +1,116 @@
+.progreso-diagnostico {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto 24px;
+}
+
+.progreso-diagnostico progress {
+  display: block;
+  width: 100%;
+  height: 14px;
+  accent-color: #4caf50;
+}
+
+.finalizacion-diagnostico {
+  margin-top: 24px;
+}
+
+.finalizacion-diagnostico button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.finalizacion-diagnostico button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.resultados-temas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.resultado-tema {
+  padding: 20px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.resultado-tema h4 {
+  margin: 0 0 14px;
+  color: #1e293b;
+  font-size: 17px;
+}
+
+.resultado-tema p {
+  margin: 10px 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.resultado-tema progress {
+  width: 100%;
+  height: 14px;
+  appearance: none;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  accent-color: #22c55e;
+}
+
+.resultado-tema progress::-webkit-progress-bar {
+  background-color: #e2e8f0;
+  border-radius: 8px;
+}
+
+.resultado-tema progress::-webkit-progress-value {
+  background-color: #22c55e;
+  border-radius: 8px;
+}
+
+.resultado-tema progress::-moz-progress-bar {
+  background-color: #22c55e;
+  border-radius: 8px;
+}
+
+.prioridades-aprendizaje {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.prioridad-tema {
+  padding: 16px 20px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #3b82f6;
+  border-radius: 10px;
+}
+
+.prioridad-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.prioridad-encabezado strong {
+  color: #1e293b;
+}
+
+.prioridad-encabezado span {
+  color: #475569;
+  font-size: 14px;
+}
+
+.prioridad-tema p {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}

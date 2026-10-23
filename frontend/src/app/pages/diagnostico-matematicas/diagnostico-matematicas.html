@@ -1,0 +1,187 @@
+
+<h1>Diagnóstico de Matemáticas</h1>
+
+@if (cargando) {
+  <p>Cargando preguntas...</p>
+}
+
+@if (error) {
+  <p role="alert">{{ error }}</p>
+}
+
+@if (diagnostico && diagnostico.preguntas.length > 0 && !resultado) {
+
+  <div class="progreso-diagnostico">
+
+    <p>
+      Preguntas respondidas:
+      {{ totalRespondidas }} de {{ diagnostico.preguntas.length }}
+    </p>
+
+    <progress
+      [value]="totalRespondidas"
+      [max]="diagnostico.preguntas.length">
+    </progress>
+
+    <p>{{ porcentajeProgreso }}% completado</p>
+
+  </div>
+
+  <p>
+    Pregunta {{ indicePreguntaActual + 1 }}
+    de {{ diagnostico.preguntas.length }}
+  </p>
+
+  @for (pregunta of diagnostico.preguntas; track pregunta.id) {
+
+    @if ($index === indicePreguntaActual) {
+
+      <h2>{{ pregunta.enunciado }}</h2>
+
+      @for (opcion of pregunta.opciones; track opcion.id) {
+
+        <div>
+          <label>
+            <input
+              type="radio"
+              [name]="'pregunta-' + pregunta.id"
+              [checked]="estaSeleccionada(pregunta.id, opcion.id)"
+              (change)="seleccionarRespuesta(pregunta.id, opcion.id)"
+              [disabled]="finalizando"
+            />
+
+            {{ opcion.texto }}
+          </label>
+        </div>
+
+      }
+
+    }
+
+  }
+
+  <div>
+
+    <button
+      type="button"
+      (click)="preguntaAnterior()"
+      [disabled]="indicePreguntaActual === 0 || finalizando">
+      Anterior
+    </button>
+
+    <button
+      type="button"
+      (click)="siguientePregunta()"
+      [disabled]="indicePreguntaActual === diagnostico.preguntas.length - 1 || finalizando">
+      Siguiente
+    </button>
+
+  </div>
+
+  @if (indicePreguntaActual === diagnostico.preguntas.length - 1) {
+
+    <div class="finalizacion-diagnostico">
+
+      @if (!todasRespondidas) {
+        <p>
+          Debes responder todas las preguntas antes de finalizar
+          el diagnóstico.
+        </p>
+      }
+
+      <button
+        type="button"
+        (click)="finalizarDiagnostico()"
+        [disabled]="!todasRespondidas || finalizando">
+
+        @if (finalizando) {
+          Finalizando...
+        } @else {
+          Finalizar diagnóstico
+        }
+
+      </button>
+
+      @if (errorFinalizacion) {
+        <p role="alert">
+          {{ errorFinalizacion }}
+        </p>
+      }
+
+    </div>
+
+  }
+
+}
+
+@if (resultado) {
+
+  <section class="resultado-diagnostico">
+
+    <h2>¡Diagnóstico finalizado!</h2>
+
+    <p>
+      Respuestas correctas:
+      {{ resultado.totalAciertos }} de {{ resultado.totalPreguntas }}
+    </p>
+
+    <p>
+      Porcentaje de aciertos:
+      {{ resultado.porcentajeAciertos }}%
+    </p>
+
+    <h3>Resultados por tema</h3>
+
+  <div class="resultados-temas">
+    @for (tema of resultado.resultadosPorTema; track tema.tema) {
+      <div class="resultado-tema">
+        <h4>{{ tema.tema }}</h4>
+
+        <p>
+          Respuestas correctas:
+          {{ tema.totalAciertos }} de {{ tema.totalPreguntas }}
+        </p>
+
+        <progress
+          [value]="tema.totalAciertos"
+          [max]="tema.totalPreguntas">
+        </progress>
+
+        <p>{{ tema.porcentajeAciertos }}% de aciertos</p>
+        <p class="nivel-tema">
+          <strong>Resultado orientativo:</strong>
+          {{ obtenerNivelTema(tema.totalAciertos) }}
+        </p>
+      </div>
+    }
+  </div>
+
+  <h3>Prioridades de aprendizaje</h3>
+
+  <p>
+    Estos temas se han ordenado según los resultados de tu
+    diagnóstico inicial, comenzando por aquellos que podrían
+    necesitar mayor refuerzo.
+  </p>
+
+  <div class="prioridades-aprendizaje">
+    @for (tema of obtenerTemasPriorizados(); track tema.tema) {
+      <div class="prioridad-tema">
+        <div class="prioridad-encabezado">
+          <strong>{{ $index + 1 }}. {{ tema.tema }}</strong>
+
+          <span>
+            {{ tema.totalAciertos }}/{{ tema.totalPreguntas }} aciertos
+          </span>
+        </div>
+
+        <p>
+          {{ obtenerNivelTema(tema.totalAciertos) }}
+        </p>
+      </div>
+    }
+  </div>
+
+  </section>
+
+}
