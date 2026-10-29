@@ -519,4 +519,9 @@ public class DiagnosticoService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public Long obtenerEstudianteId(String correo) {
+        return obtenerEstudianteAutenticado(correo).getId();    
+    }
+
 }

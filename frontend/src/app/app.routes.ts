@@ -6,6 +6,7 @@ import { Registro } from './pages/registro/registro';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Onboarding } from './pages/onboarding/onboarding';
 import { DiagnosticoMatematicas } from './pages/diagnostico-matematicas/diagnostico-matematicas';
+import { PlanAprendizaje } from './pages/plan-aprendizaje/plan-aprendizaje';
 
 export const routes: Routes = [
     {
@@ -24,6 +25,11 @@ export const routes: Routes = [
     {
     path: 'diagnostico/matematicas',
     component: DiagnosticoMatematicas,
+    canActivate: [authGuard]
+    },
+    {
+    path: 'plan/matematicas',
+    component: PlanAprendizaje,
     canActivate: [authGuard]
     },
     {

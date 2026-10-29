@@ -1,7 +1,33 @@
-<h1>Dashboard</h1>
 
-<p>Bienvenido a EduNeko</p>
+<main class="dashboard">
 
-<button type="button" (click)="cerrarSesion()">
-  Cerrar sesión
-</button>
+  <h1>Bienvenido a EduNeko</h1>
+
+  <p>
+    Tu espacio de aprendizaje personalizado.
+  </p>
+
+  <section class="seccion-aprendizaje">
+
+    <h2>Mi aprendizaje</h2>
+
+    <p>
+      Consulta tu ruta personalizada de Matemáticas,
+      organizada según los resultados de tu diagnóstico.
+    </p>
+
+    <button
+      type="button"
+      (click)="irPlanMatematicas()">
+      Ver mi plan de aprendizaje
+    </button>
+
+  </section>
+
+  <button
+    type="button"
+    (click)="cerrarSesion()">
+    Cerrar sesión
+  </button>
+
+</main>

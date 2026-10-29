@@ -20,4 +20,8 @@ export class Dashboard {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  irPlanMatematicas(): void {
+    this.router.navigate(['/plan/matematicas']);
+  }
 }

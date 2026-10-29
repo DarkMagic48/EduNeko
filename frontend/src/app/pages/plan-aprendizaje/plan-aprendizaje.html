@@ -1,0 +1,170 @@
+
+<div class="pagina-plan">
+
+  <header class="encabezado">
+    <button
+      type="button"
+      class="boton-volver"
+      (click)="volverDashboard()">
+      ← Volver al inicio
+    </button>
+
+    <h1>Mi plan de aprendizaje</h1>
+    <p>
+      Tu ruta personalizada para aprender a tu ritmo.
+    </p>
+  </header>
+
+  <main class="contenido">
+
+    <div *ngIf="cargando" class="mensaje">
+      Cargando tu plan de aprendizaje...
+    </div>
+
+    <section *ngIf="!cargando && error" class="mensaje error">
+      <p>{{ error }}</p>
+      <button type="button" (click)="cargarPlan()">
+        Reintentar
+      </button>
+    </section>
+
+    <section *ngIf="!cargando && sinPlan" class="mensaje">
+      <h2>Tu plan todavía no está disponible</h2>
+
+      <p>
+        Si ya terminaste tu diagnóstico, puedes generar
+        tu ruta personalizada de Matemáticas.
+      </p>
+
+      <div class="acciones">
+        <button type="button" (click)="generarPlan()">
+          Generar mi plan
+        </button>
+
+        <button type="button" (click)="irDiagnostico()">
+          Ir al diagnóstico
+        </button>
+      </div>
+    </section>
+
+    <ng-container *ngIf="!cargando && plan as planActual">
+
+      <section class="resumen-plan">
+        <div>
+          <span class="etiqueta">Materia</span>
+          <h2>{{ planActual.materiaNombre }}</h2>
+          <p>
+            {{ planActual.gradoEscolar }}.º de secundaria
+          </p>
+        </div>
+
+        <div class="estadisticas">
+          <div>
+            <strong>{{ planActual.unidades.length }}</strong>
+            <span>Unidades</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="seccion-unidades">
+
+        <h2>Tu ruta de aprendizaje</h2>
+
+        <p class="descripcion-seccion">
+          Comenzaremos reforzando los temas que necesitan
+          mayor atención según tu diagnóstico.
+        </p>
+
+        <article
+          *ngFor="let unidad of planActual.unidades; trackBy: identificarUnidad"
+          class="tarjeta-unidad">
+
+          <div class="unidad-encabezado">
+            <span class="numero-unidad">
+              Unidad {{ unidad.orden }}
+            </span>
+
+            <span
+              class="prioridad"
+              [ngClass]="clasePrioridad(unidad.prioridad)">
+              {{ etiquetaPrioridad(unidad.prioridad) }}
+            </span>
+          </div>
+
+          <h3>{{ unidad.titulo }}</h3>
+
+          <p class="objetivo">
+            {{ unidad.objetivo }}
+          </p>
+
+          <div class="progreso">
+            <div class="progreso-informacion">
+              <span>Progreso</span>
+              <strong>
+                {{ unidad.progresoPorcentaje }}%
+              </strong>
+            </div>
+
+            <div
+              class="barra-progreso"
+              role="progressbar"
+              [attr.aria-valuenow]="unidad.progresoPorcentaje"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-label]="'Progreso de ' + unidad.titulo">
+              <div
+                class="barra-relleno"
+                [style.width.%]="unidad.progresoPorcentaje">
+              </div>
+            </div>
+          </div>
+
+          <div class="unidad-pie">
+            <span class="estado">
+              {{ unidad.estado === 'DISPONIBLE'
+                ? 'Disponible'
+                : unidad.estado === 'EN_PROGRESO'
+                ? 'En progreso'
+                : unidad.estado === 'COMPLETADA'
+                ? 'Completada'
+                : 'Bloqueada' }}
+            </span>
+
+            <button
+              type="button"
+              class="boton-detalles"
+              [attr.aria-expanded]="unidadExpandida === unidad.id"
+              (click)="alternarUnidad(unidad.id)">
+              {{ unidadExpandida === unidad.id
+                ? 'Ocultar aprendizajes'
+                : 'Ver aprendizajes' }}
+            </button>
+          </div>
+
+          <div
+            *ngIf="unidadExpandida === unidad.id"
+            class="detalle-unidad">
+
+            <h4>Aprendizajes relacionados</h4>
+
+            <p class="nota-pda">
+              Estos aprendizajes orientan el contenido
+              de tu unidad.
+            </p>
+
+            <ul>
+              <li *ngFor="let pda of unidad.procesosAprendizaje">
+                {{ pda.descripcion }}
+              </li>
+            </ul>
+
+          </div>
+
+        </article>
+
+      </section>
+
+    </ng-container>
+
+  </main>
+</div>
