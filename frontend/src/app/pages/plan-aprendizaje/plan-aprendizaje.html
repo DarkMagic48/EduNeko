@@ -132,6 +132,20 @@
 
             <button
               type="button"
+              class="boton-comenzar"
+              [disabled]="unidad.estado === 'BLOQUEADA'"
+              (click)="comenzarLeccion(unidad)">
+
+              {{ unidad.estado === 'COMPLETADA'
+                ? 'Repasar lección'
+                : unidad.estado === 'EN_PROGRESO'
+                ? 'Continuar lección'
+                : 'Comenzar lección' }}
+
+            </button>
+
+            <button
+              type="button"
               class="boton-detalles"
               [attr.aria-expanded]="unidadExpandida === unidad.id"
               (click)="alternarUnidad(unidad.id)">

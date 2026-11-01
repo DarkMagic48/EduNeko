@@ -260,4 +260,41 @@ button:focus-visible {
   .unidad-pie {
     flex-wrap: wrap;
   }
+
+  .boton-comenzar {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.boton-comenzar:hover:not(:disabled) {
+  background: #4338ca;
+}
+
+.boton-comenzar:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.boton-comenzar:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .unidad-pie {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .boton-comenzar {
+    width: 100%;
+  }
+}
+
 }

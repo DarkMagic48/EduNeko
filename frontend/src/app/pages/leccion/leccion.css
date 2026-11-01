@@ -1,0 +1,275 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f5f7fc;
+  color: #25304a;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.pagina-leccion {
+  min-height: 100vh;
+}
+
+.encabezado {
+  padding: 32px 24px 44px;
+  text-align: center;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+}
+
+.encabezado h1 {
+  margin: 24px 0 10px;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.encabezado p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+.boton-volver {
+  display: block;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 10px 0;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.boton-volver:hover {
+  text-decoration: underline;
+}
+
+.contenido {
+  width: min(100% - 32px, 1000px);
+  margin: -20px auto 0;
+  padding-bottom: 56px;
+  position: relative;
+}
+
+.tarjeta-leccion,
+.mensaje {
+  background: white;
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: 0 8px 30px rgba(37, 48, 74, 0.08);
+}
+
+.leccion-encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.etiqueta {
+  color: #4f46e5;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.estado-leccion {
+  padding: 7px 14px;
+  border-radius: 20px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tarjeta-leccion h2 {
+  margin: 24px 0 30px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.3;
+}
+
+.seccion-leccion {
+  padding: 24px;
+  margin-bottom: 22px;
+  border: 1px solid #e8eaf3;
+  border-radius: 14px;
+}
+
+.seccion-leccion h3 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+}
+
+.introduccion {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.explicacion {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.ejemplo {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.texto-educativo {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  line-height: 1.85;
+  font-size: 1rem;
+  color: #334155;
+}
+
+.siguiente-paso {
+  padding: 24px;
+  margin-top: 28px;
+  border-radius: 14px;
+  background: #f5f3ff;
+  text-align: center;
+}
+
+.siguiente-paso h3 {
+  margin: 0 0 12px;
+}
+
+.siguiente-paso p {
+  line-height: 1.6;
+}
+
+.etiqueta-proximamente {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #e9d5ff;
+  color: #6b21a8;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.mensaje {
+  text-align: center;
+  padding: 48px 28px;
+}
+
+.mensaje h2 {
+  margin: 12px 0;
+}
+
+.mensaje p {
+  line-height: 1.7;
+  color: #64748b;
+}
+
+.icono-generacion {
+  display: inline-block;
+  font-size: 2.5rem;
+  animation: pulso 1.8s ease-in-out infinite;
+}
+
+.nota-espera {
+  font-size: 0.9rem;
+}
+
+.estado-error {
+  border: 1px solid #fecaca;
+}
+
+.estado-error h2 {
+  color: #b91c1c;
+}
+
+.acciones,
+.acciones-finales {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.boton-principal,
+.boton-secundario {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.boton-principal {
+  background: #4f46e5;
+  color: white;
+}
+
+.boton-principal:hover {
+  background: #4338ca;
+}
+
+.boton-secundario {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.boton-secundario:hover {
+  background: #cbd5e1;
+}
+
+button:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+@keyframes pulso {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .encabezado {
+    padding: 24px 16px 38px;
+  }
+
+  .contenido {
+    width: min(100% - 20px, 1000px);
+  }
+
+  .tarjeta-leccion,
+  .mensaje {
+    padding: 22px 16px;
+  }
+
+  .seccion-leccion,
+  .siguiente-paso {
+    padding: 18px 16px;
+  }
+
+  .texto-educativo {
+    font-size: 0.95rem;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icono-generacion {
+    animation: none;
+  }
+}

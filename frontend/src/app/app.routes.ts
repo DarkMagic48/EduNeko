@@ -7,6 +7,7 @@ import { Dashboard } from './pages/dashboard/dashboard';
 import { Onboarding } from './pages/onboarding/onboarding';
 import { DiagnosticoMatematicas } from './pages/diagnostico-matematicas/diagnostico-matematicas';
 import { PlanAprendizaje } from './pages/plan-aprendizaje/plan-aprendizaje';
+import { Leccion } from './pages/leccion/leccion';
 
 export const routes: Routes = [
     {
@@ -30,6 +31,11 @@ export const routes: Routes = [
     {
     path: 'plan/matematicas',
     component: PlanAprendizaje,
+    canActivate: [authGuard]
+    },
+    {
+    path: 'lecciones/unidades/:unidadId',
+    component: Leccion,
     canActivate: [authGuard]
     },
     {

@@ -112,4 +112,15 @@ export class PlanAprendizaje implements OnInit {
   irDiagnostico(): void {
     this.router.navigate(['/diagnostico/matematicas']);
   }
+
+  comenzarLeccion(unidad: PlanUnidadResponse): void {
+  if (unidad.estado === 'BLOQUEADA') {
+    return;
+  }
+
+  this.router.navigate([
+    '/lecciones/unidades',
+    unidad.id
+    ]);
+  }
 }

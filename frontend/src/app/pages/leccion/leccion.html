@@ -1,0 +1,258 @@
+<div class="pagina-leccion">
+
+  <header class="encabezado">
+    <button
+      type="button"
+      class="boton-volver"
+      (click)="volverAlPlan()">
+      ← Volver a mi plan
+    </button>
+
+    <h1>Mi lección personalizada</h1>
+
+    <p>
+      Aprende a tu ritmo con EduNeko.
+    </p>
+  </header>
+
+  <main class="contenido">
+
+    <!-- Consultando una lección existente -->
+    <section
+      *ngIf="cargando"
+      class="mensaje estado-carga"
+      role="status">
+
+      <h2>Buscando tu lección...</h2>
+
+      <p>
+        Estamos preparando tu espacio de aprendizaje.
+      </p>
+
+    </section>
+
+    <!-- Generando contenido con IA -->
+    <section
+      *ngIf="generando"
+      class="mensaje estado-generacion"
+      role="status"
+      aria-live="polite">
+
+      <span class="icono-generacion" aria-hidden="true">
+        ✨
+      </span>
+
+      <h2>EduNeko está preparando tu lección</h2>
+
+      <p>
+        Estamos creando una explicación personalizada
+        de acuerdo con tu grado escolar, tus aprendizajes
+        y tus preferencias de estudio.
+      </p>
+
+      <p class="nota-espera">
+        Esto puede tardar unos momentos.
+      </p>
+
+    </section>
+
+    <!-- Error al consultar o generar -->
+    <section
+      *ngIf="!cargando && !generando && error"
+      class="mensaje estado-error"
+      role="alert">
+
+      <h2>No pudimos cargar tu lección</h2>
+
+      <p>{{ error }}</p>
+
+      <div class="acciones">
+        <button
+          type="button"
+          class="boton-principal"
+          (click)="reintentar()">
+          Reintentar
+        </button>
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="volverAlPlan()">
+          Volver al plan
+        </button>
+      </div>
+
+    </section>
+
+    <!-- Lección disponible -->
+    <ng-container
+      *ngIf="!cargando && !generando && leccion as leccionActual">
+
+      <article class="tarjeta-leccion">
+
+        <div class="leccion-encabezado">
+
+          <span class="etiqueta">
+            Matemáticas · Lección {{ leccionActual.orden }}
+          </span>
+
+          <span class="estado-leccion">
+            {{ leccionActual.estado === 'COMPLETADA'
+              ? 'Completada'
+              : leccionActual.estado === 'EN_PROGRESO'
+              ? 'En progreso'
+              : 'Disponible' }}
+          </span>
+
+        </div>
+
+        <h2>{{ leccionActual.titulo }}</h2>
+
+        <section class="seccion-leccion introduccion">
+
+          <h3>🌟 Antes de comenzar</h3>
+
+          <p class="texto-educativo">
+            {{ leccionActual.introduccion }}
+          </p>
+
+        </section>
+
+        <section class="seccion-leccion explicacion">
+
+          <h3>📖 Aprende el concepto</h3>
+
+          <div class="texto-educativo">
+            {{ leccionActual.explicacion }}
+          </div>
+
+        </section>
+
+        <section class="seccion-leccion ejemplo">
+
+          <h3>✏️ Ejemplo resuelto paso a paso</h3>
+
+          <div class="texto-educativo">
+            {{ leccionActual.ejemplo_resuelto }}
+          </div>
+
+        </section>
+
+        <section class="seccion-actividades">
+
+      <h2>¡Hora de practicar!</h2>
+
+      <p>
+        Resuelve las siguientes actividades para reforzar
+        lo que aprendiste en esta lección.
+      </p>
+
+      <!-- Cargando actividades -->
+      <div *ngIf="cargandoActividades" class="estado-actividades">
+        <p>Cargando tus actividades...</p>
+      </div>
+
+      <!-- Generando actividades con IA -->
+      <div *ngIf="generandoActividades" class="estado-actividades">
+        <h3>Neko está preparando tus ejercicios</h3>
+        <p>
+          Estamos creando actividades relacionadas con tu lección.
+          Esto puede tardar unos segundos.
+        </p>
+      </div>
+
+      <!-- Error -->
+      <div
+        *ngIf="errorActividades && !cargandoActividades && !generandoActividades"
+        class="error-actividades"
+      >
+        <p>{{ errorActividades }}</p>
+
+        <button
+          type="button"
+          (click)="cargarActividades()"
+        >
+          Reintentar
+        </button>
+      </div>
+
+      <!-- Lista de actividades -->
+      <div
+        *ngIf="!cargandoActividades && !generandoActividades && actividades.length > 0"
+        class="lista-actividades"
+      >
+
+        <article
+          *ngFor="let actividad of actividades; let i = index"
+          class="tarjeta-actividad"
+        >
+
+          <h3>Actividad {{ i + 1 }} de {{ actividades.length }}</h3>
+
+          <p class="pregunta-actividad">
+            {{ actividad.pregunta }}
+          </p>
+
+          <!-- Opciones de respuesta -->
+          <div
+            *ngIf="actividad.tipo === 'OPCION_MULTIPLE'"
+            class="opciones-actividad"
+          >
+
+            <label
+              *ngFor="let opcion of actividad.opciones"
+              class="opcion-actividad"
+            >
+
+              <input
+                type="radio"
+                [name]="'actividad-' + actividad.id"
+                [value]="opcion"
+                [checked]="respuestasSeleccionadas[actividad.id] === opcion"
+                (change)="seleccionarRespuesta(actividad.id, opcion)"
+              />
+
+              <span>{{ opcion }}</span>
+
+            </label>
+
+          </div>
+
+        </article>
+
+        <!-- Resumen provisional -->
+        <div class="resumen-actividades">
+
+          <p>
+            Respuestas seleccionadas:
+            {{ (respuestasSeleccionadas | keyvalue).length }}
+            de {{ actividades.length }}
+          </p>
+
+          <p>
+            Próximamente podrás comprobar tus respuestas,
+            recibir retroalimentación y ganar puntos.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+      </article>
+
+      <div class="acciones-finales">
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="volverAlPlan()">
+          ← Regresar a mi plan
+        </button>
+      </div>
+
+    </ng-container>
+
+  </main>
+
+</div>
