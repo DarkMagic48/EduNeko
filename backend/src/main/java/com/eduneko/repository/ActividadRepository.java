@@ -2,6 +2,7 @@ package com.eduneko.repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 @Repository
 public class ActividadRepository {
@@ -45,23 +47,87 @@ public class ActividadRepository {
 
     public List<Map<String, Object>> obtenerActividades(Long leccionId) {
 
+        // Consultar las actividades asociadas a la lección.
+        // Convertimos el JSONB a texto para obtener su
+        // representación JSON original desde PostgreSQL.
         String sql = """
             SELECT
                 id,
                 leccion_id,
                 pregunta,
                 tipo,
-                opciones,
+                opciones::text AS opciones,
                 orden
             FROM actividad
             WHERE leccion_id = :leccionId
             ORDER BY orden
             """;
 
-        return jdbc.queryForList(
+        List<Map<String, Object>> actividades = jdbc.queryForList(
                 sql,
                 Map.of("leccionId", leccionId)
         );
+
+        // Convertir las opciones de JSON a un arreglo de Java
+        // antes de enviar la respuesta al frontend.
+        for (Map<String, Object> actividad : actividades) {
+
+            Object opcionesJson = actividad.get("opciones");
+
+            // Las actividades sin opciones conservan el valor null.
+            if (opcionesJson == null) {
+                continue;
+            }
+
+            try {
+
+                // Leer el JSON almacenado en PostgreSQL.
+                JsonNode opcionesNode = objectMapper.readTree(
+                        opcionesJson.toString()
+                );
+
+                // Verificar que las opciones sean un arreglo.
+                if (!opcionesNode.isArray()) {
+                    throw new IllegalStateException(
+                            "Las opciones de la actividad "
+                            + actividad.get("id")
+                            + " no tienen formato de arreglo."
+                    );
+                }
+
+                // Crear una lista de respuestas para Angular.
+                List<String> opciones = new ArrayList<>();
+
+                for (JsonNode opcion : opcionesNode) {
+
+                    // Cada opción debe ser una cadena de texto.
+                    if (!opcion.isTextual()) {
+                        throw new IllegalStateException(
+                                "La actividad "
+                                + actividad.get("id")
+                                + " contiene una opción inválida."
+                        );
+                    }
+
+                    opciones.add(opcion.asText());
+                }
+
+                // Sustituir el texto JSON por una lista real.
+                // Jackson serializará esta lista como un arreglo JSON.
+                actividad.put("opciones", opciones);
+
+            } catch (JsonProcessingException e) {
+
+                // Evitar devolver datos incorrectos al frontend.
+                throw new IllegalStateException(
+                        "No fue posible interpretar las opciones "
+                        + "de la actividad " + actividad.get("id"),
+                        e
+                );
+            }
+        }
+
+        return actividades;
     }
 
     public void guardarActividad(

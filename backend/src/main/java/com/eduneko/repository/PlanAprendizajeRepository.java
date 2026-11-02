@@ -280,4 +280,36 @@ public class PlanAprendizajeRepository {
         jdbc.queryForObject(sql, params, Long.class);
     }
 
+    public void actualizarProgresoUnidad(
+        Long unidadId,
+        int progresoPorcentaje
+    ) {
+
+    String sql = """
+        UPDATE plan_unidad
+        SET
+            progreso_porcentaje = :progresoPorcentaje,
+            estado = CASE
+                WHEN :progresoPorcentaje = 100
+                    THEN 'COMPLETADA'
+                WHEN :progresoPorcentaje > 0
+                    THEN 'EN_PROGRESO'
+                ELSE estado
+            END
+        WHERE id = :unidadId
+          AND EXISTS (
+              SELECT 1
+              FROM plan_aprendizaje p
+              WHERE p.id = plan_unidad.plan_aprendizaje_id
+                AND p.estado = 'ACTIVO'
+          )
+        """;
+
+    var params = new MapSqlParameterSource()
+            .addValue("unidadId", unidadId)
+            .addValue("progresoPorcentaje", progresoPorcentaje);
+
+        jdbc.update(sql, params);
+    }
+
 }

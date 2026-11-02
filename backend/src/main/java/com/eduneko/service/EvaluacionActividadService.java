@@ -1,6 +1,8 @@
 package com.eduneko.service;
 
 import com.eduneko.repository.ActividadRepository;
+import com.eduneko.repository.PlanAprendizajeRepository;
+import com.eduneko.repository.ProgresoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -18,17 +20,23 @@ public class EvaluacionActividadService {
     private final ActividadRepository actividadRepository;
     private final LeccionService leccionService;
     private final DiagnosticoService diagnosticoService;
+    private final ProgresoRepository progresoRepository;
+    private final PlanAprendizajeRepository planAprendizajeRepository;
     private final NamedParameterJdbcTemplate jdbc;
 
     public EvaluacionActividadService(
             ActividadRepository actividadRepository,
             LeccionService leccionService,
             DiagnosticoService diagnosticoService,
+            ProgresoRepository progresoRepository,
+            PlanAprendizajeRepository planAprendizajeRepository,
             NamedParameterJdbcTemplate jdbc) {
 
         this.actividadRepository = actividadRepository;
         this.leccionService = leccionService;
         this.diagnosticoService = diagnosticoService;
+        this.progresoRepository = progresoRepository;
+        this.planAprendizajeRepository = planAprendizajeRepository;
         this.jdbc = jdbc;
     }
 
@@ -82,8 +90,8 @@ public class EvaluacionActividadService {
         Long estudianteId =
                 diagnosticoService.obtenerEstudianteId(correo);
 
-        // Bloqueo transaccional por estudiante para evitar
-        // que dos respuestas simultáneas dupliquen puntos.
+        // Bloqueo transaccional para evitar puntos duplicados
+        // cuando llegan respuestas simultáneas.
         jdbc.queryForObject(
                 """
                 SELECT id
@@ -95,7 +103,7 @@ public class EvaluacionActividadService {
                 Long.class
         );
 
-        // Comprobar si ya recibió puntos por esta actividad.
+        // Verificar si ya obtuvo puntos por esta actividad.
         Boolean puntosOtorgados = jdbc.queryForObject(
                 """
                 SELECT EXISTS (
@@ -124,6 +132,7 @@ public class EvaluacionActividadService {
                         ? PUNTOS_POR_ACIERTO
                         : 0;
 
+        // Registrar el intento.
         actividadRepository.registrarIntento(
                 actividadId,
                 estudianteId,
@@ -132,6 +141,38 @@ public class EvaluacionActividadService {
                 puntosObtenidos
         );
 
+        // Calcular el progreso actualizado de la lección.
+        Map<String, Object> datosProgreso =
+                progresoRepository.obtenerProgresoLeccion(
+                        leccionId,
+                        estudianteId
+                );
+
+        int totalActividades =
+                ((Number) datosProgreso.get("total_actividades"))
+                        .intValue();
+
+        int actividadesCorrectas =
+                ((Number) datosProgreso.get("actividades_correctas"))
+                        .intValue();
+
+        int progresoPorcentaje = totalActividades == 0
+                ? 0
+                : (int) Math.round(
+                        actividadesCorrectas * 100.0 / totalActividades
+                );
+
+        boolean completada =
+                totalActividades > 0
+                && actividadesCorrectas == totalActividades;
+
+        // Sincronizar el progreso con la unidad del plan activo.
+        planAprendizajeRepository.actualizarProgresoUnidad(
+                unidadId,
+                progresoPorcentaje
+        );
+
+        // Preparar respuesta para Angular.
         Map<String, Object> resultado = new HashMap<>();
 
         resultado.put("actividadId", actividadId);
@@ -146,6 +187,12 @@ public class EvaluacionActividadService {
                 "puntosYaOtorgados",
                 Boolean.TRUE.equals(puntosOtorgados)
         );
+
+        // Nuevos datos de progreso.
+        resultado.put("totalActividades", totalActividades);
+        resultado.put("actividadesCorrectas", actividadesCorrectas);
+        resultado.put("progresoPorcentaje", progresoPorcentaje);
+        resultado.put("leccionCompletada", completada);
 
         return resultado;
     }

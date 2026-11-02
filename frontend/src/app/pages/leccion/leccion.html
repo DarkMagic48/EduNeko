@@ -140,6 +140,128 @@
 
         <section class="seccion-actividades">
 
+          <section
+      *ngIf="leccion"
+      class="seccion-progreso"
+    >
+
+      <h2>Tu progreso en esta lección</h2>
+
+      <!-- Indicador mientras se consulta el progreso -->
+      <p *ngIf="cargandoProgreso && !progreso">
+        Consultando tu progreso...
+      </p>
+
+      <!-- Mensaje de error sin bloquear las actividades -->
+      <div *ngIf="errorProgreso" class="error-progreso">
+
+        <p>{{ errorProgreso }}</p>
+
+        <button
+          type="button"
+          (click)="cargarProgreso()"
+        >
+          Reintentar
+        </button>
+
+      </div>
+
+      <!-- Información real del progreso -->
+      <div
+        *ngIf="progreso as avance"
+        class="contenido-progreso"
+      >
+
+        <!-- Porcentaje de avance -->
+        <div class="encabezado-progreso">
+
+          <h3>Avance de la lección</h3>
+
+          <strong class="porcentaje-progreso">
+            {{ avance.progresoPorcentaje }}%
+          </strong>
+
+        </div>
+
+        <!-- Barra visual de progreso -->
+        <div
+          class="barra-progreso"
+          role="progressbar"
+          [attr.aria-valuenow]="avance.progresoPorcentaje"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label="Progreso de la lección"
+        >
+
+          <div
+            class="barra-progreso-relleno"
+            [style.width.%]="avance.progresoPorcentaje"
+          ></div>
+
+        </div>
+
+        <!-- Resumen de actividades y puntos -->
+        <div class="resumen-progreso">
+
+          <div class="dato-progreso">
+
+            <span>Actividades correctas</span>
+
+            <strong>
+              {{ avance.actividadesCorrectas }}
+              de
+              {{ avance.totalActividades }}
+            </strong>
+
+          </div>
+
+          <div class="dato-progreso">
+
+            <span>Puntos obtenidos</span>
+
+            <strong>
+              {{ avance.puntosObtenidos }} puntos
+            </strong>
+
+          </div>
+
+        </div>
+
+        <!-- Mensaje cuando todavía faltan actividades -->
+        <p
+          *ngIf="!avance.completada"
+          class="mensaje-progreso"
+        >
+          Sigue resolviendo actividades para completar
+          tu lección y ganar puntos.
+        </p>
+
+        <!-- Felicitación al completar todas las actividades -->
+        <div
+          *ngIf="avance.completada"
+          class="mensaje-leccion-completada"
+        >
+
+          <h3>¡Felicidades! Completaste esta lección.</h3>
+
+          <p>
+            Resolviste correctamente todas las actividades.
+            ¡Continúa aprendiendo con EduNeko!
+          </p>
+
+          <button
+            type="button"
+            (click)="volverAlPlan()"
+          >
+            Volver a mi plan de aprendizaje
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>    
+
       <h2>¡Hora de practicar!</h2>
 
       <p>
@@ -187,7 +309,7 @@
           class="tarjeta-actividad"
         >
 
-          <h3>Actividad {{ i + 1 }} de {{ actividades.length }}</h3>
+          <h3>Pregunta {{ i + 1 }} de {{ actividades.length }}</h3>
 
           <p class="pregunta-actividad">
             {{ actividad.pregunta }}
@@ -209,12 +331,101 @@
                 [name]="'actividad-' + actividad.id"
                 [value]="opcion"
                 [checked]="respuestasSeleccionadas[actividad.id] === opcion"
+                [disabled]="evaluandoActividades[actividad.id]"
                 (change)="seleccionarRespuesta(actividad.id, opcion)"
               />
 
               <span>{{ opcion }}</span>
 
             </label>
+
+          </div>
+
+          <!-- Botón para comprobar la respuesta -->
+          <div class="acciones-actividad">
+
+            <button
+              type="button"
+              class="boton-comprobar"
+              [disabled]="
+                !respuestasSeleccionadas[actividad.id] ||
+                evaluandoActividades[actividad.id]
+              "
+              (click)="comprobarRespuesta(actividad.id)"
+            >
+              {{
+                evaluandoActividades[actividad.id]
+                  ? 'Comprobando...'
+                  : 'Comprobar respuesta'
+              }}
+            </button>
+
+          </div>
+
+          <!-- Mensaje de error -->
+          <p
+            *ngIf="erroresEvaluacion[actividad.id]"
+            class="error-evaluacion"
+          >
+            {{ erroresEvaluacion[actividad.id] }}
+          </p>
+
+          <!-- Resultado de la evaluación -->
+          <div
+            *ngIf="resultadosEvaluacion[actividad.id] as resultado"
+            class="resultado-actividad"
+            [class.resultado-correcto]="resultado.esCorrecta"
+            [class.resultado-incorrecto]="!resultado.esCorrecta"
+          >
+
+            <!-- Respuesta correcta -->
+            <h4 *ngIf="resultado.esCorrecta">
+              ¡Excelente! Respuesta correcta.
+            </h4>
+
+            <!-- Respuesta incorrecta -->
+            <h4 *ngIf="!resultado.esCorrecta">
+              ¡Sigue practicando! Revisemos tu respuesta.
+            </h4>
+
+            <!-- Puntos ganados -->
+            <p
+              *ngIf="
+                resultado.esCorrecta &&
+                resultado.puntosObtenidos > 0
+              "
+              class="puntos-ganados"
+            >
+              ¡Ganaste {{ resultado.puntosObtenidos }} puntos!
+            </p>
+
+            <!-- Puntos otorgados anteriormente -->
+            <p
+              *ngIf="
+                resultado.esCorrecta &&
+                resultado.puntosYaOtorgados
+              "
+            >
+              Ya habías obtenido los puntos de esta actividad.
+            </p>
+
+            <!-- Mostrar respuesta correcta si falló -->
+            <p *ngIf="!resultado.esCorrecta">
+              <strong>Respuesta correcta:</strong>
+              {{ resultado.respuestaCorrecta }}
+            </p>
+
+            <!-- Explicación educativa -->
+            <div
+              *ngIf="resultado.explicacion"
+              class="explicacion-actividad"
+            >
+              <strong>Explicación:</strong>
+
+              <p>
+                {{ resultado.explicacion }}
+              </p>
+            </div>
 
           </div>
 
@@ -227,11 +438,6 @@
             Respuestas seleccionadas:
             {{ (respuestasSeleccionadas | keyvalue).length }}
             de {{ actividades.length }}
-          </p>
-
-          <p>
-            Próximamente podrás comprobar tus respuestas,
-            recibir retroalimentación y ganar puntos.
           </p>
 
         </div>

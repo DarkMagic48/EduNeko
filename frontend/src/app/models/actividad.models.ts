@@ -10,3 +10,12 @@ export interface ActividadResponse {
   opciones: string[] | null;
   orden: number;
 }
+
+export interface EvaluacionActividadResponse {
+  actividadId: number;
+  esCorrecta: boolean;
+  respuestaCorrecta: string;
+  explicacion: string | null;
+  puntosObtenidos: number;
+  puntosYaOtorgados: boolean;
+}

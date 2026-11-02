@@ -273,3 +273,134 @@ button:focus-visible {
     animation: none;
   }
 }
+
+/* Contenedor principal del progreso de la lección. */
+.seccion-progreso {
+  margin: 24px 0;
+  padding: 24px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+}
+
+.seccion-progreso h2 {
+  margin: 0 0 20px;
+  color: #243047;
+}
+
+/* Encabezado con el título y el porcentaje actual. */
+.encabezado-progreso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.encabezado-progreso h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.porcentaje-progreso {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+/* Barra que representa visualmente el avance. */
+.barra-progreso {
+  width: 100%;
+  height: 14px;
+  overflow: hidden;
+  background-color: #e5e7eb;
+  border-radius: 999px;
+}
+
+/* El ancho de esta barra se establece desde Angular
+   utilizando el porcentaje calculado por el backend. */
+.barra-progreso-relleno {
+  height: 100%;
+  background-color: #4f46e5;
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+
+/* Tarjetas de actividades correctas y puntos obtenidos. */
+.resumen-progreso {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.dato-progreso {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: #f5f6fb;
+  border-radius: 10px;
+}
+
+.dato-progreso span {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.dato-progreso strong {
+  font-size: 20px;
+  color: #243047;
+}
+
+/* Mensaje mostrado mientras faltan actividades. */
+.mensaje-progreso {
+  margin-top: 18px;
+  color: #475569;
+}
+
+/* Felicitación cuando se completa la lección. */
+.mensaje-leccion-completada {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 10px;
+}
+
+.mensaje-leccion-completada h3 {
+  margin-top: 0;
+  color: #047857;
+}
+
+.mensaje-leccion-completada button {
+  padding: 10px 16px;
+  color: #ffffff;
+  background-color: #047857;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Error de consulta independiente de las actividades. */
+.error-progreso {
+  padding: 12px;
+  color: #991b1b;
+  background-color: #fef2f2;
+  border-radius: 8px;
+}
+
+/* Adaptación básica para pantallas pequeñas. */
+@media (max-width: 600px) {
+  .seccion-progreso {
+    padding: 16px;
+  }
+
+  .resumen-progreso {
+    grid-template-columns: 1fr;
+  }
+
+  .porcentaje-progreso {
+    font-size: 20px;
+  }
+}

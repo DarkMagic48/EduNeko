@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { ActividadResponse } from '../models/actividad.models';
+import { 
+  ActividadResponse,
+  EvaluacionActividadResponse
+ } from '../models/actividad.models';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +35,18 @@ export class ActividadService {
     return this.http.post<ActividadResponse[]>(
       `${this.apiUrl}/unidades/${unidadId}/generar`,
       {}
+    );
+  }
+
+  responderActividad(
+    unidadId: number,
+    actividadId: number,
+    respuesta: string
+  ): Observable<EvaluacionActividadResponse> {
+
+    return this.http.post<EvaluacionActividadResponse>(
+      `${this.apiUrl}/unidades/${unidadId}/${actividadId}/responder`,
+      { respuesta }
     );
   }
 }
