@@ -1,0 +1,142 @@
+<!-- =====================================================
+     PÁGINA DE LOGROS E INSIGNIAS DE EDUNEKO
+
+     Muestra los logros obtenidos y pendientes.
+     Los datos se consultan desde PostgreSQL
+     mediante el servicio de progreso.
+     ===================================================== -->
+
+<main class="pagina-logros">
+
+  <!-- Encabezado y navegación. -->
+  <header class="encabezado-logros">
+
+    <button
+      type="button"
+      class="boton-volver"
+      (click)="volverAlDashboard()">
+      ← Volver al dashboard
+    </button>
+
+    <h1>🏆 Mis logros</h1>
+
+    <p>
+      ¡Cada pequeño avance cuenta!
+      Sigue aprendiendo para desbloquear nuevas insignias.
+    </p>
+
+  </header>
+
+  <!-- Mensaje mientras se consultan los logros. -->
+  @if (cargandoLogros) {
+
+    <p role="status">
+      Cargando tus insignias...
+    </p>
+
+  }
+
+  <!-- Mensaje de error y opción para reintentar. -->
+  @if (errorLogros) {
+
+    <div class="error-logros" role="alert">
+
+      <p>{{ errorLogros }}</p>
+
+      <button
+        type="button"
+        (click)="cargarLogros()">
+        Reintentar
+      </button>
+
+    </div>
+
+  }
+
+  <!-- Lista de insignias recibidas del backend. -->
+  @if (!cargandoLogros && !errorLogros) {
+
+    <section class="seccion-insignias">
+
+      <h2>Mis insignias</h2>
+
+      <div class="lista-logros">
+
+        @for (logro of logros; track logro.codigo) {
+
+          <article
+            class="tarjeta-logro"
+            [class.logro-desbloqueado]="logro.desbloqueado"
+            [class.logro-bloqueado]="!logro.desbloqueado">
+
+            <!-- Iconos provisionales de gamificación.
+                 Se sustituirán por insignias oficiales. -->
+            <div class="icono-logro" aria-hidden="true">
+
+              @switch (logro.codigo) {
+
+                @case ('PRIMER_ACIERTO') {
+                  🎯
+                }
+
+                @case ('PRIMERA_LECCION') {
+                  📚
+                }
+
+                @case ('APRENDIZ_DESTACADO') {
+                  ⭐
+                }
+
+                @case ('CONSTANCIA') {
+                  🔥
+                }
+
+                @default {
+                  🏅
+                }
+
+              }
+
+            </div>
+
+            <!-- Nombre y condición del logro. -->
+            <div class="informacion-logro">
+
+              <h3>{{ logro.nombre }}</h3>
+
+              <p>{{ logro.descripcion }}</p>
+
+              <!-- Estado real de desbloqueo. -->
+              @if (logro.desbloqueado) {
+
+                <span class="estado-logro">
+                  ✓ Desbloqueado
+                </span>
+
+              } @else {
+
+                <span class="estado-logro">
+                  🔒 Pendiente
+                </span>
+
+              }
+
+            </div>
+
+          </article>
+
+        } @empty {
+
+          <p>
+            Todavía no hay insignias disponibles.
+          </p>
+
+        }
+
+      </div>
+
+    </section>
+
+  }
+
+</main>

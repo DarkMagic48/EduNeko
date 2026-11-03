@@ -101,4 +101,49 @@ public class LeccionRepository {
 
         return resultados.stream().findFirst();
     }
+
+    /**
+     * Actualiza el estado de una lección según el porcentaje
+     * de actividades respondidas correctamente.
+     *
+     * Reglas:
+     * - 0 %: conserva el estado actual.
+     * - Entre 1 % y 99 %: EN_PROGRESO.
+     * - 100 %: COMPLETADA.
+     *
+     * Solo actualiza lecciones pertenecientes a un plan activo.
+     * No modifica el contenido educativo generado por IA.
+     */
+    public void actualizarEstadoPorProgreso(
+            Long leccionId,
+            int progresoPorcentaje
+    ) {
+
+        String sql = """
+            UPDATE leccion
+            SET estado = CASE
+                WHEN :progresoPorcentaje = 100 THEN 'COMPLETADA'
+                WHEN :progresoPorcentaje > 0 THEN 'EN_PROGRESO'
+                ELSE estado
+            END
+            WHERE id = :leccionId
+            AND EXISTS (
+                SELECT 1
+                FROM plan_unidad u
+                JOIN plan_aprendizaje p
+                    ON p.id = u.plan_aprendizaje_id
+                WHERE u.id = leccion.plan_unidad_id
+                    AND p.estado = 'ACTIVO'
+            )
+            """;
+
+        // Parámetros utilizados para identificar la lección
+        // y determinar su nuevo estado.
+        var params = new MapSqlParameterSource()
+                .addValue("leccionId", leccionId)
+                .addValue("progresoPorcentaje", progresoPorcentaje);
+
+        // Ejecuta la actualización en PostgreSQL.
+        jdbc.update(sql, params);
+    }
 }

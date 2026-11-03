@@ -216,6 +216,8 @@ export class Leccion implements OnInit {
 
           // Reutilizar actividades existentes.
           this.actividades = actividades;
+          // Recuperar las opciones seleccionadas anteriormente a partir de los intentos guardados en PostgreSQL
+          this.restaurarRespuestasGuardadas(actividades);
 
         } else {
 
@@ -270,6 +272,36 @@ export class Leccion implements OnInit {
       }
     });
   }
+  /**
+   * Recupera las respuestas previamente registradas en PostgreSQL
+   * y reconstruye el estado de las preguntas en Angular.
+   *
+   * Las respuestas correctas se identifican como completadas,
+   * mientras que las incorrectas pueden volver a intentarse.
+   */
+  restaurarRespuestasGuardadas(
+    actividades: ActividadResponse[]
+  ): void {
+
+    // Limpiar los datos anteriores antes de restaurar el historial.
+    this.respuestasSeleccionadas = {};
+    this.resultadosEvaluacion = {};
+    this.erroresEvaluacion = {};
+
+    for (const actividad of actividades) {
+
+      // Restaurar la opción que el estudiante había seleccionado.
+      if (actividad.respuestaEstudiante) {
+        this.respuestasSeleccionadas[actividad.id] =
+          actividad.respuestaEstudiante;
+      }
+
+      // Las preguntas acertadas anteriormente se identifican
+      // mediante la información recuperada del backend.
+      // No reconstruimos artificialmente una evaluación:
+      // el historial se mostrará directamente en la interfaz.
+    }
+  }
 
   // 9. SELECCIÓN DE RESPUESTAS
   seleccionarRespuesta(
@@ -279,6 +311,15 @@ export class Leccion implements OnInit {
 
     // Evitar cambios mientras se evalúa la actividad.
     if (this.evaluandoActividades[actividadId]) {
+      return;
+    }
+
+    //Una pregunta que ya fue respondida correctamente, conserva su respuesta y sus puntos registrados
+    const actividad = this.actividades.find(
+      item => item.id === actividadId
+    );
+
+    if (actividad?.respondidaCorrectamente) {
       return;
     }
 
@@ -294,6 +335,15 @@ export class Leccion implements OnInit {
   comprobarRespuesta(actividadId: number): void {
 
     if (this.unidadId === null) {
+      return;
+    }
+
+    // Evitar reevaluar preguntas que ya fueron acertadas.
+    const actividad = this.actividades.find(
+      item => item.id === actividadId
+    );
+
+    if (actividad?.respondidaCorrectamente) {
       return;
     }
 
@@ -321,6 +371,23 @@ export class Leccion implements OnInit {
 
         // Guardar la retroalimentación de la actividad.
         this.resultadosEvaluacion[actividadId] = resultado;
+
+        // Mantener actualizado el estado local de la pregunta.
+        // Así no es necesario recargar todas las actividades.
+        if (resultado.esCorrecta) {
+
+          const actividad = this.actividades.find(
+            item => item.id === actividadId
+          );
+
+          if (actividad) {
+            actividad.respondidaCorrectamente = true;
+            actividad.respuestaEstudiante =
+              this.respuestasSeleccionadas[actividadId];
+            actividad.puntosObtenidos =
+              resultado.puntosObtenidos;
+          }
+        }
 
         this.evaluandoActividades[actividadId] = false;
 

@@ -309,7 +309,13 @@
           class="tarjeta-actividad"
         >
 
-          <h3>Pregunta {{ i + 1 }} de {{ actividades.length }}</h3>
+          <h3>
+            Pregunta {{ i + 1 }} de {{ actividades.length }}
+            
+            <span *ngIf="actividad.respondidaCorrectamente">
+              ✓ Completada
+            </span>
+          </h3>
 
           <p class="pregunta-actividad">
             {{ actividad.pregunta }}
@@ -331,7 +337,10 @@
                 [name]="'actividad-' + actividad.id"
                 [value]="opcion"
                 [checked]="respuestasSeleccionadas[actividad.id] === opcion"
-                [disabled]="evaluandoActividades[actividad.id]"
+                [disabled]="
+                evaluandoActividades[actividad.id] ||
+                actividad.respondidaCorrectamente === true
+                "
                 (change)="seleccionarRespuesta(actividad.id, opcion)"
               />
 
@@ -342,7 +351,10 @@
           </div>
 
           <!-- Botón para comprobar la respuesta -->
-          <div class="acciones-actividad">
+          <div
+            *ngIf="!actividad.respondidaCorrectamente" 
+            class="acciones-actividad">
+          >
 
             <button
               type="button"
@@ -369,6 +381,28 @@
           >
             {{ erroresEvaluacion[actividad.id] }}
           </p>
+
+          <!-- Confirmar una respuesta acertada en una sesión anterior.
+              No mostrar este mensaje si acabamos de evaluar la pregunta,
+              porque en ese caso ya existe retroalimentación específica. -->
+          <div
+            *ngIf="
+              actividad.respondidaCorrectamente &&
+              !resultadosEvaluacion[actividad.id]
+            "
+            class="resultado-actividad resultado-correcto"
+          >
+            <h4>✓ Pregunta completada</h4>
+
+            <p>
+              Ya respondiste correctamente esta pregunta.
+              Tu respuesta y tus puntos están guardados.
+            </p>
+
+            <p *ngIf="actividad.puntosObtenidos">
+              Puntos obtenidos: {{ actividad.puntosObtenidos }}
+            </p>
+          </div>
 
           <!-- Resultado de la evaluación -->
           <div

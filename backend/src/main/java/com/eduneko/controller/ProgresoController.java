@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/progreso")
 public class ProgresoController {
@@ -30,5 +32,46 @@ public class ProgresoController {
         );
 
         return ResponseEntity.ok(progreso);
+    }
+
+    @GetMapping("/puntos")
+    public ResponseEntity<Map<String, Integer>> obtenerPuntosTotales(
+            Authentication authentication) {
+
+        // Obtener los puntos del estudiante autenticado.
+        int puntosTotales = progresoService.obtenerPuntosTotales(
+                authentication.getName()
+        );
+
+        // Devolver una respuesta JSON sencilla para Angular.
+        return ResponseEntity.ok(
+                Map.of("puntosTotales", puntosTotales)
+        );
+    }
+
+    @GetMapping("/rachas")
+    public ResponseEntity<ProgresoService.RachasResponse> obtenerRachas(
+            Authentication authentication) {
+
+        // Obtener las rachas del estudiante autenticado.
+        var rachas = progresoService.obtenerRachas(
+                authentication.getName()
+        );
+
+        // Devolver la información en formato JSON.
+        return ResponseEntity.ok(rachas);
+    }
+
+    @GetMapping("/logros")
+    public ResponseEntity<ProgresoService.LogrosResponse> obtenerLogros(
+            Authentication authentication) {
+
+        // Consultar los logros del estudiante autenticado.
+        var logros = progresoService.obtenerLogros(
+                authentication.getName()
+        );
+
+        // Devolver el catálogo de insignias y su estado.
+        return ResponseEntity.ok(logros);
     }
 }

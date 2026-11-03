@@ -237,4 +237,101 @@ public class ActividadRepository {
 
         jdbc.update(sql, parametros);
     }
+    
+    /**
+     * Recupera los intentos anteriores de un estudiante
+     * para todas las preguntas de una lección.
+     *
+     * Prioriza una respuesta correcta ya registrada.
+     * Si no existe, recupera el intento más reciente.
+     *
+     * No consulta ni expone la respuesta correcta oficial
+     * almacenada en la tabla actividad.
+     */
+    public Map<Long, Map<String, Object>> obtenerRespuestasGuardadas(
+            Long leccionId,
+            Long estudianteId) {
+
+        String sql = """
+            SELECT
+                a.id AS actividad_id,
+                intento.respuesta_estudiante,
+                COALESCE(intento.es_correcta, FALSE)
+                    AS respondida_correctamente,
+                COALESCE(puntos.puntos_obtenidos, 0)
+                    AS puntos_obtenidos
+            FROM actividad a
+
+            -- Recuperar una respuesta correcta si existe;
+            -- de lo contrario, el último intento realizado.
+            LEFT JOIN LATERAL (
+                SELECT
+                    ai.respuesta_estudiante,
+                    ai.es_correcta
+                FROM actividad_intento ai
+                WHERE ai.actividad_id = a.id
+                AND ai.estudiante_id = :estudianteId
+                ORDER BY
+                    ai.es_correcta DESC,
+                    ai.fecha_respuesta DESC,
+                    ai.id DESC
+                LIMIT 1
+            ) intento ON TRUE
+
+            -- Sumar los puntos previamente otorgados
+            -- por cada pregunta, sin generar puntos nuevos.
+            LEFT JOIN LATERAL (
+                SELECT
+                    COALESCE(SUM(ai.puntos_obtenidos), 0)
+                        AS puntos_obtenidos
+                FROM actividad_intento ai
+                WHERE ai.actividad_id = a.id
+                AND ai.estudiante_id = :estudianteId
+            ) puntos ON TRUE
+
+            WHERE a.leccion_id = :leccionId
+            ORDER BY a.orden
+            """;
+
+        var parametros = new MapSqlParameterSource()
+                .addValue("leccionId", leccionId)
+                .addValue("estudianteId", estudianteId);
+
+        List<Map<String, Object>> filas =
+                jdbc.queryForList(sql, parametros);
+
+        // Organizar los resultados por identificador de pregunta
+        // para facilitar su incorporación en la respuesta de la API.
+        Map<Long, Map<String, Object>> respuestas =
+                new java.util.HashMap<>();
+
+        for (Map<String, Object> fila : filas) {
+
+            Long actividadId =
+                    ((Number) fila.get("actividad_id")).longValue();
+
+            Map<String, Object> datos = new java.util.HashMap<>();
+
+            datos.put(
+                    "respuestaEstudiante",
+                    fila.get("respuesta_estudiante")
+            );
+
+            datos.put(
+                    "respondidaCorrectamente",
+                    Boolean.TRUE.equals(
+                            fila.get("respondida_correctamente")
+                    )
+            );
+
+            datos.put(
+                    "puntosObtenidos",
+                    ((Number) fila.get("puntos_obtenidos")).intValue()
+            );
+
+            respuestas.put(actividadId, datos);
+        }
+
+        return respuestas;
+    }
 }

@@ -8,6 +8,7 @@ import { Onboarding } from './pages/onboarding/onboarding';
 import { DiagnosticoMatematicas } from './pages/diagnostico-matematicas/diagnostico-matematicas';
 import { PlanAprendizaje } from './pages/plan-aprendizaje/plan-aprendizaje';
 import { Leccion } from './pages/leccion/leccion';
+import { Logros } from './pages/logros/logros';
 
 export const routes: Routes = [
     {
@@ -24,24 +25,30 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
-    path: 'diagnostico/matematicas',
-    component: DiagnosticoMatematicas,
-    canActivate: [authGuard]
+        path: 'diagnostico/matematicas',
+        component: DiagnosticoMatematicas,
+        canActivate: [authGuard]
     },
     {
-    path: 'plan/matematicas',
-    component: PlanAprendizaje,
-    canActivate: [authGuard]
+        path: 'plan/matematicas',
+        component: PlanAprendizaje,
+        canActivate: [authGuard]
     },
     {
-    path: 'lecciones/unidades/:unidadId',
-    component: Leccion,
-    canActivate: [authGuard]
+        path: 'lecciones/unidades/:unidadId',
+        component: Leccion,
+        canActivate: [authGuard]
     },
     {
         path: 'dashboard',
         component: Dashboard,
         canActivate: [authGuard],
+    },
+    {
+        // Sección de insignias y logros del estudiante.
+        path: 'logros',
+        component: Logros,
+        canActivate: [authGuard]
     },
     {
         path: '',

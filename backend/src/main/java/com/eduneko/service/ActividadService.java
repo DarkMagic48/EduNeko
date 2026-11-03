@@ -19,34 +19,72 @@ public class ActividadService {
     private final ObjectMapper objectMapper;
     private final LeccionService leccionService;
     private final ValidadorActividadesIAService validadorActividades;
+    private final DiagnosticoService diagnosticoService;
 
     public ActividadService(
             ActividadRepository actividadRepository,
             GeneradorContenidoIAService generadorIA,
             ObjectMapper objectMapper,
             LeccionService leccionService,
-            ValidadorActividadesIAService validadorActividadesIAService) {
+            ValidadorActividadesIAService validadorActividadesIAService,
+            DiagnosticoService diagnosticoService) {
 
         this.actividadRepository = actividadRepository;
         this.generadorIA = generadorIA;
         this.objectMapper = objectMapper;
         this.leccionService = leccionService;
         this.validadorActividades = validadorActividadesIAService;
+        this.diagnosticoService = diagnosticoService;
     }
+        /**
+         * Recupera las preguntas de una unidad junto con las respuestas
+         * que el estudiante haya registrado anteriormente.
+         *
+         * No devuelve las respuestas correctas oficiales de preguntas pendientes.
+         */
+        @Transactional(readOnly = true)
+        public List<Map<String, Object>> obtenerActividades(
+                Long unidadId,
+                String correo) {
 
-    @Transactional(readOnly = true)
-    public List<Map<String, Object>> obtenerActividades(
-            Long unidadId,
-            String correo) {
-
+        // Validar que la unidad pertenece al estudiante autenticado.
         Map<String, Object> leccion =
                 leccionService.obtenerLeccion(unidadId, correo);
 
         Long leccionId =
                 ((Number) leccion.get("id")).longValue();
 
-        return actividadRepository.obtenerActividades(leccionId);
-    }
+        // Identificar al estudiante para consultar exclusivamente sus intentos.
+        Long estudianteId =
+                diagnosticoService.obtenerEstudianteId(correo);
+
+        // Recuperar las cinco preguntas existentes.
+        List<Map<String, Object>> actividades =
+                actividadRepository.obtenerActividades(leccionId);
+
+        // Consultar las respuestas previamente guardadas en PostgreSQL.
+        Map<Long, Map<String, Object>> respuestasGuardadas =
+                actividadRepository.obtenerRespuestasGuardadas(
+                        leccionId,
+                        estudianteId
+                );
+
+        // Incorporar el historial de cada pregunta a la respuesta de la API.
+        for (Map<String, Object> actividad : actividades) {
+
+                Long actividadId =
+                        ((Number) actividad.get("id")).longValue();
+
+                Map<String, Object> respuestaGuardada =
+                        respuestasGuardadas.get(actividadId);
+
+                if (respuestaGuardada != null) {
+                actividad.putAll(respuestaGuardada);
+                }
+        }
+
+        return actividades;
+        }
 
         @Transactional 
         public List<Map<String, Object>> generarActividadesParaUnidad(
