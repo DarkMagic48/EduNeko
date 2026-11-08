@@ -25,6 +25,22 @@
       Sigue aprendiendo para desbloquear nuevas insignias.
     </p>
 
+    <!-- =====================================================
+     MENSAJE MOTIVACIONAL DE NEKO
+
+     Utiliza el componente compartido para presentar
+     un mensaje según los logros del estudiante.
+     ===================================================== -->
+
+    @if (!cargandoLogros && !errorLogros) {
+
+    <app-neko-mensaje
+        tipo="motivacion"
+        [mensaje]="obtenerMensajeNeko()">
+    </app-neko-mensaje>
+
+    }
+
   </header>
 
   <!-- Mensaje mientras se consultan los logros. -->

@@ -1,0 +1,44 @@
+<!-- =====================================================
+     COMPONENTE REUTILIZABLE DE NEKO
+
+     Presenta mensajes educativos y motivacionales.
+
+     El contenido y el tipo de mensaje se reciben
+     desde el componente que utiliza a Neko.
+
+     La imagen provisional se reemplazará por
+     la mascota oficial en la integración visual.
+     ===================================================== -->
+
+@if (mensaje) {
+
+  <aside
+    class="neko-mensaje"
+    [class.neko-motivacion]="tipo === 'motivacion'"
+    [class.neko-acierto]="tipo === 'acierto'"
+    [class.neko-error]="tipo === 'error'"
+    [class.neko-orientacion]="tipo === 'orientacion'"
+    [class.neko-logro]="tipo === 'logro'"
+    aria-label="Mensaje de Neko">
+
+    <!-- Representación provisional de Neko. -->
+    <div class="neko-avatar" aria-hidden="true">
+      {{ obtenerIcono() }}
+    </div>
+
+    <!-- Contenido del mensaje. -->
+    <div class="neko-contenido">
+
+      <strong class="neko-titulo">
+        {{ obtenerTitulo() }}
+      </strong>
+
+      <p class="neko-texto">
+        {{ mensaje }}
+      </p>
+
+    </div>
+
+  </aside>
+
+}

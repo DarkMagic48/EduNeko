@@ -61,4 +61,34 @@ public class LeccionController {
 
        return ResponseEntity.ok(leccion);
     }
+
+        /**
+         * Enriquece una lección existente con un recurso visual.
+         *
+         * El servicio comprobará que:
+         * - La unidad pertenezca al estudiante autenticado.
+         * - La lección ya exista.
+         * - No tenga un recurso visual almacenado.
+         * - El recurso generado sea estructural y
+         *   pedagógicamente válido.
+         *
+         * No regenera la lección ni sus actividades.
+         *
+         * Este endpoint solo se ejecutará mediante
+         * una solicitud POST explícita.
+         */
+        @PostMapping("/unidades/{unidadId}/enriquecer-visual")
+        public ResponseEntity<Map<String, Object>> enriquecerVisual(
+                @PathVariable Long unidadId,
+                Authentication authentication
+        ) {
+
+        Map<String, Object> leccion =
+                leccionService.enriquecerLeccionVisualmente(
+                        unidadId,
+                        authentication.getName()
+                );
+
+        return ResponseEntity.ok(leccion);
+    }
 }

@@ -404,3 +404,347 @@ button:focus-visible {
     font-size: 20px;
   }
 }
+  
+/* =====================================================
+   RECURSOS VISUALES PERSONALIZADOS - EDUNEKO V1
+
+   Estilos provisionales para representar fracciones
+   propias, impropias y números mixtos positivos.
+
+   Cada barra representa un entero dividido
+   en partes iguales.
+   ===================================================== */
+
+  /* Sección que contiene el recurso visual educativo. */
+  .recurso-visual {
+    background-color: #f0fdfa;
+    border-color: #99f6e4;
+  }
+
+  /* Título descriptivo generado para el recurso. */
+  .titulo-recurso-visual {
+    margin: 0 0 18px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #115e59;
+  }
+
+  /* Agrupa todas las barras de una misma fracción. */
+  .contenedor-barras-fraccionarias {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 520px;
+    margin: 20px auto;
+  }
+
+  /* Cada barra representa un entero completo.
+    Flexbox reparte el espacio por igual entre
+    los segmentos, independientemente del denominador. */
+  .barra-fraccionaria {
+    display: flex;
+    width: 100%;
+    height: 52px;
+    gap: 3px;
+    padding: 4px;
+    background-color: #ffffff;
+    border: 2px solid #0f766e;
+    border-radius: 9px;
+    overflow: hidden;
+  }
+
+  /* Cada segmento representa una parte del entero. */
+  .segmento-fraccion {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100%;
+    background-color: #e2e8f0;
+    border-radius: 3px;
+  }
+
+  /* Los segmentos coloreados representan
+    las partes indicadas por el numerador. */
+  .segmento-coloreado {
+    background-color: #0d9488;
+  }
+
+  /* Descripción matemática debajo de las barras. */
+  .descripcion-fraccion {
+    margin: 16px 0 0;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #334155;
+  }
+
+  .descripcion-fraccion strong {
+    color: #0f766e;
+    font-size: 1.2rem;
+  }
+  
+  /* =====================================================
+    RECTA NUMÉRICA DINÁMICA - EDUNEKO V1
+
+    SVG adaptable al espacio disponible.
+    Mantiene las proporciones del diagrama
+    tanto en computadora como en celular.
+    ===================================================== */
+
+  .recta-numerica-svg {
+    display: block;
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    margin: 20px auto;
+    overflow: visible;
+  }
+
+  /* =====================================================
+   RECURSOS VISUALES: FIGURAS GEOMÉTRICAS 2D
+
+   Permite mostrar las figuras SVG de forma adaptable
+   a computadoras, tabletas y teléfonos móviles.
+   ===================================================== */
+
+  .figura-geometrica-svg {
+    /* Ocupa el ancho disponible sin exceder 400 px. */
+    display: block;
+    width: 100%;
+    max-width: 400px;
+
+    /* Conserva las proporciones originales del SVG. */
+    height: auto;
+
+    /* Centra la figura dentro de la lección. */
+    margin: 20px auto;
+
+    /* Evita que se desborde de su contenedor. */
+    box-sizing: border-box;
+  }
+
+  /* =====================================================
+    ADAPTACIÓN PARA PANTALLAS PEQUEÑAS
+    ===================================================== */
+
+  @media (max-width: 600px) {
+
+    .figura-geometrica-svg {
+      width: 100%;
+      max-width: 100%;
+      margin: 16px auto;
+    }
+
+  }
+  
+  /* =====================================================
+   RECURSO VISUAL: PATRONES DE FIGURAS 2D
+
+   Distribuye las figuras de una sucesión en tarjetas
+   adaptables, manteniendo una escala visual compartida.
+   ===================================================== */
+
+  /* Contenedor principal de la sucesión. */
+  .patron-figuras-contenedor {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+    gap: 16px;
+    margin: 20px 0;
+    align-items: stretch;
+  }
+
+  /* Tarjeta individual de cada figura. */
+  .patron-figura-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 10px;
+    border: 1px solid #dbe4e8;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    min-width: 0;
+    text-align: center;
+  }
+
+  /* Identifica la posición dentro de la sucesión. */
+  .patron-figura-posicion {
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #334155;
+  }
+
+  /* SVG adaptable al ancho de la tarjeta. */
+  .patron-figura-svg {
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 8px;
+  }
+
+  /* Medidas matemáticas de la figura. */
+  .patron-figura-medidas {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    color: #475569;
+    overflow-wrap: anywhere;
+  }
+
+  /* Destaca el perímetro calculado. */
+  .patron-figura-perimetro {
+    margin: 6px 0 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f766e;
+  }
+
+  /* Etiqueta opcional generada para cada figura. */
+  .patron-figura-etiqueta {
+    margin: 6px 0 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    overflow-wrap: anywhere;
+  }
+
+  /* Explicación de la regla matemática del patrón. */
+  .patron-figura-regla {
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    border-left: 4px solid #0d9488;
+    border-radius: 6px;
+    background-color: #f0fdfa;
+    color: #134e4a;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  /* Ajustes para pantallas pequeñas. */
+  @media (max-width: 600px) {
+    .patron-figuras-contenedor {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .patron-figura-item {
+      padding: 10px 6px;
+    }
+
+    .patron-figura-posicion {
+      font-size: 0.85rem;
+    }
+
+    .patron-figura-medidas,
+    .patron-figura-perimetro {
+      font-size: 0.82rem;
+    }
+
+    .patron-figura-regla {
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+  }
+
+  /* =====================================================
+   RECURSO VISUAL: PLANO CARTESIANO
+
+   Permite representar el plano en diferentes pantallas,
+   conservando las proporciones del dibujo.
+   ===================================================== */
+
+  .plano-cartesiano-svg {
+    /* Adaptar el dibujo al ancho disponible. */
+    display: block;
+    width: 100%;
+    max-width: 480px;
+
+    /* Mantener la proporción cuadrada del SVG. */
+    height: auto;
+    aspect-ratio: 1 / 1;
+
+    /* Centrar el plano dentro de la lección. */
+    margin: 20px auto;
+
+    /* Evitar desbordamientos horizontales. */
+    overflow: visible;
+  }
+
+  /* Ajustes para pantallas pequeñas. */
+  @media (max-width: 600px) {
+    .plano-cartesiano-svg {
+      max-width: 100%;
+      margin: 12px auto;
+    }
+  }
+
+  /* =====================================================
+   RECURSO VISUAL: GRÁFICAS ESTADÍSTICAS
+
+   Permite representar gráficas de barras y líneas
+   dentro de las lecciones de Matemáticas.
+
+   El SVG conserva sus proporciones y se adapta
+   automáticamente al espacio disponible.
+   ===================================================== */
+
+  .grafica-estadistica-svg {
+    display: block;
+
+    /* Utilizar el ancho disponible sin desbordarse. */
+    width: 100%;
+    max-width: 520px;
+
+    /* Mantener la proporción original del SVG. */
+    height: auto;
+    aspect-ratio: 420 / 400;
+
+    /* Centrar la gráfica dentro de la lección. */
+    margin: 20px auto;
+
+    /* Evitar que el SVG exceda su contenedor. */
+    box-sizing: border-box;
+    overflow: visible;
+  }
+
+  /* =====================================================
+    ADAPTACIÓN PARA CELULARES
+    ===================================================== */
+
+  @media (max-width: 600px) {
+
+    .grafica-estadistica-svg {
+      max-width: 100%;
+      margin: 12px auto;
+    }
+
+  }
+
+  /* Adaptación a celulares y pantallas pequeñas. */
+  @media (max-width: 600px) {
+
+    .contenedor-barras-fraccionarias {
+      gap: 10px;
+      margin: 16px auto;
+    }
+
+    .barra-fraccionaria {
+      height: 42px;
+      gap: 2px;
+      padding: 3px;
+      border-radius: 7px;
+    }
+
+    .segmento-fraccion {
+      border-radius: 2px;
+    }
+
+    .descripcion-fraccion {
+      font-size: 0.9rem;
+    }
+
+    .descripcion-fraccion strong {
+      font-size: 1.05rem;
+    }
+  }

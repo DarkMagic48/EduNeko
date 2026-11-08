@@ -122,10 +122,38 @@
 
           <h3>📖 Aprende el concepto</h3>
 
-          <div class="texto-educativo">
-            {{ leccionActual.explicacion }}
-          </div>
+           <!-- Contenido educativo generado por OpenAI -->
+          <div>{{ leccionActual.explicacion }}</div>
 
+          <!--
+            Los controles de audio solo aparecen cuando:
+            1. El estudiante tiene activada la preferencia auditiva.
+            2. El navegador admite síntesis de voz.
+          -->
+          <div
+            class="controles-audio"
+            *ngIf="prefiereAuditivo && audioDisponible"
+          >
+
+            <!-- Reproducir la explicación -->
+            <button
+              type="button"
+              *ngIf="!reproduciendoAudio"
+              (click)="reproducirAudio(leccionActual.explicacion, 'explicacion')"
+            >
+              🔊 Escuchar explicación
+            </button>
+
+            <!-- Detener la reproducción -->
+            <button
+              type="button"
+              *ngIf="reproduciendoAudio && seccionAudioActiva === 'explicacion'"
+              (click)="detenerAudio()"
+            >
+              ⏹️ Detener audio
+            </button>
+
+          </div>
         </section>
 
         <section class="seccion-leccion ejemplo">
@@ -135,7 +163,928 @@
           <div class="texto-educativo">
             {{ leccionActual.ejemplo_resuelto }}
           </div>
+          
+          <section
+            *ngIf="leccionActual.recurso_visual as recurso"
+            class="seccion-leccion recurso-visual"
+          >
+            
+            <!-- Recurso visual: barras fraccionarias con exploración interactiva -->
+            <ng-container *ngIf="recurso.tipo === 'barra_fraccionaria'">
 
+              <h3>🧩 Aprende con una representación visual</h3>
+
+              <p class="titulo-recurso-visual">
+                {{ recurso.titulo }}
+              </p>
+
+              <!-- Mensaje disponible únicamente para estudiantes
+                  con preferencia práctica activada -->
+              <p *ngIf="prefierePractica" class="mensaje-exploracion">
+                🖐️ Experimenta modificando los valores y observa
+                cómo cambia la representación.
+              </p>
+
+              <!-- Activar exploración sin modificar los datos originales de la IA -->
+              <button
+                *ngIf="prefierePractica && !fraccionInteractiva"
+                type="button"
+                (click)="iniciarExploracionFraccion(
+                  recurso.datos.numerador,
+                  recurso.datos.denominador
+                )"
+              >
+                🖐️ Experimentar con la fracción
+              </button>
+
+              <!-- Controles disponibles únicamente durante la exploración -->
+              <div *ngIf="prefierePractica && fraccionInteractiva as fraccion">
+
+                <p>Modifica los valores y observa cómo cambia la fracción.</p>
+
+                <label for="numerador-interactivo">
+                  Numerador: {{ fraccion.numerador }}
+                </label>
+
+                <input
+                  id="numerador-interactivo"
+                  type="range"
+                  min="0"
+                  [max]="fraccion.denominador * 4"
+                  step="1"
+                  [value]="fraccion.numerador"
+                  (input)="cambiarNumeradorFraccion(+$any($event.target).value)"
+                />
+
+                <label for="denominador-interactivo">
+                  Denominador: {{ fraccion.denominador }}
+                </label>
+
+                <input
+                  id="denominador-interactivo"
+                  type="range"
+                  min="1"
+                  max="12"
+                  step="1"
+                  [value]="fraccion.denominador"
+                  (input)="cambiarDenominadorFraccion(+$any($event.target).value)"
+                />
+
+                <button
+                  type="button"
+                  (click)="cerrarExploracionFraccion()"
+                >
+                  ↩️ Volver al ejemplo original
+                </button>
+
+              </div>
+
+              <!--
+                Si la exploración está activa, utilizar sus valores.
+                En caso contrario, conservar el ejemplo original de la IA.
+              -->
+              <ng-container
+                *ngIf="{
+                  numerador: fraccionInteractiva
+                    ? fraccionInteractiva.numerador
+                    : recurso.datos.numerador,
+                  denominador: fraccionInteractiva
+                    ? fraccionInteractiva.denominador
+                    : recurso.datos.denominador
+                } as valores"
+              >
+
+                <!-- Representación visual dinámica -->
+                <div
+                  class="contenedor-barras-fraccionarias"
+                  role="img"
+                  [attr.aria-label]="
+                    'Representación de la fracción ' +
+                    valores.numerador +
+                    ' sobre ' +
+                    valores.denominador
+                  "
+                >
+
+                  <!-- Crear las barras necesarias, incluso para fracciones impropias -->
+                  <div
+                    *ngFor="
+                      let barra of obtenerBarrasFraccion(
+                        valores.numerador,
+                        valores.denominador
+                      )
+                    "
+                    class="barra-fraccionaria"
+                  >
+
+                    <!-- Dividir cada barra en segmentos iguales -->
+                    <div
+                      *ngFor="
+                        let segmento of obtenerSegmentosFraccion(
+                          valores.denominador
+                        )
+                      "
+                      class="segmento-fraccion"
+                      [class.segmento-coloreado]="
+                        (barra * valores.denominador + segmento)
+                        < valores.numerador
+                      "
+                    ></div>
+
+                  </div>
+
+                </div>
+
+                <!-- Descripción actualizada automáticamente -->
+                <p class="descripcion-fraccion">
+                  <strong>
+                    {{ valores.numerador }}/{{ valores.denominador }}
+                  </strong>
+
+                  — {{ valores.numerador }} de
+                  {{ valores.denominador }} partes iguales.
+                </p>
+
+              </ng-container>
+
+            </ng-container>
+
+
+            <ng-container *ngIf="recurso.tipo === 'recta_numerica'">
+
+              <h3>📏 Aprende con una recta numérica</h3>
+
+              <p class="titulo-recurso-visual">
+                {{ recurso.titulo }}
+              </p>
+
+              <!-- El SVG se adapta al ancho disponible. -->
+              <svg
+                *ngIf="
+                  obtenerMarcasRectaNumerica(
+                    recurso.datos.minimo,
+                    recurso.datos.maximo,
+                    recurso.datos.intervalo
+                  ).length > 0 &&
+                  recurso.datos.valorDestacado >= recurso.datos.minimo &&
+                  recurso.datos.valorDestacado <= recurso.datos.maximo
+                "
+                class="recta-numerica-svg"
+                viewBox="0 0 600 150"
+                role="img"
+                [attr.aria-label]="
+                  'Recta numérica desde ' +
+                  recurso.datos.minimo +
+                  ' hasta ' +
+                  recurso.datos.maximo +
+                  ', destacando el valor ' +
+                  recurso.datos.valorDestacado
+                "
+              >
+
+                <!-- Línea horizontal principal. -->
+                <line
+                  x1="40"
+                  y1="75"
+                  x2="560"
+                  y2="75"
+                  stroke="#334155"
+                  stroke-width="2"
+                />
+
+                <!-- Flechas en ambos extremos. -->
+                <path
+                  d="M 40 75 L 52 69 L 52 81 Z"
+                  fill="#334155"
+                />
+
+                <path
+                  d="M 560 75 L 548 69 L 548 81 Z"
+                  fill="#334155"
+                />
+
+                <!-- Marcas y etiquetas numéricas. -->
+                <ng-container
+                  *ngFor="
+                    let marca of obtenerMarcasRectaNumerica(
+                      recurso.datos.minimo,
+                      recurso.datos.maximo,
+                      recurso.datos.intervalo
+                    )
+                  "
+                >
+
+                  <line
+                    [attr.x1]="
+                      40 + obtenerPosicionRectaNumerica(
+                        marca,
+                        recurso.datos.minimo,
+                        recurso.datos.maximo
+                      ) * 5.2
+                    "
+                    y1="67"
+                    [attr.x2]="
+                      40 + obtenerPosicionRectaNumerica(
+                        marca,
+                        recurso.datos.minimo,
+                        recurso.datos.maximo
+                      ) * 5.2
+                    "
+                    y2="83"
+                    stroke="#334155"
+                    stroke-width="2"
+                  />
+
+                  <text
+                    [attr.x]="
+                      40 + obtenerPosicionRectaNumerica(
+                        marca,
+                        recurso.datos.minimo,
+                        recurso.datos.maximo
+                      ) * 5.2
+                    "
+                    y="105"
+                    text-anchor="middle"
+                    font-size="14"
+                    fill="#334155"
+                  >
+                    {{ marca }}
+                  </text>
+
+                </ng-container>
+
+                <!-- Punto que destaca el número estudiado. -->
+                <circle
+                  [attr.cx]="
+                    40 + obtenerPosicionRectaNumerica(
+                      recurso.datos.valorDestacado,
+                      recurso.datos.minimo,
+                      recurso.datos.maximo
+                    ) * 5.2
+                  "
+                  cy="75"
+                  r="8"
+                  fill="#0d9488"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                />
+
+                <!-- Etiqueta del número destacado. -->
+                <text
+                  [attr.x]="
+                    40 + obtenerPosicionRectaNumerica(
+                      recurso.datos.valorDestacado,
+                      recurso.datos.minimo,
+                      recurso.datos.maximo
+                    ) * 5.2
+                  "
+                  y="48"
+                  text-anchor="middle"
+                  font-size="17"
+                  font-weight="bold"
+                  fill="#0f766e"
+                >
+                  {{ recurso.datos.valorDestacado }}
+                </text>
+
+              </svg>
+
+            </ng-container>
+
+            <!-- =====================================================
+                RECURSO VISUAL: FIGURAS GEOMÉTRICAS 2D
+
+                Representa figuras básicas mediante SVG.
+                Los datos provienen del recurso visual de la lección.
+                ===================================================== -->
+
+            <ng-container *ngIf="recurso.tipo === 'figura_geometrica_2d'">
+
+              <h3>📐 Aprende con figuras geométricas</h3>
+
+              <p class="titulo-recurso-visual">
+                {{ recurso.titulo }}
+              </p>
+
+              <!-- SVG adaptable al ancho disponible -->
+              <svg
+                class="figura-geometrica-svg"
+                viewBox="0 0 400 280"
+                role="img"
+                [attr.aria-label]="'Representación de ' + recurso.datos.figura"
+              >
+
+                <!-- Cuadrado -->
+                <ng-container *ngIf="recurso.datos.figura === 'cuadrado'">
+                  <rect
+                    x="120" y="55"
+                    width="160" height="160"
+                    fill="#ccfbf1"
+                    stroke="#0f766e"
+                    stroke-width="3"
+                  />
+                  <text x="200" y="240" text-anchor="middle"
+                        font-size="16" fill="#0f766e">
+                    Lado: {{ recurso.datos.lado }} {{ recurso.datos.unidad }}
+                  </text>
+                </ng-container>
+
+                <!-- Rectángulo -->
+                <ng-container *ngIf="recurso.datos.figura === 'rectangulo'">
+                  <rect
+                    x="75" y="75"
+                    width="250" height="125"
+                    fill="#dbeafe"
+                    stroke="#2563eb"
+                    stroke-width="3"
+                  />
+                  <text x="200" y="230" text-anchor="middle"
+                        font-size="15" fill="#1d4ed8">
+                    Base: {{ recurso.datos.base }} {{ recurso.datos.unidad }}
+                  </text>
+                  <text x="200" y="252" text-anchor="middle"
+                        font-size="15" fill="#1d4ed8">
+                    Altura: {{ recurso.datos.altura }} {{ recurso.datos.unidad }}
+                  </text>
+                </ng-container>
+
+                <!-- Triángulo -->
+                <ng-container *ngIf="recurso.datos.figura === 'triangulo'">
+                  <polygon
+                    points="200,40 80,210 320,210"
+                    fill="#fef3c7"
+                    stroke="#d97706"
+                    stroke-width="3"
+                  />
+                  <text x="200" y="238" text-anchor="middle"
+                        font-size="15" fill="#92400e">
+                    Base: {{ recurso.datos.base }} {{ recurso.datos.unidad }}
+                  </text>
+                  <text x="200" y="260" text-anchor="middle"
+                        font-size="15" fill="#92400e">
+                    Altura: {{ recurso.datos.altura }} {{ recurso.datos.unidad }}
+                  </text>
+                </ng-container>
+
+                <!-- Círculo -->
+                <ng-container *ngIf="recurso.datos.figura === 'circulo'">
+                  <circle
+                    cx="200" cy="130" r="90"
+                    fill="#ede9fe"
+                    stroke="#7c3aed"
+                    stroke-width="3"
+                  />
+                  <!-- Segmento que representa el radio -->
+                  <line
+                    x1="200" y1="130" x2="290" y2="130"
+                    stroke="#7c3aed"
+                    stroke-width="2"
+                  />
+                  <circle cx="200" cy="130" r="4" fill="#7c3aed" />
+                  <text x="200" y="250" text-anchor="middle"
+                        font-size="16" fill="#6d28d9">
+                    Radio: {{ recurso.datos.radio }} {{ recurso.datos.unidad }}
+                  </text>
+                </ng-container>
+
+              </svg>
+
+            </ng-container>
+
+            <!-- =====================================================
+              RECURSO VISUAL: PATRONES DE FIGURAS 2D
+
+              Representa sucesiones de cuadrados y rectángulos.
+              Cada figura utiliza los datos estructurados de la lección.
+              ===================================================== -->
+
+          <ng-container *ngIf="recurso.tipo === 'patron_figuras_2d'">
+
+            <h3>🔷 Aprende con patrones de figuras</h3>
+
+            <p class="titulo-recurso-visual">
+              {{ recurso.titulo }}
+            </p>
+
+            <!-- Primera implementación: patrones de crecimiento.
+                La modalidad repetitiva se habilitará posteriormente. -->
+            <ng-container *ngIf="recurso.datos.modalidad === 'crecimiento'">
+
+              <div
+                class="patron-figuras-contenedor"
+                role="group"
+                [attr.aria-label]="
+                  'Sucesión geométrica de ' +
+                  recurso.datos.elementos.length +
+                  ' figuras. Regla: ' +
+                  recurso.datos.regla
+                "
+              >
+
+                <!-- Cada elemento ocupa una tarjeta independiente
+                    para adaptarse a pantallas pequeñas. -->
+                <div
+                  *ngFor="let elemento of recurso.datos.elementos"
+                  class="patron-figura-item"
+                >
+
+                  <p class="patron-figura-posicion">
+                    Figura {{ elemento.posicion }}
+                  </p>
+
+                  <!-- El SVG utiliza dimensiones proporcionales a
+                      los valores recibidos, con un límite visual
+                      para evitar desbordamientos. -->
+                  <svg
+                    *ngIf="
+                      (elemento.figura === 'cuadrado' && elemento.lado) ||
+                      (elemento.figura === 'rectangulo' &&
+                        elemento.base && elemento.altura)
+                    "
+                    class="patron-figura-svg"
+                    viewBox="0 0 150 150"
+                    role="img"
+                    [attr.aria-label]="
+                      'Figura ' + elemento.posicion +
+                      ': ' + elemento.figura
+                    "
+                  >
+
+                    <!-- Cuadrado -->
+                    <rect
+                      *ngIf="elemento.figura === 'cuadrado'"
+                      [attr.x]="75 - (elemento.lado! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 55"
+                      [attr.y]="75 - (elemento.lado! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 55"
+                      [attr.width]="(elemento.lado! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 110"
+                      [attr.height]="(elemento.lado! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 110"
+                      fill="#ccfbf1"
+                      stroke="#0f766e"
+                      stroke-width="2.5"
+                    />
+
+                    <!-- Rectángulo -->
+                    <rect
+                      *ngIf="elemento.figura === 'rectangulo'"
+                      [attr.x]="75 - (elemento.base! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 55"
+                      [attr.y]="75 - (elemento.altura! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 55"
+                      [attr.width]="(elemento.base! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 110"
+                      [attr.height]="(elemento.altura! / obtenerDimensionMaximaPatron(recurso.datos.elementos)) * 110"
+                      fill="#dbeafe"
+                      stroke="#2563eb"
+                      stroke-width="2.5"
+                    />
+
+                  </svg>
+
+                  <!-- Medidas reales de la figura -->
+                  <p class="patron-figura-medidas" *ngIf="elemento.figura === 'cuadrado'">
+                    Lado: {{ elemento.lado }} {{ recurso.datos.unidad }}
+                  </p>
+
+                  <p class="patron-figura-medidas" *ngIf="elemento.figura === 'rectangulo'">
+                    {{ elemento.base }} × {{ elemento.altura }}
+                    {{ recurso.datos.unidad }}
+                  </p>
+
+                  <!-- Perímetro cuando esté disponible -->
+                  <p class="patron-figura-perimetro" *ngIf="elemento.perimetro != null">
+                    P = {{ elemento.perimetro }} {{ recurso.datos.unidad }}
+                  </p>
+
+                  <!-- Etiqueta matemática opcional -->
+                  <p *ngIf="elemento.etiqueta" class="patron-figura-etiqueta">
+                    {{ elemento.etiqueta }}
+                  </p>
+
+                </div>
+
+              </div>
+
+              <!-- Regla que explica el patrón -->
+              <p class="patron-figura-regla">
+                <strong>Regla del patrón:</strong>
+                {{ recurso.datos.regla }}
+              </p>
+
+            </ng-container>
+
+          </ng-container>
+
+            <!-- =====================================================
+              RECURSO VISUAL: PLANO CARTESIANO
+
+              Representa puntos sobre los ejes X e Y.
+              Utiliza coordenadas dinámicas recibidas del backend.
+              ===================================================== -->
+
+          <ng-container *ngIf="recurso.tipo === 'plano_cartesiano'">
+
+            <h3>📍 Aprende con el plano cartesiano</h3>
+
+            <p class="titulo-recurso-visual">
+              {{ recurso.titulo }}
+            </p>
+
+            <!--
+              El plano utiliza un área de dibujo de 400 × 400.
+              Dejamos márgenes para las etiquetas de los ejes.
+              Solo mostramos el SVG cuando los límites son válidos.
+            -->
+            <svg
+              *ngIf="
+                recurso.datos.maximoX > recurso.datos.minimoX &&
+                recurso.datos.maximoY > recurso.datos.minimoY &&
+                recurso.datos.intervalo > 0
+              "
+              class="plano-cartesiano-svg"
+              viewBox="0 0 400 400"
+              role="img"
+              [attr.aria-label]="
+                'Plano cartesiano con ' +
+                recurso.datos.puntos.length +
+                ' puntos'
+              "
+            >
+
+              <!-- Cuadrícula vertical -->
+              <ng-container
+                *ngFor="
+                  let marca of obtenerMarcasPlano(
+                    recurso.datos.minimoX,
+                    recurso.datos.maximoX,
+                    recurso.datos.intervalo
+                  )
+                "
+              >
+                <line
+                  [attr.x1]="obtenerPosicionXPlano(marca, recurso.datos)"
+                  y1="30"
+                  [attr.x2]="obtenerPosicionXPlano(marca, recurso.datos)"
+                  y2="370"
+                  stroke="#e2e8f0"
+                  stroke-width="1"
+                />
+              </ng-container>
+
+              <!-- Cuadrícula horizontal -->
+              <ng-container
+                *ngFor="
+                  let marca of obtenerMarcasPlano(
+                    recurso.datos.minimoY,
+                    recurso.datos.maximoY,
+                    recurso.datos.intervalo
+                  )
+                "
+              >
+                <line
+                  x1="30"
+                  [attr.y1]="obtenerPosicionYPlano(marca, recurso.datos)"
+                  x2="370"
+                  [attr.y2]="obtenerPosicionYPlano(marca, recurso.datos)"
+                  stroke="#e2e8f0"
+                  stroke-width="1"
+                />
+              </ng-container>
+
+              <!-- Eje X, cuando el cero pertenece al rango vertical -->
+              <line
+                *ngIf="recurso.datos.minimoY <= 0 && recurso.datos.maximoY >= 0"
+                x1="30"
+                [attr.y1]="obtenerPosicionYPlano(0, recurso.datos)"
+                x2="370"
+                [attr.y2]="obtenerPosicionYPlano(0, recurso.datos)"
+                stroke="#334155"
+                stroke-width="2"
+              />
+
+              <!-- Eje Y, cuando el cero pertenece al rango horizontal -->
+              <line
+                *ngIf="recurso.datos.minimoX <= 0 && recurso.datos.maximoX >= 0"
+                [attr.x1]="obtenerPosicionXPlano(0, recurso.datos)"
+                y1="30"
+                [attr.x2]="obtenerPosicionXPlano(0, recurso.datos)"
+                y2="370"
+                stroke="#334155"
+                stroke-width="2"
+              />
+
+              <!-- Etiquetas del eje horizontal -->
+              <ng-container
+                *ngFor="
+                  let marca of obtenerMarcasPlano(
+                    recurso.datos.minimoX,
+                    recurso.datos.maximoX,
+                    recurso.datos.intervalo
+                  )
+                "
+              >
+                <text
+                  [attr.x]="obtenerPosicionXPlano(marca, recurso.datos)"
+                  y="390"
+                  text-anchor="middle"
+                  font-size="11"
+                  fill="#475569"
+                >
+                  {{ marca }}
+                </text>
+              </ng-container>
+
+              <!-- Etiquetas del eje vertical -->
+              <ng-container
+                *ngFor="
+                  let marca of obtenerMarcasPlano(
+                    recurso.datos.minimoY,
+                    recurso.datos.maximoY,
+                    recurso.datos.intervalo
+                  )
+                "
+              >
+                <text
+                  x="22"
+                  [attr.y]="obtenerPosicionYPlano(marca, recurso.datos) + 4"
+                  text-anchor="end"
+                  font-size="11"
+                  fill="#475569"
+                >
+                  {{ marca }}
+                </text>
+              </ng-container>
+
+              <!-- Puntos cartesianos dinámicos -->
+              <ng-container *ngFor="let punto of recurso.datos.puntos">
+
+                <!-- No dibujar puntos fuera de los límites -->
+                <ng-container
+                  *ngIf="
+                    punto.x >= recurso.datos.minimoX &&
+                    punto.x <= recurso.datos.maximoX &&
+                    punto.y >= recurso.datos.minimoY &&
+                    punto.y <= recurso.datos.maximoY
+                  "
+                >
+                  <circle
+                    [attr.cx]="obtenerPosicionXPlano(punto.x, recurso.datos)"
+                    [attr.cy]="obtenerPosicionYPlano(punto.y, recurso.datos)"
+                    r="5"
+                    fill="#0d9488"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                  />
+
+                  <!-- Etiqueta del punto -->
+                  <text
+                    [attr.x]="obtenerPosicionXPlano(punto.x, recurso.datos) + 8"
+                    [attr.y]="obtenerPosicionYPlano(punto.y, recurso.datos) - 8"
+                    font-size="12"
+                    font-weight="bold"
+                    fill="#0f766e"
+                  >
+                    {{ punto.etiqueta }}
+                  </text>
+                </ng-container>
+
+              </ng-container>
+
+            </svg>
+
+          </ng-container>
+
+          <!-- =====================================================
+            RECURSO VISUAL: GRÁFICAS ESTADÍSTICAS
+            Representa datos mediante barras o líneas.
+            El SVG se adapta al tamaño de la pantalla.
+            ===================================================== -->
+        <ng-container *ngIf="recurso.tipo === 'grafica_estadistica'">
+
+          <h3>📊 Aprende con gráficas estadísticas</h3>
+
+          <p class="titulo-recurso-visual">
+            {{ recurso.titulo }}
+          </p>
+
+          <!-- Solo dibujar cuando los datos sean compatibles. -->
+          <svg
+            *ngIf="
+              recurso.datos.elementos.length <= 8 &&
+              (
+                (recurso.datos.modalidad === 'barras' &&
+                recurso.datos.elementos.length >= 1) ||
+                (recurso.datos.modalidad === 'lineas' &&
+                recurso.datos.elementos.length >= 2)
+              )
+            "
+            class="grafica-estadistica-svg"
+            viewBox="0 0 420 400"
+            role="img"
+            [attr.aria-label]="recurso.titulo"
+          >
+
+            <!-- Líneas horizontales y marcas del eje vertical. -->
+            <ng-container
+              *ngFor="let marca of obtenerMarcasGrafica(recurso.datos)"
+            >
+
+              <line
+                x1="50"
+                [attr.y1]="obtenerPosicionYGrafica(marca, recurso.datos)"
+                x2="370"
+                [attr.y2]="obtenerPosicionYGrafica(marca, recurso.datos)"
+                stroke="#e2e8f0"
+                stroke-width="1"
+              />
+
+              <text
+                x="43"
+                [attr.y]="obtenerPosicionYGrafica(marca, recurso.datos) + 4"
+                text-anchor="end"
+                font-size="11"
+                fill="#64748b"
+              >
+                {{ marca }}
+              </text>
+
+            </ng-container>
+
+            <!-- Eje horizontal. -->
+            <line
+              x1="50"
+              y1="330"
+              x2="370"
+              y2="330"
+              stroke="#334155"
+              stroke-width="2"
+            />
+
+            <!-- Eje vertical. -->
+            <line
+              x1="50"
+              y1="30"
+              x2="50"
+              y2="330"
+              stroke="#334155"
+              stroke-width="2"
+            />
+
+            <!-- ==========================================
+                MODALIDAD: GRÁFICA DE BARRAS
+                ========================================== -->
+            <ng-container *ngIf="recurso.datos.modalidad === 'barras'">
+
+              <ng-container
+                *ngFor="let elemento of recurso.datos.elementos; let i = index"
+              >
+
+                <!-- Barra proporcional al valor. -->
+                <rect
+                  [attr.x]="
+                    obtenerPosicionXGrafica(i, recurso.datos) -
+                    obtenerAnchoBarra(recurso.datos) / 2
+                  "
+                  [attr.y]="
+                    obtenerPosicionYGrafica(elemento.valor, recurso.datos)
+                  "
+                  [attr.width]="obtenerAnchoBarra(recurso.datos)"
+                  [attr.height]="obtenerAlturaBarra(elemento.valor, recurso.datos)"
+                  fill="#38bdf8"
+                  rx="3"
+                />
+
+                <!-- Valor encima de cada barra. -->
+                <text
+                  [attr.x]="obtenerPosicionXGrafica(i, recurso.datos)"
+                  [attr.y]="
+                    obtenerPosicionYGrafica(elemento.valor, recurso.datos) - 7
+                  "
+                  text-anchor="middle"
+                  font-size="11"
+                  fill="#334155"
+                >
+                  {{ elemento.valor }}
+                </text>
+
+              </ng-container>
+
+            </ng-container>
+
+            <!-- ==========================================
+                MODALIDAD: GRÁFICA DE LÍNEAS
+                ========================================== -->
+            <ng-container *ngIf="recurso.datos.modalidad === 'lineas'">
+
+              <!-- Unir puntos consecutivos. -->
+              <ng-container
+                *ngFor="
+                  let elemento of recurso.datos.elementos;
+                  let i = index
+                "
+              >
+
+                <line
+                  *ngIf="i > 0"
+                  [attr.x1]="obtenerPosicionXGrafica(i - 1, recurso.datos)"
+                  [attr.y1]="
+                    obtenerPosicionYGrafica(
+                      recurso.datos.elementos[i - 1].valor,
+                      recurso.datos
+                    )
+                  "
+                  [attr.x2]="obtenerPosicionXGrafica(i, recurso.datos)"
+                  [attr.y2]="obtenerPosicionYGrafica(elemento.valor, recurso.datos)"
+                  stroke="#0284c7"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+
+                <!-- Punto de cada categoría. -->
+                <circle
+                  [attr.cx]="obtenerPosicionXGrafica(i, recurso.datos)"
+                  [attr.cy]="obtenerPosicionYGrafica(elemento.valor, recurso.datos)"
+                  r="5"
+                  fill="#0284c7"
+                  stroke="white"
+                  stroke-width="2"
+                />
+
+                <!-- Valor del punto. -->
+                <text
+                  [attr.x]="obtenerPosicionXGrafica(i, recurso.datos)"
+                  [attr.y]="
+                    obtenerPosicionYGrafica(elemento.valor, recurso.datos) - 10
+                  "
+                  text-anchor="middle"
+                  font-size="11"
+                  fill="#334155"
+                >
+                  {{ elemento.valor }}
+                </text>
+
+              </ng-container>
+
+            </ng-container>
+
+            <!-- ==========================================
+                ETIQUETAS DEL EJE HORIZONTAL
+                Compartidas por ambas modalidades.
+                ========================================== -->
+            <ng-container
+              *ngFor="let elemento of recurso.datos.elementos; let i = index"
+            >
+
+              <text
+                [attr.x]="obtenerPosicionXGrafica(i, recurso.datos)"
+                y="350"
+                text-anchor="middle"
+                font-size="11"
+                fill="#475569"
+              >
+                {{ elemento.etiqueta }}
+              </text>
+
+            </ng-container>
+
+            <!-- Unidad de medida. -->
+            <text
+              x="50"
+              y="18"
+              font-size="12"
+              font-weight="600"
+              fill="#334155"
+            >
+              {{ recurso.datos.unidad }}
+            </text>
+
+          </svg>
+
+        </ng-container>
+
+          </section>
+
+          <!-- Controles exclusivos para estudiantes auditivos -->
+          <div
+            class="controles-audio"
+            *ngIf="prefiereAuditivo && audioDisponible"
+          >
+
+            <!-- Reproducir el ejemplo resuelto -->
+            <button
+              type="button"
+              *ngIf="!reproduciendoAudio"
+              (click)="reproducirAudio(leccionActual.ejemplo_resuelto, 'ejemplo')"
+            >
+              🔊 Escuchar ejemplo resuelto
+            </button>
+
+            <!-- Detener la reproducción -->
+            <button
+              type="button"
+              *ngIf="reproduciendoAudio && seccionAudioActiva === 'ejemplo'"
+              (click)="detenerAudio()"
+            >
+              ⏹️ Detener audio
+            </button>
+
+          </div>
+          
         </section>
 
         <section class="seccion-actividades">
@@ -412,15 +1361,23 @@
             [class.resultado-incorrecto]="!resultado.esCorrecta"
           >
 
-            <!-- Respuesta correcta -->
-            <h4 *ngIf="resultado.esCorrecta">
-              ¡Excelente! Respuesta correcta.
-            </h4>
+            <!-- =====================================================
+                RETROALIMENTACIÓN PEDAGÓGICA DE NEKO
 
-            <!-- Respuesta incorrecta -->
-            <h4 *ngIf="!resultado.esCorrecta">
-              ¡Sigue practicando! Revisemos tu respuesta.
-            </h4>
+                Acierto: muestra la explicación educativa.
+                Error: motiva a revisar el procedimiento sin
+                revelar la solución antes del siguiente intento.
+                ===================================================== -->
+
+            <app-neko-mensaje
+              [tipo]="resultado.esCorrecta ? 'acierto' : 'orientacion'"
+              [mensaje]="
+                resultado.esCorrecta
+                  ? (resultado.explicacion ||
+                    '¡Muy bien! Has resuelto correctamente esta actividad.')
+                  : '¡Buen intento! 🐾 Revisa el concepto que acabas de aprender, analiza las opciones y vuelve a intentarlo. ¡Tú puedes!'
+              ">
+            </app-neko-mensaje>
 
             <!-- Puntos ganados -->
             <p
@@ -442,24 +1399,6 @@
             >
               Ya habías obtenido los puntos de esta actividad.
             </p>
-
-            <!-- Mostrar respuesta correcta si falló -->
-            <p *ngIf="!resultado.esCorrecta">
-              <strong>Respuesta correcta:</strong>
-              {{ resultado.respuestaCorrecta }}
-            </p>
-
-            <!-- Explicación educativa -->
-            <div
-              *ngIf="resultado.explicacion"
-              class="explicacion-actividad"
-            >
-              <strong>Explicación:</strong>
-
-              <p>
-                {{ resultado.explicacion }}
-              </p>
-            </div>
 
           </div>
 

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { NekoMensaje } from '../../shared/neko-mensaje/neko-mensaje';
 
 import {
   ProgresoService,
@@ -15,7 +16,7 @@ import {
  */
 @Component({
   selector: 'app-logros',
-  imports: [],
+  imports: [NekoMensaje],
   templateUrl: './logros.html',
   styleUrl: './logros.css'
 })
@@ -76,7 +77,37 @@ export class Logros implements OnInit {
     });
   }
 
-  
+    obtenerMensajeNeko(): string {
+
+    // Identificar si el estudiante desbloqueó un logro.
+    const tieneLogro = (codigo: string): boolean =>
+      this.logros.some(
+        logro => logro.codigo === codigo && logro.desbloqueado
+      );
+
+    // Priorizar el logro de constancia.
+    if (tieneLogro('CONSTANCIA')) {
+      return '🔥 ¡Tres días aprendiendo! Tu constancia está dando frutos.';
+    }
+
+    // Reconocer los primeros 50 puntos XP.
+    if (tieneLogro('APRENDIZ_DESTACADO')) {
+      return '⭐ ¡Ya tienes 50 XP! Sigue así, estás haciendo un gran trabajo.';
+    }
+
+    // Celebrar la primera lección completada.
+    if (tieneLogro('PRIMERA_LECCION')) {
+      return '📚 ¡Increíble! Terminaste tu primera lección. ¡Vamos por más!';
+    }
+
+    // Celebrar el primer acierto.
+    if (tieneLogro('PRIMER_ACIERTO')) {
+      return '🎯 ¡Muy bien! Has conseguido tu primer acierto.';
+    }
+
+    // Mensaje para estudiantes que todavía no tienen logros.
+    return '🐱 ¡Bienvenido! Cada gran aventura comienza con un pequeño paso.';
+  }
   // Regresa al dashboard principal del estudiante.
 
   volverAlDashboard(): void {
