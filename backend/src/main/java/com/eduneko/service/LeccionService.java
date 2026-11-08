@@ -1,6 +1,7 @@
 package com.eduneko.service;
 
 import com.eduneko.repository.LeccionRepository;
+import com.eduneko.repository.ActividadRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,6 +18,7 @@ import java.util.Map;
 @Service
 public class LeccionService {
 
+    private final ActividadRepository actividadRepository;
     private final LeccionRepository leccionRepository;
     private final DiagnosticoService diagnosticoService;
     private final NamedParameterJdbcTemplate jdbc;
@@ -32,7 +34,8 @@ public class LeccionService {
             GeneradorContenidoIAService generadorContenidoIAService,
             PersonalizacionPedagogicaService personalizacionPedagogicaService,
             ObjectMapper objectMapper,
-            ValidadorContenidoIAService validadorContenidoIAService
+            ValidadorContenidoIAService validadorContenidoIAService,
+            ActividadRepository actividadRepository
     ) {
         this.leccionRepository = leccionRepository;
         this.diagnosticoService = diagnosticoService;
@@ -41,6 +44,7 @@ public class LeccionService {
         this.personalizacionPedagogicaService = personalizacionPedagogicaService;
         this.objectMapper = objectMapper;
         this.validadorContenidoIAService = validadorContenidoIAService;
+        this.actividadRepository = actividadRepository;
     }
 
     @Transactional(readOnly = true)
@@ -76,6 +80,12 @@ public class LeccionService {
   
         Long estudianteId =
                 diagnosticoService.obtenerEstudianteId(correo);
+
+        Map<String, Object> desempenoAnterior =
+        actividadRepository.obtenerDesempenoAnterior(
+                unidadId,
+                estudianteId
+        );
 
         String sqlPreferencias = """
             SELECT
@@ -155,7 +165,8 @@ public class LeccionService {
                 "prioridad", primeraFila.get("prioridad"),
                 "gradoEscolar", primeraFila.get("grado_escolar"),
                 "procesosAprendizaje", pdas,
-                "preferenciasAprendizaje", preferencias
+                "preferenciasAprendizaje", preferencias,
+                "desempenoAnterior", desempenoAnterior
         );
     }
 

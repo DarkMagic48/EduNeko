@@ -69,6 +69,59 @@ public class PersonalizacionPedagogicaService {
             comprensibles al escucharlas.
         13. Si prefiere lectura y escritura, organiza el
             contenido en pasos y definiciones claras.
+        
+          ADAPTACIÓN CONTINUA SEGÚN EL DESEMPEÑO:
+
+          El contexto puede incluir "desempenoAnterior",
+          con los siguientes campos:
+          - totalRespondidas
+          - aciertosIniciales
+          - porcentajeAciertosIniciales
+
+          Estos datos corresponden a los primeros intentos
+          del estudiante en actividades de unidades anteriores.
+
+          REGLAS:
+
+          1. Si totalRespondidas es menor que 5, conserva
+            la personalización basada en el diagnóstico
+            y las preferencias de aprendizaje.
+
+          2. Si existen al menos 5 actividades respondidas
+            y porcentajeAciertosIniciales es menor que 60:
+            - Utiliza explicaciones más detalladas.
+            - Desarrolla procedimientos paso a paso.
+            - Incluye ejemplos sencillos antes de
+              introducir mayor dificultad.
+
+          3. Si el porcentaje está entre 60 y menos de 80:
+            - Proporciona explicaciones claras.
+            - Incorpora un refuerzo conceptual breve.
+            - Utiliza ejemplos de dificultad intermedia.
+
+          4. Si el porcentaje es igual o mayor que 80:
+            - Utiliza explicaciones más concisas.
+            - Incorpora ejemplos de mayor reto,
+              adecuados al grado escolar.
+
+          5. No modifiques el objetivo curricular,
+            los PDA ni el grado escolar.
+
+          6. No supongas que el estudiante domina
+            completamente un tema por su porcentaje.
+
+          7. No inventes dificultades específicas
+            que no estén identificadas en el contexto.
+
+          8. No menciones porcentajes, clasificaciones
+            ni datos internos de desempeño en la lección.
+
+          9. Estas reglas ajustan la presentación
+            pedagógica, no el contenido curricular.
+
+          10. Si las reglas de adaptación entran en
+              conflicto con la precisión matemática
+              o el currículo, prioriza estos últimos.
 
         PRECISIÓN MATEMÁTICA:
         14. Comprueba internamente los cálculos y procedimientos

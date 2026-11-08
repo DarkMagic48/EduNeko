@@ -334,4 +334,77 @@ public class ActividadRepository {
 
         return respuestas;
     }
+
+        public Map<String, Object> obtenerDesempenoAnterior(
+            Long unidadId,
+            Long estudianteId) {
+
+        String sql = """
+            WITH unidad_actual AS (
+                SELECT
+                    pu.plan_aprendizaje_id
+                FROM plan_unidad pu
+                INNER JOIN plan_aprendizaje p
+                    ON p.id = pu.plan_aprendizaje_id
+                WHERE pu.id = :unidadId
+                AND p.estudiante_id = :estudianteId
+                AND p.estado = 'ACTIVO'
+            ),
+            primeros_intentos AS (
+                SELECT DISTINCT ON (ai.actividad_id)
+                    ai.actividad_id,
+                    ai.es_correcta
+                FROM actividad_intento ai
+                INNER JOIN actividad a
+                    ON a.id = ai.actividad_id
+                INNER JOIN leccion l
+                    ON l.id = a.leccion_id
+                INNER JOIN plan_unidad pu
+                    ON pu.id = l.plan_unidad_id
+                INNER JOIN unidad_actual ua
+                    ON ua.plan_aprendizaje_id =
+                        pu.plan_aprendizaje_id
+                WHERE ai.estudiante_id = :estudianteId
+                AND pu.id <> :unidadId
+                ORDER BY
+                    ai.actividad_id,
+                    ai.fecha_respuesta ASC,
+                    ai.id ASC
+            )
+            SELECT
+                COUNT(*) AS total_respondidas,
+                COUNT(*) FILTER (
+                    WHERE es_correcta = TRUE
+                ) AS aciertos_iniciales
+            FROM primeros_intentos
+            """;
+
+        var parametros = new MapSqlParameterSource()
+                .addValue("unidadId", unidadId)
+                .addValue("estudianteId", estudianteId);
+
+        // Recupera los datos agregados del desempeño anterior.
+        Map<String, Object> resultado =
+                jdbc.queryForMap(sql, parametros);
+
+        long total = ((Number) resultado.get(
+                "total_respondidas")).longValue();
+
+        long aciertos = ((Number) resultado.get(
+                "aciertos_iniciales")).longValue();
+
+        // Si todavía no hay respuestas, no se calcula
+        // un porcentaje que pudiera interpretarse
+        // erróneamente como bajo desempeño.
+        Double porcentaje = total == 0
+                ? null
+                : Math.round(aciertos * 10000.0 / total) / 100.0;
+
+        return Map.of(
+                "totalRespondidas", total,
+                "aciertosIniciales", aciertos,
+                "porcentajeAciertosIniciales",
+                porcentaje == null ? -1.0 : porcentaje
+        );
+    }
 }
