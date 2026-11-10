@@ -137,28 +137,31 @@ public class ActividadRepository {
             JsonNode opciones,
             String respuestaCorrecta,
             String explicacionRespuesta,
+            String pistaPedagogica,
             int orden) {
-
-        String sql = """
-            INSERT INTO actividad (
-                leccion_id,
-                pregunta,
-                tipo,
-                opciones,
-                respuesta_correcta,
-                explicacion_respuesta,
-                orden
-            )
-            VALUES (
-                :leccionId,
-                :pregunta,
-                :tipo,
-                CAST(:opciones AS jsonb),
-                :respuestaCorrecta,
-                :explicacionRespuesta,
-                :orden
-            )
-            """;
+        
+    String sql = """
+        INSERT INTO actividad (
+            leccion_id,
+            pregunta,
+            tipo,
+            opciones,
+            respuesta_correcta,
+            explicacion_respuesta,
+            pista_pedagogica,
+            orden
+        )
+        VALUES (
+            :leccionId,
+            :pregunta,
+            :tipo,
+            CAST(:opciones AS jsonb),
+            :respuestaCorrecta,
+            :explicacionRespuesta,
+            :pistaPedagogica,
+            :orden
+        )
+        """;
 
         String opcionesJson = null;
 
@@ -174,6 +177,7 @@ public class ActividadRepository {
                         .addValue("opciones", opcionesJson)
                         .addValue("respuestaCorrecta", respuestaCorrecta)
                         .addValue("explicacionRespuesta", explicacionRespuesta)
+                        .addValue("pistaPedagogica", pistaPedagogica)
                         .addValue("orden", orden);
 
         jdbc.update(sql, parametros);
@@ -190,7 +194,8 @@ public class ActividadRepository {
             tipo,
             opciones,
             respuesta_correcta,
-            explicacion_respuesta
+            explicacion_respuesta,
+            pista_pedagogica
         FROM actividad
         WHERE id = :actividadId
         """;

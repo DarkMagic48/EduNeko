@@ -12,6 +12,10 @@ import {
     SeleccionarMateriasResponse
 } from '../models/estudiante.models';
 
+export interface EstadoOnboardingResponse {
+    onboardingCompletado: boolean;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -54,6 +58,20 @@ export class EstudianteService {
         return this.http.put<SeleccionarMateriasResponse>(
             `${this.estudianteUrl}/materias`,
             datos
+        );
+    }
+
+    obtenerMateriasSeleccionadas(): Observable<Materia[]> {
+
+        return this.http.get<Materia[]>(
+            `${this.estudianteUrl}/materias`
+        );
+    }
+
+    obtenerEstadoOnboarding(): Observable<EstadoOnboardingResponse> {
+
+        return this.http.get<EstadoOnboardingResponse>(
+            `${this.estudianteUrl}/estado-onboarding`
         );
     }
 }

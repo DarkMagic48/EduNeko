@@ -1,0 +1,54 @@
+<!-- Pantalla de bienvenida oficial de EduNeko -->
+<main class="bienvenida-page">
+
+  <section class="bienvenida-card">
+
+    <!-- Encabezado de la bienvenida -->
+    <header class="bienvenida-header">
+      <h1>
+        ¡Bienvenida a EduNeko!
+        <span aria-hidden="true">👋</span>
+      </h1>
+
+      <p class="bienvenida-presentacion">
+        Soy Neko, tu compañero de aprendizaje.
+      </p>
+    </header>
+
+    <!-- Mascota oficial -->
+    <div class="bienvenida-mascota">
+      <span class="destello destello-izquierdo"
+            aria-hidden="true">✦</span>
+
+      <img
+        src="/images/neko/poses/neko-mascota-oficial.png"
+        alt="Neko, la mascota de EduNeko, saludando"
+        class="neko-imagen"
+      />
+
+      <span class="destello destello-derecho"
+            aria-hidden="true">✦</span>
+    </div>
+
+    <!-- Mensaje motivacional -->
+    <div class="bienvenida-mensaje">
+      <p>
+        Juntos haremos que aprender sea
+        <strong>divertido, fácil y emocionante.</strong>
+      </p>
+    </div>
+
+    <!-- Acción principal -->
+    <div class="bienvenida-acciones">
+      <button
+        type="button"
+        class="bienvenida-boton"
+        (click)="comenzarConfiguracion()"
+      >
+        Comenzar mi aventura
+      </button>
+    </div>
+
+  </section>
+
+</main>

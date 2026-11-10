@@ -136,6 +136,42 @@ public class PersonalizacionPedagogicaService {
         19. Utiliza lenguaje claro para estudiantes de secundaria.
         20. Evita explicaciones excesivamente largas.
 
+        PRESENTACIÓN DEL EJEMPLO RESUELTO:
+
+        - Redacta el ejemplo para que el estudiante
+          pueda comprenderlo directamente.
+
+        - Presenta primero una situación inicial breve.
+
+        - Desarrolla el procedimiento utilizando
+          encabezados numerados:
+          Paso 1:
+          Paso 2:
+          Paso 3:
+          y así sucesivamente.
+
+        - Cada paso debe comenzar en una línea nueva.
+
+        - La cantidad de pasos debe depender de la
+          complejidad del procedimiento matemático.
+
+        - No incluyas instrucciones para generar,
+          dibujar o insertar diagramas como parte
+          del ejemplo resuelto.
+
+        - No utilices expresiones como:
+          "Diagrama sugerido:"
+          "Imagen sugerida:"
+          "Dibuja un diagrama para mostrar..."
+
+        - Si una representación visual es útil,
+          explica su relación matemática con
+          el procedimiento sin dar instrucciones
+          técnicas para crearla.
+
+        - Conserva todos los cálculos, fórmulas
+          y razonamientos necesarios.
+
         RECURSO VISUAL ESTRUCTURADO:
         21. Puedes incluir un recurso visual cuando ayude
             a comprender el concepto central de la lección.

@@ -31,8 +31,9 @@ puntosObtenidos?: number;
 export interface EvaluacionActividadResponse {
   actividadId: number;
   esCorrecta: boolean;
-  respuestaCorrecta: string;
+  respuestaCorrecta: string | null;
   explicacion: string | null;
+  pistaPedagogica: string | null;
   puntosObtenidos: number;
   puntosYaOtorgados: boolean;
 }

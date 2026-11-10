@@ -220,11 +220,21 @@ public class EvaluacionActividadService {
 
         resultado.put("actividadId", actividadId);
         resultado.put("esCorrecta", esCorrecta);
-        resultado.put("respuestaCorrecta", respuestaCorrecta);
+        resultado.put(
+                "respuestaCorrecta",
+                esCorrecta ? respuestaCorrecta : null
+        );
 
         resultado.put(
                 "explicacion",
-                actividad.get("explicacion_respuesta")
+                esCorrecta
+                        ? actividad.get("explicacion_respuesta")
+                        : null
+        );
+
+        resultado.put(
+                "pistaPedagogica",
+                esCorrecta ? null : actividad.get("pista_pedagogica")
         );
 
         resultado.put("puntosObtenidos", puntosObtenidos);

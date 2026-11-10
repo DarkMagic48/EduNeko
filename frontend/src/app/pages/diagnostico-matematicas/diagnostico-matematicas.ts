@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { DiagnosticoService } from '../../services/diagnostico.service';
 import { DiagnosticoInicioResponse } from '../../models/diagnostico.models';
 import { DiagnosticoResultadoResponse } from '../../models/diagnostico.models';
@@ -13,6 +14,7 @@ import { DiagnosticoResultadoResponse } from '../../models/diagnostico.models';
 export class DiagnosticoMatematicas implements OnInit {
 
   private readonly diagnosticoService = inject(DiagnosticoService);
+  private readonly router = inject(Router);
 
   diagnostico: DiagnosticoInicioResponse | null = null;
 
@@ -192,5 +194,16 @@ export class DiagnosticoMatematicas implements OnInit {
 
   return [...this.resultado.resultadosPorTema]
     .sort((a, b) => a.totalAciertos - b.totalAciertos);
+  }
+
+  irAlPlanAprendizaje(): void {
+
+  // Evitar continuar si el diagnóstico no está completado.
+  if (!this.resultado) {
+    return;
+  }
+
+  // Navegar a la pantalla del plan de Matemáticas.
+    this.router.navigate(['/plan/matematicas']);
   }
 }

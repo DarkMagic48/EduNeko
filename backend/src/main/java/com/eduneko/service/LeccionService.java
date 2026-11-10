@@ -807,6 +807,39 @@ public class LeccionService {
         return recursoValidado.toString();
         }
 
+        private String limpiarInstruccionesVisuales(
+                String ejemploResuelto) {
+
+        if (ejemploResuelto == null
+                || ejemploResuelto.isBlank()) {
+                return ejemploResuelto;
+        }
+
+        // Identifica etiquetas de instrucciones visuales
+        // situadas al comienzo de una línea.
+        //
+        // No elimina menciones de diagramas dentro
+        // de explicaciones matemáticas normales.
+        String patron = "(?im)^\\s*"
+                + "(?:Diagrama sugerido|Imagen sugerida)"
+                + "\\s*:\\s*[^\\r\\n]*";
+
+        // Elimina únicamente las líneas identificadas.
+        String resultado = ejemploResuelto.replaceAll(
+                patron,
+                ""
+        );
+
+        // Reduce los espacios verticales excesivos
+        // sin modificar el contenido matemático.
+        resultado = resultado.replaceAll(
+                "(\\r?\\n){3,}",
+                "\n\n"
+        );
+
+        return resultado.trim();
+        }
+
         /**
          * Convierte el recurso visual almacenado en PostgreSQL
          * de texto JSON a un objeto que Angular pueda utilizar.
@@ -821,6 +854,16 @@ public class LeccionService {
         // directamente el resultado del repositorio.
         Map<String, Object> respuesta =
                 new java.util.HashMap<>(leccion);
+
+        Object ejemploOriginal = respuesta.get("ejemplo_resuelto");
+
+        if (ejemploOriginal instanceof String ejemploTexto) {
+
+        String ejemploLimpio =
+                limpiarInstruccionesVisuales(ejemploTexto);
+
+        respuesta.put("ejemplo_resuelto", ejemploLimpio);
+        }
 
         Object recursoVisual = respuesta.get("recurso_visual");
 

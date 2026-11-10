@@ -1,0 +1,290 @@
+/* ==========================================
+   EDUNEKO V1 - PANTALLA DE BIENVENIDA
+   ========================================== */
+
+/* Contenedor principal */
+.bienvenida-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 20px;
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(108, 99, 255, 0.13),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(34, 199, 184, 0.12),
+      transparent 35%
+    ),
+    #f5f7fb;
+
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Tarjeta central */
+.bienvenida-card {
+  width: 100%;
+  max-width: 720px;
+  padding: 44px 48px;
+  border-radius: 32px;
+  background: #ffffff;
+  text-align: center;
+  box-sizing: border-box;
+
+  box-shadow:
+    0 20px 60px rgba(47, 53, 69, 0.08);
+
+  border: 1px solid rgba(108, 99, 255, 0.08);
+}
+
+/* ==========================================
+   ENCABEZADO
+   ========================================== */
+
+.bienvenida-header h1 {
+  margin: 0 0 14px;
+  color: #6c63ff;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.bienvenida-presentacion {
+  margin: 0;
+  color: #2f3545;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   MASCOTA NEKO
+   ========================================== */
+
+.bienvenida-mascota {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 26px auto 18px;
+  min-height: 245px;
+}
+
+.neko-imagen {
+  display: block;
+  width: min(100%, 250px);
+  height: auto;
+  object-fit: contain;
+
+  /* Animación suave de entrada */
+  animation: neko-aparece 0.8s ease-out both;
+}
+
+.destello {
+  position: absolute;
+  color: #ffc857;
+  font-size: 36px;
+  animation: destello-brilla 2.8s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+}
+
+.destello-izquierdo {
+  left: 19%;
+  top: 25%;
+}
+
+.destello-derecho {
+  right: 18%;
+  bottom: 26%;
+  font-size: 28px;
+  animation-delay: 1s;
+}
+
+/* ==========================================
+   MENSAJE MOTIVACIONAL
+   ========================================== */
+
+.bienvenida-mensaje {
+  max-width: 490px;
+  margin: 0 auto 30px;
+}
+
+.bienvenida-mensaje p {
+  margin: 0;
+  color: #596174;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.bienvenida-mensaje strong {
+  color: #6c63ff;
+  font-weight: 700;
+}
+
+/* ==========================================
+   BOTÓN PRINCIPAL
+   ========================================== */
+
+.bienvenida-acciones {
+  display: flex;
+  justify-content: center;
+}
+
+.bienvenida-boton {
+  width: 100%;
+  max-width: 340px;
+  min-height: 54px;
+  padding: 14px 28px;
+
+  border: none;
+  border-radius: 16px;
+  background: #6c63ff;
+  color: #ffffff;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: 0 8px 20px rgba(108, 99, 255, 0.22);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.bienvenida-boton:hover {
+  background: #5146e5;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(108, 99, 255, 0.28);
+}
+
+.bienvenida-boton:active {
+  transform: translateY(0);
+}
+
+.bienvenida-boton:focus-visible {
+  outline: 3px solid #22c7b8;
+  outline-offset: 4px;
+}
+
+/* ==========================================
+   ANIMACIONES
+   ========================================== */
+
+@keyframes neko-aparece {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes destello-brilla {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* ==========================================
+   TABLETS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .bienvenida-card {
+    max-width: 580px;
+    padding: 36px 28px;
+  }
+
+  .bienvenida-presentacion {
+    font-size: 17px;
+  }
+
+  .bienvenida-mensaje p {
+    font-size: 16px;
+  }
+}
+
+/* ==========================================
+   CELULARES
+   ========================================== */
+
+@media (max-width: 480px) {
+  .bienvenida-page {
+    padding: 16px;
+  }
+
+  .bienvenida-card {
+    padding: 32px 20px;
+    border-radius: 24px;
+  }
+
+  .bienvenida-header h1 {
+    font-size: 27px;
+  }
+
+  .bienvenida-presentacion {
+    font-size: 16px;
+  }
+
+  .bienvenida-mascota {
+    min-height: 195px;
+    margin: 22px auto 16px;
+  }
+
+  .neko-imagen {
+    width: min(100%, 190px);
+  }
+
+  .destello-izquierdo {
+    left: 7%;
+  }
+
+  .destello-derecho {
+    right: 7%;
+  }
+
+  .bienvenida-mensaje {
+    margin-bottom: 26px;
+  }
+
+  .bienvenida-mensaje p {
+    font-size: 15px;
+  }
+
+  .bienvenida-boton {
+    max-width: none;
+    font-size: 16px;
+  }
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .neko-imagen,
+  .destello {
+    animation: none;
+  }
+
+  .bienvenida-boton {
+    transition: none;
+  }
+}

@@ -1,6 +1,7 @@
 
 <div class="pagina-plan">
 
+  <!-- Encabezado principal -->
   <header class="encabezado">
     <button
       type="button"
@@ -10,17 +11,17 @@
     </button>
 
     <h1>Mi plan de aprendizaje</h1>
-    <p>
-      Tu ruta personalizada para aprender a tu ritmo.
-    </p>
+    <p>Tu ruta personalizada para aprender a tu ritmo.</p>
   </header>
 
   <main class="contenido">
 
+    <!-- Estado de carga -->
     <div *ngIf="cargando" class="mensaje">
       Cargando tu plan de aprendizaje...
     </div>
 
+    <!-- Mensaje de error -->
     <section *ngIf="!cargando && error" class="mensaje error">
       <p>{{ error }}</p>
       <button type="button" (click)="cargarPlan()">
@@ -28,6 +29,7 @@
       </button>
     </section>
 
+    <!-- Plan todavía no generado -->
     <section *ngIf="!cargando && sinPlan" class="mensaje">
       <h2>Tu plan todavía no está disponible</h2>
 
@@ -49,23 +51,63 @@
 
     <ng-container *ngIf="!cargando && plan as planActual">
 
+      <!-- =====================================
+           RESUMEN DE MATEMÁTICAS
+           ===================================== -->
       <section class="resumen-plan">
-        <div>
-          <span class="etiqueta">Materia</span>
+
+        <div class="resumen-informacion">
+
+          <span class="etiqueta">Mi materia</span>
           <h2>{{ planActual.materiaNombre }}</h2>
-          <p>
-            {{ planActual.gradoEscolar }}.º de secundaria
-          </p>
+          <p>{{ planActual.gradoEscolar }}.º de secundaria</p>
+
+          <!-- Progreso general -->
+          <div class="progreso-general">
+
+            <div class="progreso-informacion">
+              <span>Progreso total de la materia</span>
+              <strong>{{ calcularProgresoGeneral() }}%</strong>
+            </div>
+
+            <div
+              class="barra-progreso"
+              role="progressbar"
+              [attr.aria-valuenow]="calcularProgresoGeneral()"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-label="Progreso general de Matemáticas">
+
+              <div
+                class="barra-relleno"
+                [style.width.%]="calcularProgresoGeneral()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Contador de unidades -->
+          <div class="estadisticas">
+            <div>
+              <strong>{{ planActual.unidades.length }}</strong>
+              <span>Unidades de aprendizaje</span>
+            </div>
+          </div>
+
         </div>
 
-        <div class="estadisticas">
-          <div>
-            <strong>{{ planActual.unidades.length }}</strong>
-            <span>Unidades</span>
-          </div>
+        <!-- Mascota oficial -->
+        <div class="resumen-neko">
+          <img
+            src="/images/neko/situaciones/neko_estudiando.png"
+            alt="Neko acompañándote en Matemáticas"
+            class="imagen-neko">
         </div>
+
       </section>
 
+      <!-- =====================================
+           CARRUSEL DE UNIDADES
+           ===================================== -->
       <section class="seccion-unidades">
 
         <h2>Tu ruta de aprendizaje</h2>
@@ -75,106 +117,162 @@
           mayor atención según tu diagnóstico.
         </p>
 
-        <article
-          *ngFor="let unidad of planActual.unidades; trackBy: identificarUnidad"
-          class="tarjeta-unidad">
+        <!-- Flechas y tarjetas del carrusel -->
+        <div class="carrusel-unidades">
 
-          <div class="unidad-encabezado">
-            <span class="numero-unidad">
-              Unidad {{ unidad.orden }}
-            </span>
+          <!-- Flecha izquierda: se activará en TS -->
+          <button
+            type="button"
+            class="flecha-carrusel"
+            aria-label="Ver unidades anteriores"
+            (click)="moverCarrusel(-1)">
+            ‹
+          </button>
 
-            <span
-              class="prioridad"
-              [ngClass]="clasePrioridad(unidad.prioridad)">
-              {{ etiquetaPrioridad(unidad.prioridad) }}
-            </span>
-          </div>
+          <!-- Pista horizontal de unidades -->
+          <div class="carrusel-pista" #pistaUnidades>
 
-          <h3>{{ unidad.titulo }}</h3>
+            <!-- Cada unidad conserva sus datos reales -->
+            <article
+              *ngFor="let unidad of planActual.unidades; trackBy: identificarUnidad"
+              class="tarjeta-unidad"
+              [ngClass]="{
+                'unidad-completada': unidad.estado === 'COMPLETADA',
+                'unidad-en-progreso': unidad.estado === 'EN_PROGRESO',
+                'unidad-disponible': unidad.estado === 'DISPONIBLE'
+              }">
 
-          <p class="objetivo">
-            {{ unidad.objetivo }}
-          </p>
+              <!-- Número y prioridad -->
+              <div class="unidad-encabezado">
+                <span class="numero-unidad">
+                  Unidad {{ unidad.orden }}
+                </span>
 
-          <div class="progreso">
-            <div class="progreso-informacion">
-              <span>Progreso</span>
-              <strong>
-                {{ unidad.progresoPorcentaje }}%
-              </strong>
-            </div>
-
-            <div
-              class="barra-progreso"
-              role="progressbar"
-              [attr.aria-valuenow]="unidad.progresoPorcentaje"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              [attr.aria-label]="'Progreso de ' + unidad.titulo">
-              <div
-                class="barra-relleno"
-                [style.width.%]="unidad.progresoPorcentaje">
+                <span
+                  class="prioridad"
+                  [ngClass]="clasePrioridad(unidad.prioridad)">
+                  {{ etiquetaPrioridad(unidad.prioridad) }}
+                </span>
               </div>
-            </div>
+
+              <!-- Icono temático y nombre de la unidad -->
+              <div class="unidad-titulo">
+
+                <span
+                  class="icono-tematico"
+                  aria-hidden="true">
+                  {{ obtenerIconoUnidad(unidad.titulo) }}
+                </span>
+
+                <h3>{{ unidad.titulo }}</h3>
+
+              </div>
+
+              <!-- Objetivo pedagógico -->
+              <p class="objetivo">
+                {{ unidad.objetivo }}
+              </p>
+
+              <!-- Progreso de la unidad -->
+              <div class="progreso">
+                <div class="progreso-informacion">
+                  <span>Progreso</span>
+                  <strong>{{ unidad.progresoPorcentaje }}%</strong>
+                </div>
+
+                <div
+                  class="barra-progreso"
+                  role="progressbar"
+                  [attr.aria-valuenow]="unidad.progresoPorcentaje"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-label]="'Progreso de ' + unidad.titulo">
+
+                  <div
+                    class="barra-relleno"
+                    [style.width.%]="unidad.progresoPorcentaje">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Estado y acciones -->
+              <div class="unidad-pie">
+
+                <span class="estado">
+                  {{
+                    unidad.estado === 'COMPLETADA'
+                      ? 'Completada'
+                      : unidad.estado === 'EN_PROGRESO'
+                      ? 'En progreso'
+                      : 'Disponible'
+                  }}
+                </span>
+
+                <!-- Acceso a la lección -->
+                <button
+                  type="button"
+                  class="boton-comenzar"
+                  (click)="comenzarLeccion(unidad)">
+
+                  {{
+                    unidad.estado === 'COMPLETADA'
+                      ? 'Repasar lección'
+                      : unidad.estado === 'EN_PROGRESO'
+                      ? 'Continuar lección'
+                      : 'Comenzar lección'
+                  }}
+                </button>
+
+                <!-- Aprendizajes relacionados -->
+                <button
+                  type="button"
+                  class="boton-detalles"
+                  [attr.aria-expanded]="unidadExpandida === unidad.id"
+                  (click)="alternarUnidad(unidad.id)">
+
+                  {{
+                    unidadExpandida === unidad.id
+                      ? 'Ocultar aprendizajes'
+                      : 'Ver aprendizajes'
+                  }}
+                </button>
+
+              </div>
+
+              <!-- Detalle de aprendizajes -->
+              <div
+                *ngIf="unidadExpandida === unidad.id"
+                class="detalle-unidad">
+
+                <h4>Aprendizajes relacionados</h4>
+
+                <p class="nota-pda">
+                  Estos aprendizajes orientan el contenido
+                  de tu unidad.
+                </p>
+
+                <ul>
+                  <li *ngFor="let pda of unidad.procesosAprendizaje">
+                    {{ pda.descripcion }}
+                  </li>
+                </ul>
+
+              </div>
+
+            </article>
+
           </div>
 
-          <div class="unidad-pie">
-            <span class="estado">
-              {{ unidad.estado === 'DISPONIBLE'
-                ? 'Disponible'
-                : unidad.estado === 'EN_PROGRESO'
-                ? 'En progreso'
-                : unidad.estado === 'COMPLETADA'
-                ? 'Completada'
-                : 'Bloqueada' }}
-            </span>
+          <!-- Flecha derecha: se activará en TS -->
+          <button
+            type="button"
+            class="flecha-carrusel"
+            aria-label="Ver unidades siguientes"
+            (click)="moverCarrusel(1)">
+            ›
+          </button>
 
-            <button
-              type="button"
-              class="boton-comenzar"
-              [disabled]="unidad.estado === 'BLOQUEADA'"
-              (click)="comenzarLeccion(unidad)">
-
-              {{ unidad.estado === 'COMPLETADA'
-                ? 'Repasar lección'
-                : unidad.estado === 'EN_PROGRESO'
-                ? 'Continuar lección'
-                : 'Comenzar lección' }}
-
-            </button>
-
-            <button
-              type="button"
-              class="boton-detalles"
-              [attr.aria-expanded]="unidadExpandida === unidad.id"
-              (click)="alternarUnidad(unidad.id)">
-              {{ unidadExpandida === unidad.id
-                ? 'Ocultar aprendizajes'
-                : 'Ver aprendizajes' }}
-            </button>
-          </div>
-
-          <div
-            *ngIf="unidadExpandida === unidad.id"
-            class="detalle-unidad">
-
-            <h4>Aprendizajes relacionados</h4>
-
-            <p class="nota-pda">
-              Estos aprendizajes orientan el contenido
-              de tu unidad.
-            </p>
-
-            <ul>
-              <li *ngFor="let pda of unidad.procesosAprendizaje">
-                {{ pda.descripcion }}
-              </li>
-            </ul>
-
-          </div>
-
-        </article>
+        </div>
 
       </section>
 

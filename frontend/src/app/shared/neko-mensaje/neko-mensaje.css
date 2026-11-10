@@ -1,0 +1,321 @@
+
+/* =========================================
+   EDUNEKO V1 - COMPONENTE NEKO MENSAJE
+   ========================================= */
+
+/* Contenedor principal del mensaje */
+.neko-mensaje {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+
+  box-sizing: border-box;
+  width: 100%;
+  margin: 16px 0;
+  padding: 18px 20px;
+
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-left: 4px solid #8b5cf6;
+  border-radius: 14px;
+}
+/*
+ * Contenedor de la mascota.
+ *
+ * Se utiliza un tamaño mayor que el avatar
+ * provisional para mostrar las expresiones
+ * de Neko con suficiente detalle.
+ */
+.neko-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+
+  background: transparent;
+  border-radius: 12px;
+}
+
+/*
+ * Imagen oficial de Neko.
+ *
+ * object-fit: contain evita deformaciones
+ * y permite mostrar la ilustración completa.
+ */
+.neko-avatar-imagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Contenedor del texto */
+.neko-contenido {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Título del mensaje */
+.neko-titulo {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #312e81;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Texto educativo */
+.neko-texto {
+  margin: 0;
+
+  color: #334155;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   VARIANTES SEGÚN EL TIPO DE MENSAJE
+   ========================================= */
+
+/* Mensaje de motivación */
+.neko-motivacion {
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+  border-left-color: #8b5cf6;
+}
+
+/* Respuesta correcta */
+.neko-acierto {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  border-left-color: #22c55e;
+}
+
+.neko-acierto .neko-titulo {
+  color: #166534;
+}
+
+/* Mensaje de error */
+.neko-error {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  border-left-color: #f97316;
+}
+
+.neko-error .neko-titulo {
+  color: #9a3412;
+}
+
+/* Orientación después de un intento incorrecto */
+.neko-orientacion {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  border-left-color: #3b82f6;
+}
+
+.neko-orientacion .neko-titulo {
+  color: #1d4ed8;
+}
+
+/* Logro conseguido */
+.neko-logro {
+  background: #fffbeb;
+  border-color: #fde68a;
+  border-left-color: #f59e0b;
+}
+
+.neko-logro .neko-titulo {
+  color: #92400e;
+}
+
+/* =========================================
+   EDUNEKO V1 - ANIMACIONES DE MENSAJES NEKO
+   ========================================= */
+
+/*
+ * El mensaje aparece suavemente desde abajo.
+ * Se aplica a todos los tipos de mensaje.
+ */
+@keyframes neko-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Neko aparece con un pequeño rebote.
+ * La animación termina en su tamaño original.
+ */
+@keyframes neko-entrada {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.88);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+ /* Accesibilidad:
+ * respetar la preferencia de movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .neko-mensaje,
+  .neko-avatar-imagen {
+    animation: none !important;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - ANIMACIONES SEGURAS DE NEKO
+   ========================================= */
+
+/*
+ * El contenedor aparece desde su posición
+ * original, sin alterar su visibilidad.
+ */
+@keyframes nekoMensajeEntradaSegura {
+  from {
+    transform: translateY(10px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Neko realiza un pequeño rebote de entrada.
+ * No utilizamos opacity para evitar
+ * que la imagen quede invisible.
+ */
+@keyframes nekoReboteEntradaSeguro {
+  0% {
+    transform: translateY(8px) scale(0.94);
+  }
+
+  65% {
+    transform: translateY(-4px) scale(1.04);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Entrada del mensaje completo. */
+.neko-mensaje {
+  animation: nekoMensajeEntradaSegura
+    0.4s ease-out;
+}
+
+/* Rebote de la imagen oficial de Neko. */
+.neko-avatar-imagen {
+  animation: nekoReboteEntradaSeguro
+    0.6s ease-out;
+}
+
+/* Accesibilidad. */
+@media (prefers-reduced-motion: reduce) {
+  .neko-mensaje,
+  .neko-avatar-imagen {
+    animation: none !important;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO V1 - CELEBRACIÓN DE NEKO
+   ========================================= */
+
+/*
+ * Neko realiza un pequeño salto de alegría.
+ * El movimiento termina en su posición original.
+ */
+@keyframes nekoCelebracion {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+
+  30% {
+    transform: translateY(-12px) scale(1.07) rotate(-5deg);
+  }
+
+  55% {
+    transform: translateY(0) scale(0.98) rotate(3deg);
+  }
+
+  75% {
+    transform: translateY(-5px) scale(1.03) rotate(-2deg);
+  }
+}
+
+/*
+ * Aplicar la celebración únicamente cuando
+ * el resultado es un acierto o un logro.
+ *
+ * Esta regla reemplaza la animación de entrada
+ * normal de la imagen para esos dos casos.
+ */
+.neko-acierto .neko-avatar-imagen,
+.neko-logro .neko-avatar-imagen {
+  animation: nekoCelebracion 0.85s ease-out;
+}
+
+/*
+ * Accesibilidad:
+ * respetar las preferencias de movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .neko-acierto .neko-avatar-imagen,
+  .neko-logro .neko-avatar-imagen {
+    animation: none !important;
+  }
+}
+
+
+/* =========================================
+   DISEÑO RESPONSIVE
+   ========================================= */
+
+@media (max-width: 600px) {
+  .neko-mensaje {
+    gap: 12px;
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .neko-avatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .neko-titulo {
+    font-size: 15px;
+  }
+
+  .neko-texto {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}

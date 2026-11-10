@@ -1,63 +1,145 @@
 
+
+/* =========================================
+   EDUNEKO - PLAN DE APRENDIZAJE
+   Identidad visual oficial
+   ========================================= */
+
 :host {
   display: block;
   min-height: 100vh;
-  background: #f5f7fb;
-  color: #243047;
+
+  /* Colores oficiales de EduNeko */
+  --neko-morado: #6C63FF;
+  --neko-turquesa: #22C7B8;
+  --neko-amarillo: #FFC857;
+  --neko-fondo: #F8F9FF;
+  --neko-texto: #243047;
+
+  background: var(--neko-fondo);
+  color: var(--neko-texto);
 }
 
+/* Contenedor principal */
 .pagina-plan {
   min-height: 100vh;
 }
 
+/* Encabezado inspirado en la plantilla oficial */
 .encabezado {
-  padding: 32px 24px 44px;
-  background: linear-gradient(135deg, #3457a8, #647dd4);
-  color: white;
+  padding: 32px 24px 54px;
+  background: linear-gradient(
+    135deg,
+    #6C63FF 0%,
+    #918BFF 100%
+  );
+  color: #ffffff;
   text-align: center;
 }
 
 .encabezado h1 {
   margin: 20px 0 8px;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 700;
 }
 
 .encabezado p {
-  opacity: 0.9;
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  opacity: 0.95;
 }
 
+/* Botón para regresar al dashboard */
 .boton-volver {
   display: block;
   max-width: 1000px;
-  margin: auto;
+  margin: 0 auto;
   padding: 10px 16px;
-  border: 1px solid #ffffff80;
-  border-radius: 8px;
-  background: transparent;
-  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
+.boton-volver:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Área donde aparecerán las unidades */
 .contenido {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: -20px auto 0;
   padding: 0 20px 50px;
   position: relative;
 }
 
+@media (max-width: 600px) {
+  .encabezado {
+    padding: 24px 16px 44px;
+  }
+
+  .contenido {
+    padding: 0 16px 36px;
+  }
+}
+
+/* Tarjeta principal de la materia */
 .resumen-plan {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
-  padding: 28px;
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 5px 20px #1e305018;
+  gap: 32px;
+  padding: 32px;
+  border: 1px solid #E8E6FF;
+  border-radius: 24px;
+  background: #FFFFFF;
+  box-shadow: 0 8px 28px rgba(108, 99, 255, 0.08);
+}
+
+/* Información académica */
+.resumen-informacion {
+  flex: 1;
+  min-width: 0;
 }
 
 .resumen-plan h2 {
   margin: 8px 0;
+  color: #302C63;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+}
+
+.resumen-informacion > p {
+  margin: 0;
+  color: #667085;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Progreso total de la materia */
+.progreso-general {
+  max-width: 520px;
+  margin-top: 28px;
+}
+
+.progreso-general .progreso-informacion {
+  margin-bottom: 12px;
+  color: #475467;
+}
+
+.progreso-general .progreso-informacion strong {
+  color: #6C63FF;
+  font-weight: 700;
+}
+
+.progreso-general .barra-progreso {
+  height: 12px;
+  border-radius: 999px;
+  background: #EDEBFF;
 }
 
 .etiqueta {
@@ -65,25 +147,34 @@
   color: #66758c;
 }
 
+/* Cantidad de unidades personalizadas */
 .estadisticas {
   display: flex;
-  gap: 32px;
-  text-align: center;
+  gap: 20px;
+  margin-top: 24px;
 }
 
 .estadisticas div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: #F2F0FF;
 }
 
 .estadisticas strong {
-  font-size: 1.8rem;
-  color: #3457a8;
+  color: #6C63FF;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+
+  align-self: stretch;
+  text-align: center;
 }
 
 .estadisticas span {
-  color: #66758c;
+  color: #667085;
   font-size: 0.85rem;
 }
 
@@ -96,13 +187,20 @@
   margin-bottom: 24px;
 }
 
+/* Cada unidad representa un bloque de la plantilla */
 .tarjeta-unidad {
-  background: white;
-  border: 1px solid #e4e9f2;
-  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #E8E6FF;
+  border-radius: 20px;
   padding: 24px;
   margin-bottom: 18px;
-  box-shadow: 0 3px 12px #1e30500c;
+  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.07);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.tarjeta-unidad:hover {
+  border-color: #B8B3FF;
+  box-shadow: 0 10px 26px rgba(108, 99, 255, 0.12);
 }
 
 .unidad-encabezado,
@@ -142,13 +240,18 @@
   background: #e8f7ed;
 }
 
+/* Nombre de la unidad personalizada */
 .tarjeta-unidad h3 {
   margin: 18px 0 10px;
+  font-family: 'Poppins', sans-serif;
   font-size: 1.2rem;
+  font-weight: 700;
+  color: #302C63;
 }
 
 .objetivo {
-  color: #617087;
+  color: #667085;
+  font-family: 'DM Sans', sans-serif;
   line-height: 1.6;
 }
 
@@ -170,9 +273,83 @@
 
 .barra-relleno {
   height: 100%;
-  background: #5976d6;
+  background: linear-gradient(
+    90deg,
+    #22C7B8,
+    #6C63FF
+  );
   border-radius: 10px;
   transition: width 0.3s ease;
+}
+
+/* Mascota oficial de EduNeko */
+.resumen-neko {
+  display: flex;
+  flex: 0 0 240px;
+  justify-content: center;
+  align-items: center;
+}
+
+.imagen-neko {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Adaptación para tabletas */
+@media (max-width: 800px) {
+  .resumen-plan {
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .resumen-neko {
+    flex-basis: 170px;
+  }
+
+  .imagen-neko {
+    max-width: 170px;
+  }
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .resumen-plan {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .resumen-neko {
+    flex: 0 0 auto;
+  }
+
+  .imagen-neko {
+    max-width: 160px;
+  }
+
+  .progreso-general {
+    margin-top: 20px;
+  }
+
+  .estadisticas {
+    margin-top: 20px;
+  }
+}
+
+/* Ajustes para teléfonos */
+@media (max-width: 600px) {
+  .tarjeta-unidad {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .tarjeta-unidad h3 {
+    font-size: 1.05rem;
+  }
 }
 
 .estado {
@@ -241,60 +418,686 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
-@media (max-width: 600px) {
-  .resumen-plan {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .estadisticas {
-    width: 100%;
-    justify-content: space-around;
-  }
+/* =========================================
+   BOTONES DE LAS UNIDADES - EDUNEKO
+   ========================================= */
 
-  .tarjeta-unidad {
-    padding: 18px;
-  }
-
-  .unidad-encabezado,
-  .unidad-pie {
-    flex-wrap: wrap;
-  }
-
-  .boton-comenzar {
-  padding: 10px 16px;
+/* Botón para comenzar, continuar o repasar */
+.boton-comenzar {
+  padding: 11px 18px;
   border: none;
-  border-radius: 10px;
-  background: #4f46e5;
-  color: #ffffff;
+  border-radius: 12px;
+  background: #6C63FF;
+  color: #FFFFFF;
+  font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
+/* Efecto al pasar el cursor */
 .boton-comenzar:hover:not(:disabled) {
-  background: #4338ca;
+  background: #554CE6;
 }
 
+/* Apariencia de unidades bloqueadas */
 .boton-comenzar:disabled {
-  background: #cbd5e1;
-  color: #64748b;
+  background: #E5E7EB;
+  color: #98A2B3;
   cursor: not-allowed;
 }
 
-.boton-comenzar:focus-visible {
-  outline: 3px solid #f59e0b;
+/* Botón para mostrar los aprendizajes */
+.boton-detalles {
+  padding: 11px 18px;
+  border: 1px solid #DDD9FF;
+  border-radius: 12px;
+  background: #F2F0FF;
+  color: #6C63FF;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-detalles:hover {
+  background: #E8E5FF;
+}
+
+/* Accesibilidad para navegación con teclado */
+.boton-comenzar:focus-visible,
+.boton-detalles:focus-visible {
+  outline: 3px solid #FFC857;
   outline-offset: 3px;
 }
 
+/* =========================================
+   ADAPTACIÓN PARA CELULARES
+   ========================================= */
+
 @media (max-width: 600px) {
+
+  /* Acomodar información de las unidades */
+  .unidad-encabezado,
   .unidad-pie {
     flex-wrap: wrap;
     gap: 12px;
   }
 
-  .boton-comenzar {
+  /* Botones de ancho completo */
+  .boton-comenzar,
+  .boton-detalles {
     width: 100%;
+  }
+
+  /* Evitar desbordamientos de texto */
+  .tarjeta-unidad {
+    overflow-wrap: anywhere;
   }
 }
 
+
+/* =========================================
+   INDICADORES DE AVANCE POR UNIDAD
+   ========================================= */
+
+.unidad-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
 }
+
+.unidad-titulo h3 {
+  margin: 0;
+}
+
+/* Icono circular */
+.unidad-icono {
+  display: flex;
+  flex: 0 0 38px;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Unidad completada */
+.icono-completado {
+  background: #E5FBF6;
+  color: #159E8E;
+}
+
+/* Unidad en progreso */
+.icono-progreso {
+  background: #EEECFF;
+  color: #6C63FF;
+}
+
+/* Unidad disponible */
+.icono-disponible {
+  background: #F3F2FF;
+  color: #918BFF;
+}
+
+/* =========================================
+   EDUNEKO - CARRUSEL DE UNIDADES
+   Pantalla 12: Vista de Matemáticas
+   ========================================= */
+
+/* Contenedor principal con flechas laterales */
+.carrusel-unidades {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Pista horizontal desplazable */
+.carrusel-pista {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 12px 4px 20px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+/* Ocultar barra de desplazamiento */
+.carrusel-pista::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* Tarjetas compactas del carrusel */
+.carrusel-pista .tarjeta-unidad {
+  flex: 0 0 calc((100% - 40px) / 3);
+  min-width: 0;
+  margin-bottom: 0;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+}
+
+/* Ajustar títulos largos */
+.carrusel-pista .tarjeta-unidad h3 {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* Reducir separación del progreso */
+.carrusel-pista .progreso {
+  margin: 16px 0;
+}
+
+/* Dos tarjetas en tabletas */
+@media (max-width: 1000px) and (min-width: 701px) {
+  .carrusel-pista .tarjeta-unidad {
+    flex-basis: calc((100% - 20px) / 2);
+  }
+}
+
+/* Una tarjeta en celulares */
+@media (max-width: 700px) {
+  .carrusel-pista .tarjeta-unidad {
+    flex-basis: 100%;
+  }
+}
+
+
+/* Mantener las acciones al final de la tarjeta */
+.carrusel-pista .unidad-pie {
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+/* Flechas de navegación */
+.flecha-carrusel {
+  display: flex;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #DDD9FF;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: #6C63FF;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.12);
+  transition: background 0.2s ease;
+}
+
+.flecha-carrusel:hover {
+  background: #F2F0FF;
+}
+
+.flecha-carrusel:focus-visible {
+  outline: 3px solid #FFC857;
+  outline-offset: 3px;
+}
+
+
+/* =========================================
+   ICONOS TEMÁTICOS DE LAS UNIDADES
+   ========================================= */
+
+.unidad-titulo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+/* Contenedor del icono */
+.icono-tematico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: #F2F0FF;
+  font-size: 2rem;
+}
+
+/* Nombre de la unidad */
+.carrusel-pista .unidad-titulo h3 {
+  margin: 0;
+  min-height: 44px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+
+/* =========================================
+   COLORES POR ESTADO DE UNIDAD
+   EDUNEKO - CARRUSEL
+   ========================================= */
+
+/* Unidad completada: turquesa */
+.carrusel-pista .tarjeta-unidad.unidad-completada {
+  background: #DDF8F3;
+  border: 2px solid #22C7B8;
+}
+
+.carrusel-pista .unidad-completada .icono-tematico {
+  background: #B8F0E7;
+}
+
+.carrusel-pista .unidad-completada .estado {
+  color: #11695F;
+  font-weight: 700;
+}
+
+/* Unidad en progreso: morado */
+.carrusel-pista .tarjeta-unidad.unidad-en-progreso {
+  background: #EEECFF;
+  border: 2px solid #6C63FF;
+}
+
+.carrusel-pista .unidad-en-progreso .icono-tematico {
+  background: #DDD9FF;
+}
+
+.carrusel-pista .unidad-en-progreso .estado {
+  color: #5147BB;
+  font-weight: 700;
+}
+
+/* Unidad disponible: lavanda suave */
+.carrusel-pista .tarjeta-unidad.unidad-disponible {
+  background: #FFFFFF;
+  border: 2px solid #E8E6FF;
+}
+
+.carrusel-pista .unidad-disponible .icono-tematico {
+  background: #F2F0FF;
+}
+
+/* Mantener los botones legibles */
+.carrusel-pista .boton-comenzar {
+  background: #6C63FF;
+  color: #FFFFFF;
+}
+
+.carrusel-pista .boton-comenzar:hover {
+  background: #554CE6;
+}
+
+
+/* =========================================
+   EDUNEKO - AJUSTES DEL CARRUSEL
+   Alineación de botones y altura de tarjetas
+   ========================================= */
+
+/* Evitar que las tarjetas se estiren cuando
+   se despliegan los aprendizajes de otra unidad */
+.carrusel-pista {
+  align-items: flex-start;
+}
+
+/* Mantener cada tarjeta con su propia altura */
+.carrusel-pista .tarjeta-unidad {
+  align-self: flex-start;
+}
+
+/* Organizar el pie de cada unidad en dos filas */
+.carrusel-pista .unidad-pie {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* Estado de la unidad */
+.carrusel-pista .estado {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Botón principal: comenzar, continuar o repasar */
+.carrusel-pista .boton-comenzar {
+  width: 100%;
+  min-height: 42px;
+}
+
+/* Botón secundario: mostrar aprendizajes */
+.carrusel-pista .boton-detalles {
+  width: 100%;
+  min-height: 40px;
+}
+
+/* Evitar que los botones desborden la tarjeta */
+.carrusel-pista .boton-comenzar,
+.carrusel-pista .boton-detalles {
+  box-sizing: border-box;
+  white-space: normal;
+  text-align: center;
+}
+
+/* Separación del panel de aprendizajes */
+.carrusel-pista .detalle-unidad {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #E8E6FF;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+
+/* =========================================
+   EDUNEKO - ANIMACIONES DE BOTONES
+   ========================================= */
+
+/* Transiciones suaves para botones del carrusel */
+.carrusel-pista .boton-comenzar,
+.carrusel-pista .boton-detalles,
+.flecha-carrusel {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+}
+
+/* Al pasar el cursor, los botones se elevan */
+@media (hover: hover) {
+  .carrusel-pista .boton-comenzar:hover:not(:disabled),
+  .carrusel-pista .boton-detalles:hover:not(:disabled),
+  .flecha-carrusel:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(108, 99, 255, 0.18);
+  }
+}
+
+/* Al presionar, el botón se hunde ligeramente */
+.carrusel-pista .boton-comenzar:active:not(:disabled),
+.carrusel-pista .boton-detalles:active:not(:disabled),
+.flecha-carrusel:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: 0 2px 5px rgba(108, 99, 255, 0.12);
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .carrusel-pista .boton-comenzar,
+  .carrusel-pista .boton-detalles,
+  .flecha-carrusel {
+    transition: none;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO - AJUSTES DE DISTRIBUCIÓN
+   Encabezado y mascota
+   ========================================= */
+
+/* Encabezado: referencia para posicionar
+   el botón de navegación */
+.encabezado {
+  position: relative;
+}
+
+/* Botón de regreso en la esquina superior izquierda */
+.boton-volver {
+  position: absolute;
+  top: 22px;
+  left: max(24px, calc((100% - 1100px) / 2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: none;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  z-index: 2;
+}
+
+/* Acercar a Neko hacia el contenido central */
+.resumen-neko {
+  position: relative;
+  left: -45px;
+}
+
+/* Ajustes para tabletas */
+@media (max-width: 800px) {
+  .resumen-neko {
+    left: -15px;
+  }
+
+  .boton-volver {
+    left: 20px;
+    top: 16px;
+  }
+}
+
+/* Ajustes para celulares */
+@media (max-width: 600px) {
+  .encabezado {
+    padding-top: 76px;
+  }
+
+  .boton-volver {
+    top: 16px;
+    left: 16px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .resumen-neko {
+    left: 0;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO - ENTRADA ANIMADA DE UNIDADES
+   ========================================= */
+
+/* Animación inicial de las tarjetas */
+.carrusel-pista .tarjeta-unidad {
+  animation: aparecerUnidad 0.55s ease-out both;
+}
+
+/* Aparición suave desde abajo */
+@keyframes aparecerUnidad {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Aparición escalonada de las primeras unidades */
+.carrusel-pista .tarjeta-unidad:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.carrusel-pista .tarjeta-unidad:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.carrusel-pista .tarjeta-unidad:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+/* Respetar preferencias de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .carrusel-pista .tarjeta-unidad {
+    animation: none;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO - ANIMACIÓN DE PROGRESO
+   ========================================= */
+
+/* Animar las barras desde cero hasta
+   el porcentaje real indicado por Angular */
+.barra-relleno {
+  transform-origin: left center;
+  animation: llenarProgreso 1.2s ease-out both;
+}
+
+/* La barra comienza vacía y termina
+   en el ancho establecido por Angular */
+@keyframes llenarProgreso {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* La barra general se anima ligeramente después */
+.progreso-general .barra-relleno {
+  animation-delay: 0.2s;
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .barra-relleno {
+    animation: none;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO - ANIMACIÓN DE NEKO
+   ========================================= */
+
+/* Movimiento suave de Neko */
+.resumen-neko .imagen-neko {
+  animation: nekoFlotar 3.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Neko sube y baja ligeramente */
+@keyframes nekoFlotar {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Pausar animación si el usuario prefiere
+   reducir el movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .resumen-neko .imagen-neko {
+    animation: none;
+    will-change: auto;
+  }
+}
+
+/* =========================================
+   EDUNEKO - ENCABEZADO DEL CARRUSEL
+   ========================================= */
+
+/* Centrar el título de la sección */
+.seccion-unidades > h2 {
+  text-align: center;
+  margin: 0 0 10px;
+}
+
+/* Centrar el subtítulo debajo del título */
+.seccion-unidades > .descripcion-seccion {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+/* Ajustar el espacio en dispositivos móviles */
+@media (max-width: 600px) {
+  .seccion-unidades > h2 {
+    font-size: 1.5rem;
+  }
+
+  .seccion-unidades > .descripcion-seccion {
+    padding: 0 12px;
+    margin-bottom: 22px;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO - TARJETAS INTERACTIVAS
+   ========================================= */
+
+/* Mantener la sombra y preparar el movimiento */
+.carrusel-pista .tarjeta-unidad {
+  transition:
+    translate 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Elevar suavemente la tarjeta al pasar el cursor */
+@media (hover: hover) {
+  .carrusel-pista .tarjeta-unidad:hover {
+    translate: 0 -6px;
+    box-shadow: 0 12px 28px rgba(108, 99, 255, 0.16);
+  }
+}
+
+/* Evitar movimientos innecesarios para
+   usuarios con sensibilidad a las animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .carrusel-pista .tarjeta-unidad {
+    transition: none;
+  }
+}
+
+/* =========================================
+   ADAPTACIÓN PARA CELULARES
+   ========================================= */
+
+@media (max-width: 700px) {
+
+  .carrusel-unidades {
+    gap: 6px;
+  }
+
+  /* Mostrar una unidad a la vez */
+  .carrusel-pista .tarjeta-unidad {
+    flex-basis: 100%;
+  }
+
+  /* Flechas más pequeñas */
+  .flecha-carrusel {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    font-size: 1.5rem;
+  }
+
+  .carrusel-pista {
+    gap: 12px;
+  }
+}
+

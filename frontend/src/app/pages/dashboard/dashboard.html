@@ -1,49 +1,217 @@
+<!-- ==========================================
+     EDUNEKO V1 - DASHBOARD DEL ESTUDIANTE
+     ========================================== -->
+
 <main class="dashboard">
 
-  <h1>Bienvenido a EduNeko</h1>
+  <!-- ========================================
+       1. BIENVENIDA PRINCIPAL
+       ======================================== -->
+  <header class="dashboard-bienvenida">
 
-  <p>
-    Tu espacio de aprendizaje personalizado.
-  </p>
+    <div class="bienvenida-contenido">
 
-  <!-- Acceso al plan de aprendizaje. -->
+      <span class="bienvenida-etiqueta">
+        MI ESPACIO DE APRENDIZAJE
+      </span>
+
+      <h1>¡Bienvenido a EduNeko!</h1>
+
+      <p>
+        Cada paso cuenta en tu aventura de aprendizaje.
+        ¡Neko está listo para acompañarte!
+      </p>
+
+    </div>
+
+    <!-- Mascota oficial de EduNeko -->
+    <img
+      src="/images/neko/poses/neko_saludando.png"
+      alt="Neko dando la bienvenida al estudiante"
+      class="dashboard-neko"
+    />
+
+  </header>
+
+  <!-- ========================================
+       2. CONTINUAR APRENDIENDO
+       ======================================== -->
   <section class="seccion-aprendizaje">
 
-    <h2>Mi aprendizaje</h2>
+    <div class="seccion-encabezado">
+      <div>
+        <span class="seccion-etiqueta">
+          TU AVENTURA CONTINÚA
+        </span>
 
-    <p>
-      Consulta tu ruta personalizada de Matemáticas,
-      organizada según los resultados de tu diagnóstico.
-    </p>
+        <h2>Mi aprendizaje</h2>
+      </div>
+    </div>
 
-    <button
-      type="button"
-      (click)="irPlanMatematicas()">
-      Ver mi plan de aprendizaje
-    </button>
+    <!-- Mostrar el estado de carga de las materias. -->
+    @if (cargandoMaterias) {
+        <p class="mensaje-materias">
+            Cargando tus materias...
+        </p>
+    }
+
+    <!-- Mostrar errores sin presentar información incorrecta. -->
+    @else if (errorMaterias) {
+        <p class="mensaje-materias">
+            {{ errorMaterias }}
+        </p>
+    }
+
+    <!-- Mostrar las materias seleccionadas por el estudiante. -->
+    @else if (materiasSeleccionadas.length > 0) {
+
+        <div class="lista-materias">
+
+            @for (materia of materiasSeleccionadas; track materia.id) {
+
+                <article
+                  class="tarjeta-aprendizaje"
+                  [class.materia-matematicas]="materia.nombre === 'Matemáticas'"
+                  [class.materia-espanol]="materia.nombre === 'Español'"
+                  [class.materia-biologia]="materia.nombre === 'Biología'"
+                  [class.materia-fisica]="materia.nombre === 'Física'"
+                  [class.materia-quimica]="materia.nombre === 'Química'"
+                >
+
+                  <!-- Mostrar un ícono según la materia seleccionada. -->
+                  <div class="aprendizaje-icono">
+
+                      @switch (materia.nombre) {
+
+                          @case ('Matemáticas') {
+                              📐
+                          }
+
+                          @case ('Español') {
+                              📖
+                          }
+
+                          @case ('Biología') {
+                              🧬
+                          }
+
+                          @case ('Física') {
+                              ⚛️
+                          }
+
+                          @case ('Química') {
+                              🧪
+                          }
+
+                          @default {
+                              📚
+                          }
+                      }
+
+                  </div>
+
+                    <div class="aprendizaje-contenido">
+
+                        <h3>{{ materia.nombre }}</h3>
+
+                        @if (materia.nombre === 'Matemáticas') {
+
+                            <p>
+                                Continúa tu aprendizaje con un plan
+                                personalizado según tus conocimientos.
+                            </p>
+
+                            <!-- Acceso al diagnóstico o plan personalizado de Matemáticas. -->
+                            <button
+                                type="button"
+                                class="boton-plan"
+                                [disabled]="verificandoDiagnostico"
+                                (click)="irPlanMatematicas()">
+
+                                @if (verificandoDiagnostico) {
+                                    Verificando diagnóstico...
+                                } @else {
+                                    Continuar aprendiendo
+                                }
+
+                            </button>
+
+                            <!-- Mostrar errores al verificar el diagnóstico. -->
+                            @if (errorAccesoMatematicas) {
+                                <p class="mensaje-error-acceso" role="alert">
+                                    {{ errorAccesoMatematicas }}
+                                </p>
+                            }
+
+                        } @else {
+
+                            <p>
+                                Estamos preparando nuevas experiencias
+                                de aprendizaje para esta materia.
+                            </p>
+
+                            <span class="materia-proximamente">
+                                Próximamente
+                            </span>
+                        }
+
+                    </div>
+
+                </article>
+            }
+
+        </div>
+    }
+
+    <!-- Estado vacío cuando no existen materias registradas. -->
+    @else {
+        <p class="mensaje-materias">
+            Todavía no tienes materias seleccionadas.
+        </p>
+    }
+
 
   </section>
 
-  <!-- =====================================================
-       RESUMEN DE RECOMPENSAS
-       Los puntos y las rachas provienen del backend.
-       Las insignias se muestran en la página /logros.
-       ===================================================== -->
-
+  <!-- ========================================
+       3. GAMIFICACIÓN Y RECOMPENSAS
+       ======================================== -->
   <section class="seccion-recompensas">
 
-    <h2>🏆 Mis recompensas</h2>
+    <div class="seccion-encabezado">
 
-    <p>
-      ¡Cada actividad que completas te acerca a nuevas recompensas!
+      <div>
+        <span class="seccion-etiqueta">
+          TUS ESFUERZOS TIENEN RECOMPENSA
+        </span>
+
+        <h2>Mis recompensas</h2>
+      </div>
+
+      <a
+        class="enlace-logros"
+        routerLink="/logros"
+      >
+        Ver todos mis logros
+      </a>
+
+    </div>
+
+    <p class="recompensas-descripcion">
+      ¡Cada actividad que completas te acerca
+      a nuevas recompensas!
     </p>
 
     <div class="resumen-recompensas">
 
-      <!-- Puntos XP acumulados. -->
-      <div class="tarjeta-recompensa">
+      <!-- TARJETA DE PUNTOS XP -->
+      <article class="tarjeta-recompensa tarjeta-xp">
 
-        <h3>⭐ Puntos XP</h3>
+        <div class="recompensa-icono" aria-hidden="true">
+          ⭐
+        </div>
+
+        <h3>Puntos XP</h3>
 
         @if (cargandoPuntos) {
 
@@ -53,13 +221,15 @@
 
         } @else if (errorPuntos) {
 
-          <div role="alert">
+          <div class="recompensa-error" role="alert">
 
             <p>{{ errorPuntos }}</p>
 
             <button
               type="button"
-              (click)="cargarPuntosTotales()">
+              class="boton-reintentar"
+              (click)="cargarPuntosTotales()"
+            >
               Reintentar
             </button>
 
@@ -67,18 +237,23 @@
 
         } @else {
 
-          <p class="total-puntos">
-            <strong>{{ puntosTotales }}</strong> XP
+          <p class="recompensa-valor">
+            <strong>{{ puntosTotales }}</strong>
+            <span>XP acumulados</span>
           </p>
 
         }
 
-      </div>
+      </article>
 
-      <!-- Racha actual del estudiante. -->
-      <div class="tarjeta-recompensa">
+      <!-- TARJETA DE RACHA ACTUAL -->
+      <article class="tarjeta-recompensa tarjeta-racha">
 
-        <h3>🔥 Racha actual</h3>
+        <div class="recompensa-icono" aria-hidden="true">
+          🔥
+        </div>
+
+        <h3>Racha actual</h3>
 
         @if (cargandoRachas) {
 
@@ -88,13 +263,15 @@
 
         } @else if (errorRachas) {
 
-          <div role="alert">
+          <div class="recompensa-error" role="alert">
 
             <p>{{ errorRachas }}</p>
 
             <button
               type="button"
-              (click)="cargarRachas()">
+              class="boton-reintentar"
+              (click)="cargarRachas()"
+            >
               Reintentar
             </button>
 
@@ -102,36 +279,97 @@
 
         } @else {
 
-          <p>
+          <p class="recompensa-valor">
             <strong>{{ rachaActual }}</strong>
-            {{ rachaActual === 1 ? 'día' : 'días' }}
+            <span>
+              {{ rachaActual === 1 ? 'día seguido' : 'días seguidos' }}
+            </span>
           </p>
 
         }
 
-      </div>
+      </article>
+
+      <!-- TARJETA DE RACHA MÁXIMA -->
+      <article class="tarjeta-recompensa tarjeta-record">
+
+        <div class="recompensa-icono" aria-hidden="true">
+          🏆
+        </div>
+
+        <h3>Mejor racha</h3>
+
+        @if (cargandoRachas) {
+
+          <p role="status">
+            Consultando tu récord...
+          </p>
+
+        } @else if (errorRachas) {
+
+          <div class="recompensa-error" role="alert">
+            <p>{{ errorRachas }}</p>
+          </div>
+
+        } @else {
+
+          <p class="recompensa-valor">
+            <strong>{{ rachaMaxima }}</strong>
+            <span>
+              {{ rachaMaxima === 1 ? 'día' : 'días' }}
+            </span>
+          </p>
+
+        }
+
+      </article>
 
     </div>
 
-    <!-- Acceso a la página independiente de insignias.
-         routerLink permite navegar sin recargar Angular. -->
+    <!-- ACCESO A INSIGNIAS -->
     <div class="acceso-logros">
+
+      <div class="logros-contenido">
+
+        <div class="logros-icono" aria-hidden="true">
+          🏅
+        </div>
+
+        <div>
+          <h3>Mis insignias</h3>
+
+          <p>
+            Descubre los logros que has conseguido
+            durante tu aprendizaje.
+          </p>
+        </div>
+
+      </div>
 
       <a
         class="boton-ver-logros"
-        routerLink="/logros">
-        🏅 Ver mis logros →
+        routerLink="/logros"
+      >
+        Explorar mis logros
       </a>
 
     </div>
 
   </section>
 
-  <!-- Cierre de sesión. -->
-  <button
-    type="button"
-    (click)="cerrarSesion()">
-    Cerrar sesión
-  </button>
+  <!-- ========================================
+       4. CERRAR SESIÓN
+       ======================================== -->
+  <footer class="dashboard-footer">
+
+    <button
+      type="button"
+      class="boton-cerrar-sesion"
+      (click)="cerrarSesion()"
+    >
+      Cerrar sesión
+    </button>
+
+  </footer>
 
 </main>

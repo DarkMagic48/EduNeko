@@ -76,31 +76,39 @@ export class NekoMensaje {
     }
   }
 
+  
   /**
-   * Selecciona un icono provisional.
+   * Selecciona la imagen oficial de Neko según
+   * el tipo de mensaje mostrado al estudiante.
    *
-   * Posteriormente se sustituirá por la imagen
-   * oficial de Neko y sus diferentes expresiones.
+   * Las imágenes se reutilizan desde los recursos
+   * oficiales del proyecto EduNeko.
    */
-  obtenerIcono(): string {
+  obtenerImagen(): string {
 
     switch (this.tipo) {
 
+      // Neko celebra una respuesta correcta.
       case 'acierto':
-        return '😸';
+        return '/images/neko/poses/neko_celebrando.png';
 
+      // Neko acompaña al estudiante cuando se equivoca.
       case 'error':
-        return '🐱';
+        return '/images/neko/situaciones/neko_animando.png';
 
+      // Neko ofrece orientación pedagógica.
       case 'orientacion':
-        return '😺';
+        return '/images/neko/accesorios/neko_capa_heroe.png';
 
+      // Neko celebra un logro desbloqueado.
       case 'logro':
-        return '😻';
+        return '/images/neko/situaciones/neko_logro.png';
 
+      // Imagen predeterminada para mensajes motivacionales.
       default:
-        return '🐱';
+        return '/images/neko/poses/neko_motivando.png';
     }
   }
+
 
 }

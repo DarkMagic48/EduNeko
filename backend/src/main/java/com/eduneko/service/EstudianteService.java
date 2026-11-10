@@ -102,4 +102,37 @@ public PreferenciaAprendizaje actualizarPreferencias(
 
     return preferenciaAprendizajeRepository.save(preferencias);
         }
+
+        
+    /**
+     * Consulta si el estudiante autenticado ya completó
+     * su configuración inicial (onboarding).
+     *
+     * Este método únicamente lee el estado almacenado
+     * en PostgreSQL; no modifica información.
+     *
+     * @param correo Correo del usuario autenticado.
+     * @return true si completó el onboarding; false si está pendiente.
+     */
+    @Transactional(readOnly = true)
+    public boolean obtenerEstadoOnboarding(String correo) {
+
+        // Buscar al usuario autenticado mediante su correo.
+        Usuario usuario = usuarioRepository
+                .findByCorreo(correo)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Usuario no encontrado"));
+
+        // Recuperar el perfil de estudiante asociado.
+        Estudiante estudiante = estudianteRepository
+                .findByUsuarioId(usuario.getId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Perfil de estudiante no encontrado"));
+
+        // Devolver el valor real almacenado en PostgreSQL.
+        return estudiante.isOnboardingCompletado();
+    }
+
 }

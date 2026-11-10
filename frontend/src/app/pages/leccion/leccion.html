@@ -89,6 +89,126 @@
       *ngIf="!cargando && !generando && leccion as leccionActual">
 
       <article class="tarjeta-leccion">
+        
+        <!-- =========================================
+            EDUNEKO - INDICADOR DE ETAPAS
+            ========================================= -->
+
+        <!-- Muestra la etapa actual sin modificar
+            el progreso académico del estudiante. -->
+        
+        <!-- EDUNEKO - INDICADOR DE ETAPA ACTUAL -->
+        <p class="texto-progreso-etapas">
+          Etapa {{ etapaActual }} de 3 ·
+          <span [ngSwitch]="etapaActual">
+            <ng-container *ngSwitchCase="1">Aprende</ng-container>
+            <ng-container *ngSwitchCase="2">Observa</ng-container>
+            <ng-container *ngSwitchCase="3">Practica</ng-container>
+          </span>
+        </p>
+
+        <nav class="navegacion-etapas" aria-label="Etapas de la lección">
+
+          <div
+            class="etapa-indicador"
+            [class.etapa-activa]="etapaActual === 1"
+            [class.etapa-superada]="etapaActual > 1"
+            [attr.aria-current]="etapaActual === 1 ? 'step' : null">
+            <span class="etapa-numero">1</span>
+            <span>Aprende</span>
+          </div>
+
+          <div
+            class="etapa-indicador"
+            [class.etapa-activa]="etapaActual === 2"
+            [class.etapa-superada]="etapaActual > 2"
+            [attr.aria-current]="etapaActual === 2 ? 'step' : null">
+            <span class="etapa-numero">2</span>
+            <span>Observa</span>
+          </div>
+
+          <div
+            class="etapa-indicador"
+            [class.etapa-activa]="etapaActual === 3"
+            [attr.aria-current]="etapaActual === 3 ? 'step' : null">
+            <span class="etapa-numero">3</span>
+            <span>Practica</span>
+          </div>
+
+        </nav>
+
+        <!-- =========================================
+            EDUNEKO - PRESENTACIÓN DE ETAPA
+            ========================================= -->
+
+        <!-- Presentación de la etapa actual -->
+        <div class="presentacion-etapa">
+
+          <!-- Anuncio accesible del cambio de etapa -->
+          <span class="anuncio-etapa" role="status" aria-live="polite" aria-atomic="true">
+            Etapa {{ etapaActual }} de 3:
+            {{ etapaActual === 1 ? 'Aprende' : etapaActual === 2 ? 'Observa' : 'Practica' }}
+          </span>
+
+        <!-- Neko acompaña al estudiante durante
+            las tres etapas de la lección. -->
+        
+        <!-- =========================================
+            EDUNEKO - NEKO DINÁMICO POR ETAPA
+            ========================================= -->
+
+        <!-- La imagen oficial de Neko cambia
+            automáticamente según la etapa actual. -->
+        <img
+          [src]="
+            etapaActual === 1
+              ? '/images/neko/poses/neko_estudiando.png'
+              : etapaActual === 2
+                ? '/images/neko/situaciones/neko_lupa.png'
+                : '/images/neko/poses/neko_pensando.png'
+          "
+          [alt]="
+            etapaActual === 1
+              ? 'Neko estudiando contigo'
+              : etapaActual === 2
+                ? 'Neko explorando con su lupa'
+                : 'Neko pensando cómo resolver las actividades'
+          "
+          class="neko-presentacion-etapa"
+          width="110"
+          height="110"
+          [attr.data-etapa]="etapaActual">
+
+
+          <ng-container [ngSwitch]="etapaActual">
+
+            <div *ngSwitchCase="1">
+              <h2>📖 ¡Vamos a aprender!</h2>
+              <p>
+                Descubre nuevos conocimientos y comprende
+                los conceptos de esta lección.
+              </p>
+            </div>
+
+            <div *ngSwitchCase="2">
+              <h2>🔍 ¡Observa cómo se hace!</h2>
+              <p>
+                Analiza el ejemplo resuelto y explora
+                los recursos visuales disponibles.
+              </p>
+            </div>
+
+            <div *ngSwitchCase="3">
+              <h2>✏️ ¡Es tu turno de practicar!</h2>
+              <p>
+                Resuelve las actividades, recibe
+                retroalimentación y gana puntos XP.
+              </p>
+            </div>
+
+          </ng-container>
+
+        </div>
 
         <div class="leccion-encabezado">
 
@@ -108,7 +228,9 @@
 
         <h2>{{ leccionActual.titulo }}</h2>
 
-        <section class="seccion-leccion introduccion">
+        <section
+          class="seccion-leccion introduccion"
+          [hidden]="etapaActual !== 1">
 
           <h3>🌟 Antes de comenzar</h3>
 
@@ -118,12 +240,16 @@
 
         </section>
 
-        <section class="seccion-leccion explicacion">
+        <section
+          class="seccion-leccion explicacion"
+          [hidden]="etapaActual !== 1">
 
           <h3>📖 Aprende el concepto</h3>
 
            <!-- Contenido educativo generado por OpenAI -->
-          <div>{{ leccionActual.explicacion }}</div>
+          <div class="texto-explicacion">
+            {{ leccionActual.explicacion }}
+          </div>
 
           <!--
             Los controles de audio solo aparecen cuando:
@@ -145,24 +271,94 @@
             </button>
 
             <!-- Detener la reproducción -->
+            
+            <!-- Detener la lectura y mostrar el indicador animado -->
             <button
               type="button"
               *ngIf="reproduciendoAudio && seccionAudioActiva === 'explicacion'"
               (click)="detenerAudio()"
+              class="boton-audio-activo"
             >
-              ⏹️ Detener audio
-            </button>
+              <span class="ondas-audio" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
 
+              <span>⏹️ Detener audio</span>
+            </button>
           </div>
         </section>
 
-        <section class="seccion-leccion ejemplo">
+        <!-- =========================================
+            ETAPA 2 - OBSERVA
+            ========================================= -->
+
+        <section
+          class="seccion-leccion ejemplo"
+          [hidden]="etapaActual !== 2">
 
           <h3>✏️ Ejemplo resuelto paso a paso</h3>
+          
+  <!-- =========================================
+      EDUNEKO V1 - EJEMPLO RESUELTO GUIADO
+      ========================================= -->
 
-          <div class="texto-educativo">
-            {{ leccionActual.ejemplo_resuelto }}
-          </div>
+      <div class="ejemplo-pasos-contenedor">
+
+        <!--
+          Dividir visualmente el ejemplo en bloques.
+          Se conserva el texto original generado por IA.
+        -->
+        <div
+          *ngFor="
+            let bloque of obtenerPasosEjemplo(
+              leccionActual.ejemplo_resuelto
+            );
+            let i = index
+          "
+          class="ejemplo-paso-tarjeta"
+          [class.ejemplo-paso-introduccion]="
+            !bloque.match(/^Paso\s+\d+\s*[:.)-]/i)
+          "
+        >
+          
+        <!-- Mostrar la etiqueta si es un paso numerado -->
+        <ng-container
+          *ngIf="esPasoNumerado(bloque); else textoEjemploNormal"
+        >
+          <span class="ejemplo-paso-etiqueta">
+            {{ obtenerEtiquetaPaso(bloque) }}
+          </span>
+
+          <!-- Explicación del paso -->
+          <p class="ejemplo-paso-texto">
+            {{ obtenerContenidoPaso(bloque) }}
+          </p>
+        </ng-container>
+
+        <!-- Mostrar normalmente la introducción -->
+        <ng-template #textoEjemploNormal>
+          <p class="ejemplo-paso-texto">
+            {{ bloque }}
+          </p>
+        </ng-template>
+
+        <!--
+          Texto introductorio o contenido que no
+          utiliza encabezados numerados.
+        -->
+        <ng-template #textoEjemploNormal>
+          <p class="ejemplo-paso-texto">
+            {{ bloque }}
+          </p>
+        </ng-template>
+
+        </div>
+
+      </div>
           
           <section
             *ngIf="leccionActual.recurso_visual as recurso"
@@ -1059,35 +1255,65 @@
 
           </section>
 
-          <!-- Controles exclusivos para estudiantes auditivos -->
-          <div
-            class="controles-audio"
-            *ngIf="prefiereAuditivo && audioDisponible"
+        <!-- ==========================================
+            EDUNEKO V1 - AUDIO DE OBSERVA
+            Controles exclusivos para estudiantes
+            con preferencia de aprendizaje auditivo.
+            ========================================== -->
+
+        <div
+          class="controles-audio controles-audio-observa"
+          *ngIf="prefiereAuditivo && audioDisponible"
+        >
+
+          <!-- Reproducir el ejemplo resuelto -->
+          <button
+            type="button"
+            class="boton-audio-observa"
+            *ngIf="!reproduciendoAudio"
+            (click)="reproducirAudio(leccionActual.ejemplo_resuelto, 'ejemplo')"
           >
+            <span class="audio-observa-icono" aria-hidden="true">
+              🔊
+            </span>
 
-            <!-- Reproducir el ejemplo resuelto -->
-            <button
-              type="button"
-              *ngIf="!reproduciendoAudio"
-              (click)="reproducirAudio(leccionActual.ejemplo_resuelto, 'ejemplo')"
-            >
-              🔊 Escuchar ejemplo resuelto
-            </button>
+            <span>Escuchar ejemplo resuelto</span>
+          </button>
 
-            <!-- Detener la reproducción -->
-            <button
-              type="button"
-              *ngIf="reproduciendoAudio && seccionAudioActiva === 'ejemplo'"
-              (click)="detenerAudio()"
-            >
-              ⏹️ Detener audio
-            </button>
+          <!-- Detener únicamente el audio del ejemplo -->
+          <button
+            type="button"
+            class="boton-audio-observa boton-audio-observa-activo"
+            *ngIf="reproduciendoAudio && seccionAudioActiva === 'ejemplo'"
+            (click)="detenerAudio()"
+          >
+            <span class="audio-observa-icono" aria-hidden="true">
+              ⏹️
+            </span>
 
-          </div>
+            <!-- Ondas animadas durante la reproducción -->
+            <span class="audio-observa-ondas" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+
+            <span>Detener audio</span>
+          </button>
+
+        </div>
           
         </section>
+        
+        <!-- =========================================
+            ETAPA 3 - PRACTICA
+            ========================================= -->
 
-        <section class="seccion-actividades">
+        <section
+          class="seccion-actividades"
+          [hidden]="etapaActual !== 3">
 
           <section
       *ngIf="leccion"
@@ -1144,6 +1370,7 @@
 
           <div
             class="barra-progreso-relleno"
+            [class.barra-progreso-animada]="animarProgresoPractica"
             [style.width.%]="avance.progresoPorcentaje"
           ></div>
 
@@ -1163,13 +1390,27 @@
             </strong>
 
           </div>
+          
+          <!-- =========================================
+              EDUNEKO V1 - XP ACUMULADOS
 
-          <div class="dato-progreso">
+              Muestra los puntos registrados en el
+              progreso del estudiante.
 
-            <span>Puntos obtenidos</span>
+              No modifica ni calcula puntos nuevos.
+              ========================================= -->
 
-            <strong>
-              {{ avance.puntosObtenidos }} puntos
+          <div class="dato-progreso dato-progreso-xp">
+
+            <!-- Identificador visual de experiencia -->
+            <span class="dato-progreso-xp-etiqueta">
+              <span aria-hidden="true">⭐</span>
+              Puntos XP obtenidos
+            </span>
+
+            <!-- Total registrado de experiencia -->
+            <strong class="dato-progreso-xp-total">
+              {{ avance.puntosObtenidos }} XP
             </strong>
 
           </div>
@@ -1211,13 +1452,6 @@
 
     </section>    
 
-      <h2>¡Hora de practicar!</h2>
-
-      <p>
-        Resuelve las siguientes actividades para reforzar
-        lo que aprendiste en esta lección.
-      </p>
-
       <!-- Cargando actividades -->
       <div *ngIf="cargandoActividades" class="estado-actividades">
         <p>Cargando tus actividades...</p>
@@ -1256,15 +1490,26 @@
         <article
           *ngFor="let actividad of actividades; let i = index"
           class="tarjeta-actividad"
+          [class.tarjeta-actividad-completada]="
+            actividad.respondidaCorrectamente === true
+          "
         >
 
-          <h3>
-            Pregunta {{ i + 1 }} de {{ actividades.length }}
-            
-            <span *ngIf="actividad.respondidaCorrectamente">
+          <div class="encabezado-tarjeta-actividad">
+
+            <h3>
+              Pregunta {{ i + 1 }} de {{ actividades.length }}
+            </h3>
+
+            <!-- Indicador de actividad completada -->
+            <span
+              *ngIf="actividad.respondidaCorrectamente"
+              class="etiqueta-actividad-completada"
+            >
               ✓ Completada
             </span>
-          </h3>
+
+          </div>
 
           <p class="pregunta-actividad">
             {{ actividad.pregunta }}
@@ -1279,6 +1524,12 @@
             <label
               *ngFor="let opcion of actividad.opciones"
               class="opcion-actividad"
+              [class.opcion-actividad-seleccionada]="
+                respuestasSeleccionadas[actividad.id] === opcion
+              "
+              [class.opcion-actividad-bloqueada]="
+                actividad.respondidaCorrectamente === true
+              "
             >
 
               <input
@@ -1302,7 +1553,7 @@
           <!-- Botón para comprobar la respuesta -->
           <div
             *ngIf="!actividad.respondidaCorrectamente" 
-            class="acciones-actividad">
+            class="acciones-actividad"
           >
 
             <button
@@ -1334,23 +1585,64 @@
           <!-- Confirmar una respuesta acertada en una sesión anterior.
               No mostrar este mensaje si acabamos de evaluar la pregunta,
               porque en ese caso ya existe retroalimentación específica. -->
+          
+          <!-- =========================================
+              EDUNEKO V1 - ACTIVIDAD YA COMPLETADA
+
+              Se muestra cuando la respuesta correcta
+              fue registrada en una sesión anterior.
+
+              No vuelve a otorgar puntos XP.
+              ========================================= -->
+
           <div
             *ngIf="
               actividad.respondidaCorrectamente &&
               !resultadosEvaluacion[actividad.id]
             "
-            class="resultado-actividad resultado-correcto"
+            class="actividad-completada-resumen"
           >
-            <h4>✓ Pregunta completada</h4>
 
-            <p>
-              Ya respondiste correctamente esta pregunta.
-              Tu respuesta y tus puntos están guardados.
-            </p>
+            <!-- Confirmación de actividad completada -->
+            <div class="actividad-completada-encabezado">
 
-            <p *ngIf="actividad.puntosObtenidos">
-              Puntos obtenidos: {{ actividad.puntosObtenidos }}
-            </p>
+              <span
+                class="actividad-completada-icono"
+                aria-hidden="true"
+              >
+                ✓
+              </span>
+
+              <div class="actividad-completada-textos">
+
+                <strong class="actividad-completada-titulo">
+                  ¡Actividad completada!
+                </strong>
+
+                <span class="actividad-completada-descripcion">
+                  Tu respuesta correcta ha sido guardada.
+                </span>
+
+              </div>
+
+            </div>
+
+            <!-- Mostrar XP únicamente cuando existan puntos guardados -->
+            <div
+              *ngIf="(actividad.puntosObtenidos ?? 0) > 0"
+              class="actividad-completada-xp"
+            >
+              <span aria-hidden="true">⭐</span>
+
+              <strong>
+                {{ actividad.puntosObtenidos }} XP
+              </strong>
+
+              <span>
+                obtenidos
+              </span>
+            </div>
+
           </div>
 
           <!-- Resultado de la evaluación -->
@@ -1369,26 +1661,69 @@
                 revelar la solución antes del siguiente intento.
                 ===================================================== -->
 
+            <!--
+              Neko muestra retroalimentación según el resultado.
+
+              Respuesta correcta:
+              - Presenta la explicación del procedimiento.
+
+              Respuesta incorrecta:
+              - Muestra la pista pedagógica específica generada por IA.
+              - Si la actividad es antigua y no tiene pista,
+                utiliza un mensaje general como alternativa.
+            -->
             <app-neko-mensaje
               [tipo]="resultado.esCorrecta ? 'acierto' : 'orientacion'"
               [mensaje]="
                 resultado.esCorrecta
                   ? (resultado.explicacion ||
                     '¡Muy bien! Has resuelto correctamente esta actividad.')
-                  : '¡Buen intento! 🐾 Revisa el concepto que acabas de aprender, analiza las opciones y vuelve a intentarlo. ¡Tú puedes!'
+                  : (resultado.pistaPedagogica ||
+                    '¡Buen intento! 🐾 Revisa el concepto que acabas de aprender, analiza las opciones y vuelve a intentarlo. ¡Tú puedes!')
               ">
             </app-neko-mensaje>
 
-            <!-- Puntos ganados -->
-            <p
+            <!-- =====================================================
+                EDUNEKO V1 - RECOMPENSA VISUAL DE XP
+
+                Se muestra únicamente cuando:
+                1. La respuesta es correcta.
+                2. Se han obtenido puntos nuevos.
+
+                El cálculo y guardado de XP siguen
+                siendo responsabilidad del backend.
+                ===================================================== -->
+
+            <div
               *ngIf="
                 resultado.esCorrecta &&
-                resultado.puntosObtenidos > 0
+                resultado.puntosObtenidos > 0 &&
+                !resultado.puntosYaOtorgados
               "
-              class="puntos-ganados"
+              class="recompensa-xp"
+              role="status"
             >
-              ¡Ganaste {{ resultado.puntosObtenidos }} puntos!
-            </p>
+              <!-- Icono de recompensa -->
+              <span class="recompensa-xp-icono" aria-hidden="true">
+                ✨
+              </span>
+
+              <!-- Cantidad real de XP otorgada -->
+              <div class="recompensa-xp-contenido">
+                <strong class="recompensa-xp-cantidad">
+                  +{{ resultado.puntosObtenidos }} XP
+                </strong>
+
+                <span class="recompensa-xp-mensaje">
+                  ¡Excelente! Has ganado experiencia.
+                </span>
+              </div>
+
+              <!-- Estrella decorativa -->
+              <span class="recompensa-xp-estrella" aria-hidden="true">
+                ⭐
+              </span>
+            </div>
 
             <!-- Puntos otorgados anteriormente -->
             <p
@@ -1404,20 +1739,46 @@
 
         </article>
 
-        <!-- Resumen provisional -->
-        <div class="resumen-actividades">
-
-          <p>
-            Respuestas seleccionadas:
-            {{ (respuestasSeleccionadas | keyvalue).length }}
-            de {{ actividades.length }}
-          </p>
-
-        </div>
-
       </div>
 
     </section>
+
+        <!-- =========================================
+            EDUNEKO - NAVEGACIÓN ENTRE ETAPAS
+            ========================================= -->
+
+        <!-- Los botones solo cambian la etapa visible.
+            No generan contenido ni modifican el progreso. -->
+        <nav
+          class="controles-etapas"
+          aria-label="Navegación de la lección">
+
+          <!-- Regresar a la etapa anterior -->
+          <button
+            *ngIf="etapaActual > 1"
+            type="button"
+            class="boton-etapa-anterior"
+            (click)="retrocederEtapa()">
+            ← Anterior
+          </button>
+
+          <!-- Navegar a la siguiente etapa de la lección -->
+          <button
+            *ngIf="etapaActual < 3"
+            type="button"
+            class="boton-etapa-siguiente"
+            (click)="avanzarEtapa()">
+
+            <span>Siguiente</span>
+
+            <!-- Flecha decorativa con animación -->
+            <span class="flecha-siguiente" aria-hidden="true">
+              →
+            </span>
+
+          </button>
+
+        </nav>
 
       </article>
 

@@ -127,8 +127,18 @@ public class ActividadService {
             7. Las opciones deben ser distintas.
             8. Usa respuestas correctas distribuidas entre
                las opciones, no siempre la primera.
-            9. Incluye una explicación breve y clara.
-            10. No utilices contenido fuera de la lección.
+            9. Incluye una explicación breve y clara de la
+               respuesta correcta, mostrando el razonamiento.
+           10. Genera una pistaPedagogica específica para
+                cada pregunta, relacionada con el concepto
+                matemático y el procedimiento necesario.
+            11. La pista debe orientar al estudiante cuando
+                responda incorrectamente, sin revelar la
+                respuesta correcta ni el resultado numérico.
+            12. La pista debe ser comprensible para estudiantes
+                de secundaria y formular una orientación,
+                pregunta guía o recordatorio conceptual.
+            13. No utilices contenido fuera de la lección.
 
             Devuelve exclusivamente un JSON válido:
 
@@ -144,7 +154,8 @@ public class ActividadService {
                     "Opción D"
                   ],
                   "respuestaCorrecta": "Opción correcta exacta",
-                  "explicacionRespuesta": "..."
+                  "explicacionRespuesta": "Explicación del procedimiento y resultado correcto",
+                  "pistaPedagogica": "Orientación específica sobre el concepto o procedimiento, sin revelar la respuesta correcta"
                 }
               ]
             }
@@ -190,11 +201,17 @@ public class ActividadService {
                 - Conserva exactamente cinco actividades.
                 - Usa únicamente OPCION_MULTIPLE.
                 - Cada actividad debe tener cuatro opciones
-                de texto distintas.
+                  de texto distintas.
                 - Cada pregunta debe tener una única respuesta correcta.
                 - La respuestaCorrecta debe coincidir exactamente
-                con una de las cuatro opciones.
+                  con una de las cuatro opciones.
                 - Las explicaciones deben ser matemáticamente correctas.
+                - Conserva o corrige una pistaPedagogica para cada
+                  actividad, relacionada con el concepto evaluado.
+                - La pista no debe revelar la respuesta correcta,
+                  el resultado numérico ni una opción equivalente.
+                - La pista debe orientar el razonamiento del
+                  estudiante sin resolver el ejercicio.
                 - Mantén las preguntas relacionadas con la lección.
                 - No introduzcas errores nuevos.
 
@@ -212,7 +229,8 @@ public class ActividadService {
                         "Opción D"
                 ],
                 "respuestaCorrecta": "Opción correcta exacta",
-                "explicacionRespuesta": "..."
+                "explicacionRespuesta": "Explicación del procedimiento y resultado correcto",
+                "pistaPedagogica": "Orientación específica sobre el concepto o procedimiento, sin revelar la respuesta correcta"
                 }
                 ]
                 }
@@ -282,6 +300,10 @@ public class ActividadService {
                                 actividad,
                                 "explicacionRespuesta"
                         );
+                
+                String pistaPedagogica = textoObligatorio(
+                        actividad, "pistaPedagogica"
+                );
 
                 JsonNode opciones = actividad.path("opciones");
 
@@ -324,6 +346,7 @@ public class ActividadService {
                         opciones,
                         respuestaCorrecta,
                         explicacion,
+                        pistaPedagogica,
                         orden++
                 );
             }

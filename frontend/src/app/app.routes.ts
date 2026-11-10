@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { Login } from './pages/login/login';
 import { Registro } from './pages/registro/registro';
+import { Bienvenida } from './pages/bienvenida/bienvenida';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Onboarding } from './pages/onboarding/onboarding';
 import { DiagnosticoMatematicas } from './pages/diagnostico-matematicas/diagnostico-matematicas';
@@ -18,6 +19,11 @@ export const routes: Routes = [
     {
         path: 'registro',
         component: Registro
+    },
+    {
+        path: 'bienvenida',
+        component: Bienvenida,
+        canActivate: [authGuard]
     },
     {
         path: 'onboarding',

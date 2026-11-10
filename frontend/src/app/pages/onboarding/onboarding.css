@@ -1,0 +1,526 @@
+
+/* ==========================================
+   EDUNEKO V1 - ONBOARDING
+   Preferencias, perfil académico y materias
+   ========================================== */
+
+/* Contenedor general */
+.onboarding-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 32px 20px 56px;
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at 12% 15%,
+      rgba(108, 99, 255, 0.12),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 88% 85%,
+      rgba(34, 199, 184, 0.10),
+      transparent 34%
+    ),
+    #f5f7fb;
+
+  color: #2f3545;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Indicador de progreso */
+.onboarding-progreso {
+  max-width: 860px;
+  margin: 0 auto 16px;
+  text-align: right;
+  color: #6c63ff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Tarjeta principal */
+.onboarding-paso {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 36px 42px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid rgba(108, 99, 255, 0.10);
+  border-radius: 28px;
+  box-shadow: 0 16px 48px rgba(47, 53, 69, 0.07);
+}
+
+/* Encabezados */
+.onboarding-encabezado {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.onboarding-encabezado h1 {
+  margin: 0 0 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(26px, 3.5vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #6c63ff;
+}
+
+.onboarding-encabezado p {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #596174;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   PREFERENCIAS DE APRENDIZAJE
+   ========================================== */
+
+.preferencias-modalidades h2,
+.preferencias-adicionales h2 {
+  margin: 0 0 8px;
+  color: #2f3545;
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.preferencias-modalidades > p {
+  margin: 0 0 18px;
+  color: #596174;
+  font-size: 14px;
+}
+
+/* Cuadrícula de modalidades */
+.modalidades-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Tarjetas seleccionables */
+.modalidad-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 142px;
+  padding: 20px;
+  box-sizing: border-box;
+
+  border: 2px solid #e7e9f3;
+  border-radius: 20px;
+  background: #ffffff;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.modalidad-card:hover {
+  border-color: #a9a3ff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(108, 99, 255, 0.10);
+}
+
+/* Checkbox nativo: visible y accesible */
+.modalidad-card input[type="checkbox"] {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #6c63ff;
+  cursor: pointer;
+}
+
+/* Estado seleccionado */
+.modalidad-card:has(input:checked) {
+  border-color: #6c63ff;
+  background: #f3f1ff;
+  box-shadow: 0 6px 18px rgba(108, 99, 255, 0.10);
+}
+
+.modalidad-card:has(input:focus-visible) {
+  outline: 3px solid #22c7b8;
+  outline-offset: 3px;
+}
+
+/* Contenido de cada modalidad */
+.modalidad-contenido {
+  width: 100%;
+  padding-right: 18px;
+}
+
+.modalidad-icono {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.modalidad-contenido h3 {
+  margin: 0 0 6px;
+  font-family: 'Poppins', sans-serif;
+  color: #2f3545;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.modalidad-contenido p {
+  margin: 0;
+  color: #596174;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   PREFERENCIAS ADICIONALES
+   ========================================== */
+
+.preferencias-adicionales {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid #e7e9f3;
+}
+
+.preferencias-adicionales h2 {
+  margin-bottom: 20px;
+}
+
+/* Campos de formularios */
+.campo-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.campo-formulario label {
+  color: #2f3545;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.campo-formulario input,
+.campo-formulario select {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+
+  border: 1px solid #dce0ec;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #2f3545;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+}
+
+.campo-formulario input:focus,
+.campo-formulario select:focus {
+  outline: 2px solid #6c63ff;
+  outline-offset: 1px;
+  border-color: #6c63ff;
+}
+
+
+/* ==========================================
+   PERFIL ACADÉMICO - DISTRIBUCIÓN RESPONSIVE
+   ========================================== */
+
+/* Ampliar la tarjeta principal */
+.perfil-paso {
+  max-width: 860px;
+}
+
+/* Dos columnas en computadora */
+.perfil-contenido {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: 32px;
+}
+
+/* Ilustración de Neko */
+.perfil-contenido .perfil-mascota {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.perfil-contenido .perfil-neko-imagen {
+  display: block;
+  width: 230px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Formulario dentro de su columna */
+.perfil-contenido form {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 680px) {
+  .perfil-contenido {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .perfil-contenido .perfil-neko-imagen {
+    width: 155px;
+  }
+}
+
+/* ==========================================
+   SELECCIÓN DE MATERIAS
+   ========================================== */
+
+.materias-paso {
+  max-width: 700px;
+}
+
+.lista-materias {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.materia-opcion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+
+  border: 2px solid #e7e9f3;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.materia-opcion:hover {
+  border-color: #a9a3ff;
+}
+
+.materia-opcion:has(input:checked) {
+  border-color: #6c63ff;
+  background: #f3f1ff;
+}
+
+.materia-opcion input {
+  width: 18px;
+  height: 18px;
+  accent-color: #6c63ff;
+}
+
+.materia-opcion span {
+  font-weight: 600;
+}
+
+.materias-contador {
+  color: #596174;
+  font-size: 14px;
+}
+
+/* ==========================================
+   NEKO - SELECCIÓN DE MATERIAS
+   ========================================== */
+
+.materias-mascota {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.materias-neko-imagen {
+  display: block;
+  width: 170px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.materias-neko-mensaje {
+  max-width: 440px;
+  margin: 0;
+  color: #596174;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Ajustes para celulares */
+@media (max-width: 520px) {
+  .materias-neko-imagen {
+    width: 135px;
+  }
+
+  .materias-neko-mensaje {
+    font-size: 14px;
+  }
+}
+
+/* ==========================================
+   MENSAJES Y BOTONES
+   ========================================== */
+
+.error {
+  margin: 12px 0;
+  color: #d94d35;
+  font-size: 14px;
+}
+
+.exito {
+  margin: 12px 0;
+  color: #16865e;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.onboarding-acciones {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.boton-continuar {
+  width: 100%;
+  max-width: 320px;
+  min-height: 52px;
+  padding: 12px 24px;
+
+  border: none;
+  border-radius: 14px;
+  background: #6c63ff;
+  color: #ffffff;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.boton-continuar:hover:not(:disabled) {
+  background: #5146e5;
+  transform: translateY(-2px);
+}
+
+.boton-continuar:focus-visible {
+  outline: 3px solid #22c7b8;
+  outline-offset: 3px;
+}
+
+.boton-continuar:disabled {
+  background: #c8ccf5;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   NEKO - ILUSTRACIONES DE PREFERENCIAS
+   ========================================== */
+
+.modalidad-imagen {
+  display: block;
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 12px;
+  object-fit: contain;
+}
+
+/* Centrar la ilustración y conservar
+   la información alineada a la izquierda. */
+.modalidad-contenido {
+  width: 100%;
+  padding-right: 18px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 520px) {
+  .modalidad-imagen {
+    width: 76px;
+    height: 76px;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE - TABLETS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .onboarding-paso {
+    padding: 30px 24px;
+  }
+
+  .modalidades-grid {
+    gap: 12px;
+  }
+
+  .modalidad-card {
+    padding: 16px;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE - CELULARES
+   ========================================== */
+
+@media (max-width: 520px) {
+  .onboarding-container {
+    padding: 20px 14px 36px;
+  }
+
+  .onboarding-paso {
+    padding: 26px 18px;
+    border-radius: 22px;
+  }
+
+  .onboarding-encabezado h1 {
+    font-size: 26px;
+  }
+
+  .onboarding-encabezado p {
+    font-size: 14px;
+  }
+
+  .modalidades-grid,
+  .lista-materias {
+    grid-template-columns: 1fr;
+  }
+
+  .modalidad-card {
+    min-height: 118px;
+  }
+
+  .preferencias-modalidades h2,
+  .preferencias-adicionales h2 {
+    font-size: 18px;
+  }
+
+  .boton-continuar {
+    max-width: none;
+  }
+}
+
+/* Respetar la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .modalidad-card,
+  .materia-opcion,
+  .boton-continuar {
+    transition: none;
+  }
+}

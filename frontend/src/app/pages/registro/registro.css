@@ -1,0 +1,409 @@
+/* =====================================================
+   EDUNEKO V1 - PANTALLA DE REGISTRO
+   Diseño oficial responsive
+   ===================================================== */
+
+/* Fondo exterior con colores oficiales */
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+
+  background:
+    radial-gradient(circle at 12% 22%,
+      rgba(108, 99, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 88% 78%,
+      rgba(34, 199, 184, 0.18), transparent 30%),
+    radial-gradient(circle at 82% 12%,
+      rgba(92, 184, 255, 0.12), transparent 24%),
+    linear-gradient(135deg,
+      #f8f6ff 0%, #ffffff 55%, #f1fffc 100%);
+}
+
+/* Tarjeta principal dividida en dos columnas */
+.registro-container {
+  width: 100%;
+  max-width: 1100px;
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 18px 55px rgba(47, 53, 69, 0.12);
+}
+
+/* =====================================================
+   SECCIÓN IZQUIERDA - NEKO
+   ===================================================== */
+
+.registro-visual {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 35px;
+  text-align: center;
+  overflow: hidden;
+
+  background: linear-gradient(
+    145deg,
+    #f1edff 0%,
+    #ded7ff 55%,
+    #c9c0ff 100%
+  );
+}
+
+/* Iluminación circular detrás de Neko */
+.registro-visual::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 380px;
+  height: 380px;
+  top: 23%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.30) 55%,
+    rgba(255, 255, 255, 0) 75%
+  );
+}
+
+/* Círculo decorativo superior */
+.registro-visual::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 240px;
+  height: 240px;
+  top: -100px;
+  right: -100px;
+  border-radius: 50%;
+  background: rgba(108, 99, 255, 0.12);
+}
+
+/* Logo oficial */
+.registro-logo {
+  width: 320px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 24px;
+}
+
+/* Contenedor de Neko y estrellas */
+.neko-decoration {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Imagen de Neko con mochila */
+.registro-neko {
+  position: relative;
+  z-index: 1;
+  width: 290px;
+  max-width: 90%;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: drop-shadow(
+    0 16px 18px rgba(81, 70, 229, 0.18)
+  );
+}
+
+/* Estrellas decorativas */
+.neko-star {
+  position: absolute;
+  font-size: 28px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.star-1 {
+  top: 15%;
+  left: 12%;
+  color: #FFC857;
+}
+
+.star-2 {
+  top: 30%;
+  right: 12%;
+  color: #6C63FF;
+  font-size: 35px;
+}
+
+.star-3 {
+  bottom: 25%;
+  left: 18%;
+  color: #22C7B8;
+  font-size: 22px;
+}
+
+.star-4 {
+  bottom: 15%;
+  right: 18%;
+  color: #FFC857;
+  font-size: 25px;
+}
+
+/* Mensaje de bienvenida */
+.registro-visual h2 {
+  margin: 0 0 12px;
+  font-family: var(--font-title);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.registro-visual p {
+  max-width: 340px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* =====================================================
+   SECCIÓN DERECHA - FORMULARIO
+   ===================================================== */
+
+.registro-form-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 45px;
+}
+
+.registro-card {
+  width: 100%;
+  max-width: 390px;
+}
+
+.registro-card h1 {
+  margin: 0 0 8px;
+  font-family: var(--font-title);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.registro-subtitle {
+  margin: 0 0 26px;
+  font-size: 15px;
+  color: #707789;
+}
+
+/* Campos del formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 17px;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.form-group input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1.5px solid #dce0ed;
+  border-radius: 12px;
+  outline: none;
+  background: #ffffff;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input::placeholder {
+  color: #9ca3b4;
+}
+
+.form-group input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.12);
+}
+
+/* Mensajes de validación */
+.field-error {
+  margin: 7px 0 0;
+  color: var(--color-error);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Errores de registro y contraseña */
+.registro-error {
+  padding: 12px 14px;
+  margin: 0 0 15px;
+  border-radius: 10px;
+  background: #fff0eb;
+  color: #b83d23;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Botón para crear cuenta */
+.registro-button {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.registro-button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+.registro-button:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+.registro-button:disabled {
+  background: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+/* Enlace para regresar al Login */
+.login-link {
+  margin: 22px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.login-link a {
+  margin-left: 4px;
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* =====================================================
+   RESPONSIVE - TABLETAS
+   ===================================================== */
+
+@media (max-width: 850px) {
+  .registro-container {
+    max-width: 580px;
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .registro-visual {
+    padding: 28px 24px;
+  }
+
+  .registro-logo {
+    width: 250px;
+    margin-bottom: 12px;
+  }
+
+  .registro-neko {
+    width: 175px;
+    margin-bottom: 12px;
+  }
+
+  .registro-visual h2 {
+    font-size: 21px;
+  }
+
+  .registro-form-section {
+    padding: 35px 28px;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE - CELULARES
+   ===================================================== */
+
+@media (max-width: 480px) {
+  .registro-page {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .registro-container {
+    border-radius: 20px;
+  }
+
+  .registro-visual {
+    padding: 22px 18px;
+  }
+
+  .registro-logo {
+    width: 200px;
+  }
+
+  .registro-neko {
+    width: 135px;
+  }
+
+  .registro-visual h2 {
+    font-size: 18px;
+  }
+
+  .registro-visual p {
+    font-size: 13px;
+  }
+
+  .registro-form-section {
+    padding: 28px 20px;
+  }
+
+  .registro-card h1 {
+    font-size: 25px;
+  }
+
+  .registro-subtitle {
+    margin-bottom: 24px;
+  }
+
+  .neko-star {
+    font-size: 18px;
+  }
+
+  .star-2 {
+    font-size: 24px;
+  }
+}
+
+/* Respeta las preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .form-group input,
+  .registro-button {
+    transition: none;
+  }
+}

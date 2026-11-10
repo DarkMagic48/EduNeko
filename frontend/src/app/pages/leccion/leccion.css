@@ -31,21 +31,57 @@
   opacity: 0.9;
 }
 
+/* Botón de navegación integrado en el encabezado. */
 .boton-volver {
-  display: block;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 10px 0;
-  background: transparent;
-  border: none;
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  max-width: 100%;
+  min-height: 42px;
+
+  /* Alinea el botón con el contenido principal. */
+  margin: 0 auto 0 max(0px, calc((100% - 1000px) / 2));
+
+  padding: 10px 18px;
+
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+
+  color: #ffffff;
+  font-family: inherit;
   font-size: 0.95rem;
+  font-weight: 600;
+
   cursor: pointer;
-  text-align: left;
+  backdrop-filter: blur(6px);
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.boton-volver:hover {
-  text-decoration: underline;
+/* Efecto al pasar el cursor. */
+@media (hover: hover) {
+  .boton-volver:hover {
+    background: rgba(255, 255, 255, 0.24);
+    transform: translateX(-3px);
+    box-shadow: 0 4px 12px rgba(30, 27, 75, 0.12);
+  }
+}
+
+/* Accesibilidad: desactivar movimientos opcionales. */
+@media (prefers-reduced-motion: reduce) {
+  .boton-volver {
+    transition: none;
+  }
+
+  .boton-volver:hover {
+    transform: none;
+  }
 }
 
 .contenido {
@@ -706,6 +742,2207 @@ button:focus-visible {
     /* Evitar que el SVG exceda su contenedor. */
     box-sizing: border-box;
     overflow: visible;
+  }
+
+  
+/* =========================================
+   EDUNEKO - INDICADOR DE ETAPAS
+   ========================================= */
+
+.navegacion-etapas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+/* Estado inicial de cada etapa */
+.etapa-indicador {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 10px;
+  border: 2px solid #e8eaf3;
+  border-radius: 14px;
+  background: #f8f9fd;
+  color: #64748b;
+  font-weight: 700;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* Número de la etapa */
+.etapa-numero {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* Etapa que está consultando el estudiante */
+.etapa-indicador.etapa-activa {
+  background: #f0edff;
+  border-color: #8b5cf6;
+  color: #5b21b6;
+}
+
+.etapa-activa .etapa-numero {
+  background: #7c3aed;
+  color: white;
+}
+
+/* Etapas que el estudiante ya visitó */
+.etapa-indicador.etapa-superada {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  color: #0f766e;
+}
+
+.etapa-superada .etapa-numero {
+  background: #0d9488;
+  color: white;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .navegacion-etapas {
+    gap: 6px;
+  }
+
+  .etapa-indicador {
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 4px;
+    font-size: 0.75rem;
+  }
+
+  .etapa-numero {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .etapa-indicador {
+    transition: none;
+  }
+}
+
+  /* =========================================
+    EDUNEKO - VISIBILIDAD DE ETAPAS
+    ========================================= */
+
+  /*
+  * Garantiza que Angular pueda ocultar las secciones
+  * aunque tengan estilos display definidos en CSS.
+  */
+  .seccion-leccion[hidden] {
+    display: none !important;
+  }
+
+  /* =========================================
+    EDUNEKO - VISIBILIDAD DE LA ETAPA OBSERVA
+    ========================================= */
+
+  /*
+  * Oculta el ejemplo cuando el estudiante
+  * se encuentra en otra etapa.
+  *
+  * Mantiene los componentes visuales en el DOM
+  * para conservar su estado.
+  */
+  .seccion-leccion.ejemplo[hidden] {
+    display: none !important;
+  }
+
+  /* =========================================
+    EDUNEKO - VISIBILIDAD DE LA ETAPA PRACTICA
+    ========================================= */
+
+  /*
+  * Oculta las actividades cuando el estudiante
+  * está en Aprende u Observa.
+  *
+  * El contenido permanece montado en Angular,
+  * por lo que no se destruye su estado al ocultarlo.
+  */
+  .seccion-actividades[hidden] {
+    display: none !important;
+  }
+
+
+/* =========================================
+   EDUNEKO V1 - NAVEGACIÓN ENTRE ETAPAS
+   ========================================= */
+
+/* Contenedor de los botones */
+.controles-etapas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid #e9e5f5;
+}
+
+/* Estilos compartidos */
+.boton-etapa-anterior,
+.boton-etapa-siguiente {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+/* Botón para regresar */
+.boton-etapa-anterior {
+  background: #ffffff;
+  border: 2px solid #ddd6fe;
+  color: #6d28d9;
+}
+
+.boton-etapa-anterior:hover {
+  background: #f5f3ff;
+  transform: translateY(-2px);
+}
+
+/* Botón para avanzar */
+.boton-etapa-siguiente {
+  margin-left: auto;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  border: 2px solid transparent;
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(109, 40, 217, 0.18);
+}
+
+.boton-etapa-siguiente:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.25);
+}
+
+/* Accesibilidad con teclado */
+.boton-etapa-anterior:focus-visible,
+.boton-etapa-siguiente:focus-visible {
+  outline: 3px solid #a78bfa;
+  outline-offset: 3px;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .controles-etapas {
+    gap: 10px;
+  }
+
+  .boton-etapa-anterior,
+  .boton-etapa-siguiente {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 12px 10px;
+    font-size: 0.875rem;
+  }
+
+  /* Cuando solo aparece Siguiente,
+     ocupa el ancho disponible */
+  .boton-etapa-siguiente:first-child {
+    flex-basis: 100%;
+  }
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .boton-etapa-anterior,
+  .boton-etapa-siguiente {
+    transition: none;
+  }
+
+  .boton-etapa-anterior:hover,
+  .boton-etapa-siguiente:hover {
+    transform: none;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO V1 - ANIMACIÓN DE ETAPAS
+   ========================================= */
+
+/*
+ * Animación suave para presentar el contenido
+ * de cada etapa de la lección.
+ */
+@keyframes edunekoEntradaEtapa {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Aplicar la animación únicamente a las
+ * secciones visibles de la lección.
+ */
+.seccion-leccion.introduccion:not([hidden]),
+.seccion-leccion.explicacion:not([hidden]),
+.seccion-leccion.ejemplo:not([hidden]),
+.seccion-actividades:not([hidden]) {
+  animation: edunekoEntradaEtapa 0.35s ease-out both;
+}
+
+/*
+ * Respetar las preferencias de accesibilidad
+ * de estudiantes que reducen las animaciones.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .seccion-leccion.introduccion,
+  .seccion-leccion.explicacion,
+  .seccion-leccion.ejemplo,
+  .seccion-actividades {
+    animation: none !important;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO - PRESENTACIÓN DE ETAPAS
+   ========================================= */
+
+.presentacion-etapa {
+  margin-bottom: 24px;
+  padding: 22px 26px;
+  background: linear-gradient(135deg, #f5f3ff, #faf7ff);
+  border: 1px solid #e9d5ff;
+  border-radius: 18px;
+
+  /* Distribución de Neko y el mensaje */
+  position: relative;
+  min-height: 140px;
+  padding-right: 145px;
+
+}
+
+.presentacion-etapa h2 {
+  margin: 0 0 8px;
+  color: #6d28d9;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.presentacion-etapa p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .presentacion-etapa {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .presentacion-etapa h2 {
+    font-size: 1.15rem;
+  }
+}
+
+/* =========================================
+   EDUNEKO - NEKO EN LAS ETAPAS
+   ========================================= */
+
+/* Mascota oficial dentro de la presentación */
+.neko-presentacion-etapa {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .presentacion-etapa {
+    min-height: 0;
+    padding-right: 18px;
+  }
+
+  .neko-presentacion-etapa {
+    position: static;
+    display: block;
+    width: 85px;
+    height: 85px;
+    margin: 0 auto 12px;
+    transform: none;
+  }
+}
+
+/* =========================================
+   EDUNEKO - TRANSICIÓN DE NEKO POR ETAPA
+   ========================================= */
+
+/* Animación de entrada de la mascota */
+@keyframes nekoEntradaEtapa {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/*
+ * Cada cambio de etapa activa una animación
+ * en la imagen correspondiente de Neko.
+ */
+.neko-presentacion-etapa[data-etapa="1"],
+.neko-presentacion-etapa[data-etapa="2"],
+.neko-presentacion-etapa[data-etapa="3"] {
+  animation: nekoEntradaEtapa 0.35s ease-out both;
+}
+
+/* Accesibilidad: reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .neko-presentacion-etapa {
+    animation: none !important;
+  }
+}
+
+/* =========================================
+   EDUNEKO - INDICADOR DE ETAPA ACTUAL
+   ========================================= */
+
+.texto-progreso-etapas {
+  margin: 0 0 10px;
+  color: #6d28d9;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* =========================================
+   EDUNEKO - TEXTO EXPLICATIVO
+   ========================================= */
+
+/*
+ * Mejora la lectura de las explicaciones
+ * matemáticas generadas por IA.
+ */
+.seccion-leccion.explicacion .texto-explicacion {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #243653;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  margin-bottom: 14px;
+}
+
+/*
+ * Ajuste para pantallas pequeñas.
+ */
+@media (max-width: 600px) {
+  .seccion-leccion.explicacion .texto-explicacion {
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+}
+
+
+/* =========================================
+   EDUNEKO V1 - CONTROLES DE AUDIO
+   ========================================= */
+
+/*
+ * Contenedor de los botones de reproducción.
+ * Mantiene una separación adecuada del texto.
+ */
+.seccion-leccion.explicacion .controles-audio {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/*
+ * Estilo principal de los botones de audio.
+ */
+.seccion-leccion.explicacion .controles-audio button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 11px 18px;
+  border: 1px solid #ddd6fe;
+  border-radius: 12px;
+
+  background-color: #f5f3ff;
+  color: #6d28d9;
+
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Resaltar el botón al pasar el cursor */
+@media (hover: hover) {
+  .seccion-leccion.explicacion .controles-audio button:hover {
+    background-color: #ede9fe;
+    border-color: #a78bfa;
+  }
+}
+
+/* Accesibilidad para navegación con teclado */
+.seccion-leccion.explicacion .controles-audio button:focus-visible {
+  outline: 3px solid #8b5cf6;
+  outline-offset: 3px;
+}
+
+/* Ajuste para celulares */
+@media (max-width: 600px) {
+  .seccion-leccion.explicacion .controles-audio button {
+    max-width: 100%;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .seccion-leccion.explicacion .controles-audio button {
+    transition: none;
+  }
+}
+
+/* =========================================
+   EDUNEKO - ANUNCIO ACCESIBLE DE ETAPA
+   ========================================= */
+
+/*
+ * El texto permanece disponible para lectores
+ * de pantalla sin ocupar espacio visual.
+ */
+.anuncio-etapa {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================
+    EDUNEKO V1 - NEKO FLOTANDO EN APRENDE
+    ========================================= */
+
+  /*
+  * Movimiento vertical muy suave de Neko.
+  * Se utiliza exclusivamente en la etapa Aprende.
+  */
+  @keyframes nekoFlotandoAprende {
+    0%, 100% {
+      translate: 0 0;
+    }
+
+    50% {
+      translate: 0 -5px;
+    }
+  }
+
+    @keyframes nekoPensandoPractica {
+    0%, 100% {
+      rotate: 0deg;
+      translate: 0 0;
+    }
+
+    25% {
+      rotate: -3deg;
+      translate: 0 -3px;
+    }
+
+    50% {
+      rotate: 0deg;
+      translate: 0 -5px;
+    }
+
+    75% {
+      rotate: 3deg;
+      translate: 0 -3px;
+    }
+  }
+
+  /*
+  * Aplicamos la animación solamente cuando
+  * la imagen corresponde a la etapa 1.
+  *
+  * Usamos "translate" para no modificar
+  * el transform que ya centra a Neko.
+  */
+  .neko-presentacion-etapa[data-etapa="1"] {
+    animation: nekoFlotandoAprende 3.5s ease-in-out infinite;
+  }
+
+  /*
+  * En Observa y Practica no aplicamos
+  * el movimiento flotante.
+  */
+  .neko-presentacion-etapa[data-etapa="2"],
+  .neko-presentacion-etapa[data-etapa="3"] {
+    animation: nekoPensandoPractica 4s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+
+  /*
+  * Accesibilidad: desactivar la animación
+  * cuando el estudiante prefiere menos movimiento.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .neko-presentacion-etapa[data-etapa="1"] {
+      animation: none;
+      translate: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+  .neko-presentacion-etapa[data-etapa="3"] {
+    animation: none !important;
+    rotate: none;
+    translate: none;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - ENTRADA PROGRESIVA
+   DE LAS TARJETAS DE APRENDE
+   ========================================= */
+
+  /*
+  * Animación de aparición suave:
+  * la tarjeta gana visibilidad mientras
+  * se desplaza ligeramente hacia arriba.
+  */
+  @keyframes edunekoTarjetaAprende {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*
+  * Primera tarjeta: Introducción.
+  * Aparece inmediatamente.
+  */
+  .seccion-leccion.introduccion:not([hidden]) {
+    animation: edunekoTarjetaAprende 0.4s ease-out both;
+  }
+
+  /*
+  * Segunda tarjeta: Aprende el concepto.
+  * Aparece con un pequeño retraso para
+  * establecer un orden visual.
+  */
+  .seccion-leccion.explicacion:not([hidden]) {
+    animation: edunekoTarjetaAprende 0.45s ease-out 0.15s both;
+  }
+
+  /*
+  * Accesibilidad: mostrar el contenido
+  * sin animaciones cuando se solicita
+  * movimiento reducido.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .seccion-leccion.introduccion:not([hidden]),
+    .seccion-leccion.explicacion:not([hidden]) {
+      animation: none !important;
+    }
+  }
+
+/* =========================================
+   EDUNEKO V1 - PULSO DEL INDICADOR APRENDE
+   ========================================= */
+
+/*
+ * Pulso suave que aumenta ligeramente
+ * el tamaño del círculo y lo devuelve
+ * a su posición original.
+ */
+@keyframes edunekoPulsoAprende {
+  0% {
+    scale: 1;
+  }
+
+  45% {
+    scale: 1.12;
+  }
+
+  100% {
+    scale: 1;
+  }
+}
+
+/*
+ * Aplicar el pulso exclusivamente al
+ * círculo de la primera etapa cuando
+ * Aprende se encuentra activa.
+ */
+.navegacion-etapas
+.etapa-indicador:first-child.etapa-activa
+.etapa-numero {
+  animation: edunekoPulsoAprende 0.65s ease-out 1;
+}
+
+/*
+ * Respetar la preferencia del estudiante
+ * de reducir las animaciones.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .navegacion-etapas
+  .etapa-indicador:first-child.etapa-activa
+  .etapa-numero {
+    animation: none !important;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - ONDAS DE AUDIO ANIMADAS
+   ========================================= */
+
+  /* Contenedor de las cinco barras */
+  .ondas-audio {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 20px;
+  }
+
+  /* Apariencia de cada barra */
+  .ondas-audio span {
+    display: block;
+    width: 3px;
+    height: 6px;
+    background-color: currentColor;
+    border-radius: 3px;
+    animation: edunekoOndaAudio 0.8s ease-in-out infinite alternate;
+  }
+
+  /* Desfase para simular ondas de sonido */
+  .ondas-audio span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .ondas-audio span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .ondas-audio span:nth-child(4) {
+    animation-delay: 0.1s;
+  }
+
+  .ondas-audio span:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+
+  /* Movimiento vertical de las barras */
+  @keyframes edunekoOndaAudio {
+    from {
+      height: 5px;
+    }
+
+    to {
+      height: 18px;
+    }
+  }
+
+  /* Respetar preferencias de movimiento reducido */
+  @media (prefers-reduced-motion: reduce) {
+    .ondas-audio span {
+      animation: none;
+      height: 10px;
+    }
+  }
+
+/* =========================================
+   EDUNEKO V1 - FLECHA ANIMADA
+   DEL BOTÓN SIGUIENTE
+   ========================================= */
+
+  /*
+  * Mantiene el texto y la flecha alineados
+  * horizontalmente.
+  */
+  .boton-etapa-siguiente {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  /*
+  * La flecha permanece en su posición
+  * original cuando no hay interacción.
+  */
+  .flecha-siguiente {
+    display: inline-block;
+    transition: transform 0.25s ease;
+  }
+
+  /*
+  * En dispositivos con cursor, la flecha
+  * se desplaza ligeramente hacia la derecha.
+  */
+  @media (hover: hover) {
+    .boton-etapa-siguiente:hover .flecha-siguiente {
+      transform: translateX(5px);
+    }
+  }
+
+  /*
+  * También funciona al navegar con teclado.
+  */
+  .boton-etapa-siguiente:focus-visible .flecha-siguiente {
+    transform: translateX(5px);
+  }
+
+  /*
+  * Respetar las preferencias de accesibilidad.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .flecha-siguiente {
+      transition: none;
+    }
+
+    .boton-etapa-siguiente:hover .flecha-siguiente,
+    .boton-etapa-siguiente:focus-visible .flecha-siguiente {
+      transform: none;
+    }
+  }
+
+/* =========================================
+   EDUNEKO V1 - TARJETAS DEL EJEMPLO RESUELTO
+   ========================================= */
+
+/* Contenedor de los bloques educativos */
+.ejemplo-pasos-contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+  margin-bottom: 22px;
+}
+
+/* Tarjeta individual de cada paso */
+.ejemplo-paso-tarjeta {
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e9ddff;
+  border-left: 4px solid #8b5cf6;
+  border-radius: 12px;
+}
+
+/* Introducción del ejemplo */
+.ejemplo-paso-introduccion {
+  background: #f8f7ff;
+  border-left-color: #a5b4fc;
+}
+
+/* Texto matemático */
+.ejemplo-paso-texto {
+  margin: 0;
+  color: #26334d;
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .ejemplo-paso-tarjeta {
+    padding: 14px 15px;
+  }
+
+  .ejemplo-paso-texto {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+}
+
+  /* =========================================
+    EDUNEKO V1 - ETIQUETAS DE PASOS
+    ========================================= */
+
+  /* Número del paso destacado */
+  .ejemplo-paso-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 12px;
+    margin-bottom: 10px;
+
+    background: #ede9fe;
+    color: #6d28d9;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  /* Separación entre etiqueta y explicación */
+  .ejemplo-paso-tarjeta .ejemplo-paso-texto {
+    margin: 0;
+  }
+
+
+/* ==========================================
+   EDUNEKO V1 - OBSERVA
+   Animación progresiva del ejemplo resuelto
+   ========================================== */
+
+/* Aparición suave desde abajo */
+@keyframes edunekoEntradaPasoObserva {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Animar las tarjetas únicamente cuando
+ * la etapa Observa está visible.
+ */
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta {
+  animation: edunekoEntradaPasoObserva
+    0.4s ease-out both;
+}
+
+/*
+ * Entrada escalonada de las primeras tarjetas.
+ * Las demás aparecen con un retraso limitado
+ * para evitar esperas excesivas.
+ */
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta:nth-child(3) {
+  animation-delay: 0.19s;
+}
+
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta:nth-child(5) {
+  animation-delay: 0.33s;
+}
+
+.seccion-leccion.ejemplo:not([hidden])
+.ejemplo-paso-tarjeta:nth-child(n+6) {
+  animation-delay: 0.4s;
+}
+
+/* ==========================================
+   EDUNEKO V1 - NEKO EXPLORADOR
+   Animación exclusiva de la etapa Observa
+   ========================================== */
+
+/*
+ * Neko se inclina suavemente para simular
+ * que está explorando con su lupa.
+ *
+ * Utilizamos rotate en lugar de transform
+ * para no interferir con el posicionamiento
+ * definido por los estilos existentes.
+ */
+@keyframes nekoExplorandoObserva {
+  0%, 100% {
+    rotate: 0deg;
+  }
+
+  50% {
+    rotate: -3deg;
+  }
+}
+
+/*
+ * Activar la animación solamente cuando
+ * Neko aparece en la etapa 2: Observa.
+ */
+.neko-presentacion-etapa[data-etapa="2"] {
+  animation: nekoExplorandoObserva
+    3.2s ease-in-out infinite;
+
+  transform-origin: center bottom;
+}
+
+/*
+ * Mantener las animaciones separadas:
+ * - Aprende: movimiento flotante.
+ * - Observa: inclinación exploradora.
+ * - Practica: sin animación por ahora.
+ */
+.neko-presentacion-etapa[data-etapa="3"] {
+  animation: none;
+}
+
+/*
+ * Accesibilidad:
+ * respetar la preferencia del sistema
+ * para reducir las animaciones.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .neko-presentacion-etapa[data-etapa="2"] {
+    animation: none !important;
+    rotate: none;
+  }
+}
+
+/*
+ * Accesibilidad:
+ * Desactivar las animaciones cuando el
+ * estudiante prefiere movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .seccion-leccion.ejemplo:not([hidden])
+  .ejemplo-paso-tarjeta {
+    animation: none !important;
+  }
+}
+
+  /* ==========================================
+    EDUNEKO V1 - CONTROLES DE AUDIO OBSERVA
+    ========================================== */
+
+  /* Distribución de los controles */
+  .controles-audio-observa {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  /* Botón principal */
+  .boton-audio-observa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 12px 18px;
+    max-width: 100%;
+
+    background: #7c3aed;
+    color: #ffffff;
+
+    border: 1px solid #7c3aed;
+    border-radius: 12px;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .boton-audio-observa:hover {
+    background: #6d28d9;
+    border-color: #6d28d9;
+  }
+
+  .boton-audio-observa:focus-visible {
+    outline: 3px solid #c4b5fd;
+    outline-offset: 3px;
+  }
+
+  /* Botón cuando el audio está reproduciéndose */
+  .boton-audio-observa-activo {
+    background: #f3e8ff;
+    color: #6d28d9;
+    border-color: #ddd6fe;
+  }
+
+  .boton-audio-observa-activo:hover {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+  }
+
+  /* Icono del botón */
+  .audio-observa-icono {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  /* Ondas que indican reproducción activa */
+  .audio-observa-ondas {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 20px;
+  }
+
+  .audio-observa-ondas span {
+    width: 3px;
+    height: 8px;
+    background: currentColor;
+    border-radius: 3px;
+
+    animation: edunekoOndaObserva 0.8s ease-in-out infinite alternate;
+  }
+
+  /* Desfase para crear el efecto de ondas */
+  .audio-observa-ondas span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  .audio-observa-ondas span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  .audio-observa-ondas span:nth-child(4) {
+    animation-delay: 0.45s;
+  }
+
+  .audio-observa-ondas span:nth-child(5) {
+    animation-delay: 0.6s;
+  }
+
+  /* Animación de las ondas */
+  @keyframes edunekoOndaObserva {
+    from {
+      height: 5px;
+    }
+
+    to {
+      height: 18px;
+    }
+  }
+
+  /* Adaptación para pantallas pequeñas */
+  @media (max-width: 600px) {
+    .boton-audio-observa {
+      padding: 11px 14px;
+      font-size: 13px;
+    }
+  }
+
+  /* Accesibilidad: movimiento reducido */
+  @media (prefers-reduced-motion: reduce) {
+    .audio-observa-ondas span {
+      animation: none !important;
+      height: 10px;
+    }
+
+    .boton-audio-observa {
+      transition: none;
+    }
+  }
+
+  /* =========================================
+    EDUNEKO V1 - ACTIVIDADES COMPLETADAS
+    ========================================= */
+
+  /* Transición suave entre estados visuales. */
+  .tarjeta-actividad {
+    transition:
+      border-color 0.25s ease,
+      background-color 0.25s ease;
+  }
+
+  /* Diferencia las actividades respondidas correctamente. */
+  .tarjeta-actividad-completada {
+    border: 2px solid #86efac;
+    background-color: #f0fdf4;
+  }
+
+  /* Respeta las preferencias de accesibilidad. */
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta-actividad {
+      transition: none;
+    }
+  }
+
+  /* =========================================
+    EDUNEKO V1 - SELECCIÓN DE RESPUESTAS
+    ========================================= */
+
+  /* Permite identificar las opciones interactivas. */
+  .opcion-actividad {
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  /* Resalta la respuesta seleccionada. */
+  .opcion-actividad-seleccionada {
+    background-color: #ede9fe;
+    border-color: #8b5cf6;
+  }
+
+  /* Mantiene una apariencia diferenciada
+    cuando la actividad ya está completada. */
+  .opcion-actividad-bloqueada {
+    cursor: default;
+  }
+
+  /* Accesibilidad para navegación con teclado. */
+  .opcion-actividad:focus-within {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+  }
+
+  /* Respeta las preferencias de movimiento reducido. */
+  @media (prefers-reduced-motion: reduce) {
+    .opcion-actividad {
+      transition: none;
+    }
+  }
+
+  /* =========================================
+    EDUNEKO V1 - TARJETAS DE PRACTICA
+    ========================================= */
+
+  /* Contenedor de todas las actividades */
+  .lista-actividades {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  /* Tarjeta individual */
+  .tarjeta-actividad {
+    box-sizing: border-box;
+    padding: 26px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+
+    transition:
+      border-color 0.25s ease,
+      background-color 0.25s ease;
+  }
+
+  /* Encabezado de la pregunta */
+  .tarjeta-actividad h3 {
+    margin: 0 0 18px;
+    color: #1e293b;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  /* Enunciado */
+  .pregunta-actividad {
+    margin: 0 0 22px;
+    color: #334155;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* =========================================
+    OPCIONES DE RESPUESTA
+    ========================================= */
+
+  /* Organiza las respuestas verticalmente */
+  .opciones-actividad {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  /* Cada opción ocupa una tarjeta independiente */
+  .opcion-actividad {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    width: 100%;
+    padding: 15px 18px;
+
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  /* Botón de selección */
+  .opcion-actividad input[type="radio"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: #7c3aed;
+  }
+
+  /* Texto de cada opción */
+  .opcion-actividad span {
+    flex: 1;
+    min-width: 0;
+    color: #334155;
+    font-size: 15px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  /* Efecto al pasar el cursor */
+  .opcion-actividad:hover {
+    background: #f1f5f9;
+    border-color: #c4b5fd;
+  }
+
+  /* Opción seleccionada */
+  .opcion-actividad-seleccionada {
+    background: #ede9fe;
+    border-color: #8b5cf6;
+  }
+
+  /* Conserva el resaltado al pasar el cursor */
+  .opcion-actividad-seleccionada:hover {
+    background: #ede9fe;
+    border-color: #8b5cf6;
+  }
+
+  /* Actividad completada */
+  .tarjeta-actividad-completada {
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+  }
+
+  /* Opciones deshabilitadas */
+  .opcion-actividad-bloqueada {
+    cursor: default;
+  }
+
+  /* Accesibilidad para teclado */
+  .opcion-actividad:focus-within {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+  }
+
+  /* =========================================
+    ADAPTACIÓN PARA CELULARES
+    ========================================= */
+
+  @media (max-width: 600px) {
+    .lista-actividades {
+      gap: 16px;
+    }
+
+    .tarjeta-actividad {
+      padding: 18px;
+      border-radius: 14px;
+    }
+
+    .tarjeta-actividad h3 {
+      font-size: 16px;
+    }
+
+    .pregunta-actividad {
+      font-size: 15px;
+    }
+
+    .opcion-actividad {
+      padding: 13px 14px;
+    }
+
+    .opcion-actividad span {
+      font-size: 14px;
+    }
+  }
+
+  /* Reduce animaciones cuando el usuario lo solicita */
+  @media (prefers-reduced-motion: reduce) {
+    .tarjeta-actividad,
+    .opcion-actividad {
+      transition: none;
+    }
+  }
+
+  /* =========================================
+    EDUNEKO V1 - ENCABEZADO DE ACTIVIDADES
+    ========================================= */
+
+  /* Distribuye el número y el estado de la pregunta. */
+  .encabezado-tarjeta-actividad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  /* Ajusta el título dentro del encabezado. */
+  .encabezado-tarjeta-actividad h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  /* Etiqueta de actividad completada. */
+  .etiqueta-actividad-completada {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 13px;
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Adaptación para dispositivos móviles. */
+  @media (max-width: 600px) {
+    .encabezado-tarjeta-actividad h3 {
+      font-size: 16px;
+    }
+
+    .etiqueta-actividad-completada {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+  }
+
+  /* =========================================
+    EDUNEKO V1 - BOTÓN DE COMPROBACIÓN
+    ========================================= */
+
+  /* Contenedor de acciones de la actividad */
+  .acciones-actividad {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  /* Botón principal para comprobar respuestas */
+  .boton-comprobar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+    padding: 12px 24px;
+
+    background: #6d28d9;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+
+    cursor: pointer;
+
+    transition:
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  /* Efecto al pasar el cursor */
+  .boton-comprobar:not(:disabled):hover {
+    background: #5b21b6;
+    transform: translateY(-2px);
+  }
+
+  /* Indicador de foco para accesibilidad */
+  .boton-comprobar:focus-visible {
+    outline: 3px solid #c4b5fd;
+    outline-offset: 3px;
+  }
+
+  /* Estado deshabilitado: sin respuesta o evaluando */
+  .boton-comprobar:disabled {
+    background: #cbd5e1;
+    color: #475569;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Adaptación a dispositivos móviles */
+  @media (max-width: 600px) {
+    .acciones-actividad {
+      justify-content: stretch;
+    }
+
+    .boton-comprobar {
+      width: 100%;
+      padding: 14px 18px;
+    }
+  }
+
+  /* Respeta preferencias de accesibilidad */
+  @media (prefers-reduced-motion: reduce) {
+    .boton-comprobar {
+      transition: none;
+    }
+
+    .boton-comprobar:not(:disabled):hover {
+      transform: none;
+    }
+  }
+
+/* =========================================
+   EDUNEKO V1 - CORRECCIÓN ANIMACIÓN PRACTICA
+   ========================================= */
+
+/*
+ * Animación de Neko pensando.
+ * Se utilizan propiedades independientes
+ * para no alterar su posición en el encabezado.
+ */
+@keyframes edunekoPensandoFinal {
+  0%, 100% {
+    rotate: 0deg;
+    translate: 0 0;
+  }
+
+  25% {
+    rotate: -5deg;
+    translate: 0 -5px;
+  }
+
+  50% {
+    rotate: 0deg;
+    translate: 0 -9px;
+  }
+
+  75% {
+    rotate: 5deg;
+    translate: 0 -5px;
+  }
+}
+
+/*
+ * Selector específico para la etapa Practica.
+ * Sobrescribe las reglas anteriores que
+ * desactivaban la animación.
+ */
+.presentacion-etapa
+.neko-presentacion-etapa[data-etapa="3"] {
+  animation: edunekoPensandoFinal 3s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+/*
+ * Desactivar el movimiento cuando el estudiante
+ * tiene habilitada la preferencia de movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .presentacion-etapa
+  .neko-presentacion-etapa[data-etapa="3"] {
+    animation: none !important;
+    rotate: none;
+    translate: none;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - ENTRADA DE ACTIVIDADES
+   ========================================= */
+
+/*
+ * Las tarjetas aparecen suavemente desde abajo.
+ * El movimiento es corto para no distraer
+ * al estudiante durante la práctica.
+ */
+@keyframes edunekoEntradaActividad {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/*
+ * Animar las tarjetas únicamente cuando
+ * la etapa Practica está visible.
+ */
+.seccion-actividades:not([hidden])
+.tarjeta-actividad {
+  animation: edunekoEntradaActividad
+    0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Entrada escalonada de las preguntas. */
+.seccion-actividades:not([hidden])
+.tarjeta-actividad:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.seccion-actividades:not([hidden])
+.tarjeta-actividad:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.seccion-actividades:not([hidden])
+.tarjeta-actividad:nth-child(3) {
+  animation-delay: 0.19s;
+}
+
+.seccion-actividades:not([hidden])
+.tarjeta-actividad:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+.seccion-actividades:not([hidden])
+.tarjeta-actividad:nth-child(5) {
+  animation-delay: 0.33s;
+}
+
+/*
+ * Accesibilidad:
+ * desactivar animaciones si el estudiante
+ * prefiere movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .seccion-actividades:not([hidden])
+  .tarjeta-actividad {
+    animation: none !important;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - RESPUESTAS INTERACTIVAS
+   ========================================= */
+
+/*
+ * Transiciones suaves para las opciones.
+ * Se conserva el diseño original de cada tarjeta.
+ */
+.opcion-actividad {
+  position: relative;
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease;
+}
+
+/*
+ * Efecto al pasar el cursor.
+ * Solo funciona en dispositivos con hover.
+ * No se aplica a respuestas bloqueadas.
+ */
+@media (hover: hover) {
+  .opcion-actividad:not(.opcion-actividad-bloqueada):hover {
+    transform: translateY(-3px);
+    border-color: #a78bfa;
+    box-shadow: 0 6px 16px rgba(109, 40, 217, 0.12);
+  }
+}
+
+/*
+ * Resaltar la opción seleccionada.
+ * Angular ya controla esta clase.
+ */
+.opcion-actividad-seleccionada {
+  background-color: #ede9fe;
+  border-color: #8b5cf6;
+
+  box-shadow:
+    0 0 0 2px rgba(139, 92, 246, 0.12),
+    0 4px 12px rgba(109, 40, 217, 0.08);
+}
+
+/*
+ * Evitar movimiento al seleccionar
+ * una respuesta que ya está bloqueada.
+ */
+.opcion-actividad-bloqueada {
+  transform: none;
+}
+
+/*
+ * Accesibilidad:
+ * respetar movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .opcion-actividad {
+    transition: none !important;
+  }
+
+  .opcion-actividad:hover {
+    transform: none !important;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - BOTÓN COMPROBAR RESPUESTA
+   ========================================= */
+
+/*
+ * Apariencia principal del botón.
+ * Se utiliza el degradado violeta de EduNeko.
+ */
+.boton-comprobar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 46px;
+  max-width: 100%;
+  padding: 12px 24px;
+
+  background: linear-gradient(
+    135deg,
+    #8b5cf6,
+    #6d28d9
+  );
+
+  border: 2px solid transparent;
+  border-radius: 14px;
+
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 14px rgba(109, 40, 217, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+/*
+ * Al pasar el cursor, el botón se eleva
+ * y aumenta ligeramente su sombra.
+ */
+@media (hover: hover) {
+  .boton-comprobar:not(:disabled):hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+      0 9px 22px rgba(109, 40, 217, 0.28);
+
+    filter: brightness(1.06);
+  }
+}
+
+/*
+ * Al presionar el botón, se reduce
+ * ligeramente su tamaño.
+ */
+.boton-comprobar:not(:disabled):active {
+  transform: scale(0.96);
+
+  box-shadow:
+    0 2px 8px rgba(109, 40, 217, 0.16);
+}
+
+/*
+ * Estado deshabilitado:
+ * sin animaciones ni efectos interactivos.
+ */
+.boton-comprobar:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+
+  box-shadow: none;
+  cursor: not-allowed;
+
+  transform: none;
+  filter: none;
+}
+
+/*
+ * Accesibilidad:
+ * mantener visible el foco del teclado.
+ */
+.boton-comprobar:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
+
+/*
+ * Adaptación para celulares.
+ */
+@media (max-width: 600px) {
+  .boton-comprobar {
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 0.9rem;
+  }
+}
+
+/*
+ * Accesibilidad:
+ * respetar movimiento reducido.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .boton-comprobar {
+    transition: none !important;
+  }
+
+  .boton-comprobar:not(:disabled):hover,
+  .boton-comprobar:not(:disabled):active {
+    transform: none !important;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - RECOMPENSA DE EXPERIENCIA XP
+   ========================================= */
+
+/*
+ * Contenedor de la recompensa.
+ * Utiliza tonos violetas y dorados para
+ * mantener la identidad visual de EduNeko.
+ */
+.recompensa-xp {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-top: 18px;
+  padding: 16px 20px;
+
+  background: linear-gradient(
+    135deg,
+    #f5f3ff 0%,
+    #fef9c3 100%
+  );
+
+  border: 2px solid #ddd6fe;
+  border-radius: 18px;
+
+  box-shadow: 0 5px 16px rgba(124, 58, 237, 0.10);
+
+  /* Animación de aparición sin ocultar contenido */
+  animation: edunekoXpEntrada 0.55s ease-out;
+}
+
+/* Icono principal de recompensa */
+.recompensa-xp-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+
+  font-size: 28px;
+  background: #ede9fe;
+  border-radius: 15px;
+
+  animation: edunekoXpBrillo 1.2s ease-in-out 1;
+}
+
+/* Organización del texto */
+.recompensa-xp-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cantidad de experiencia ganada */
+.recompensa-xp-cantidad {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #6d28d9;
+}
+
+/* Mensaje motivador */
+.recompensa-xp-mensaje {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #5b21b6;
+}
+
+/* Estrella decorativa */
+.recompensa-xp-estrella {
+  flex-shrink: 0;
+  font-size: 28px;
+
+  animation: edunekoXpEstrella 0.8s ease-out;
+}
+
+/* =========================================
+   ANIMACIONES
+   ========================================= */
+
+/* Entrada suave de la recompensa */
+@keyframes edunekoXpEntrada {
+  0% {
+    transform: translateY(12px) scale(0.97);
+  }
+
+  70% {
+    transform: translateY(-3px) scale(1.01);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Pequeño efecto de brillo en el icono */
+@keyframes edunekoXpBrillo {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+/* Movimiento de la estrella */
+@keyframes edunekoXpEstrella {
+  0% {
+    transform: rotate(-20deg) scale(0.8);
+  }
+
+  60% {
+    transform: rotate(12deg) scale(1.15);
+  }
+
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+
+/* =========================================
+   DISEÑO RESPONSIVE
+   ========================================= */
+
+@media (max-width: 600px) {
+  .recompensa-xp {
+    gap: 10px;
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .recompensa-xp-icono {
+    width: 42px;
+    height: 42px;
+    font-size: 23px;
+  }
+
+  .recompensa-xp-cantidad {
+    font-size: 1.3rem;
+  }
+
+  .recompensa-xp-mensaje {
+    font-size: 0.8rem;
+  }
+
+  .recompensa-xp-estrella {
+    font-size: 21px;
+  }
+}
+
+/* =========================================
+   EDUNEKO V1 - INDICADOR DE XP ACUMULADOS
+   ========================================= */
+
+/*
+ * Destaca los puntos XP dentro del resumen
+ * de progreso sin modificar otros indicadores.
+ */
+.dato-progreso.dato-progreso-xp {
+  background: linear-gradient(
+    135deg,
+    #f5f3ff 0%,
+    #fef9c3 100%
+  );
+
+  border: 1px solid #ddd6fe;
+  border-radius: 16px;
+  padding: 16px 20px;
+
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.08);
+}
+
+/* Etiqueta e icono de experiencia */
+.dato-progreso-xp-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #5b21b6;
+}
+
+/* Cantidad total de XP */
+.dato-progreso .dato-progreso-xp-total {
+  display: block;
+  margin-top: 8px;
+
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #6d28d9;
+}
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 600px) {
+  .dato-progreso.dato-progreso-xp {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .dato-progreso .dato-progreso-xp-total {
+    font-size: 1.4rem;
+  }
+
+  .dato-progreso-xp-etiqueta {
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================================
+   ACCESIBILIDAD
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .recompensa-xp,
+  .recompensa-xp-icono,
+  .recompensa-xp-estrella {
+    animation: none !important;
+  }
+}
+
+
+  /* =========================================
+    EDUNEKO V1 - RESUMEN DE ACTIVIDAD COMPLETADA
+    ========================================= */
+
+  /* Contenedor del resumen de una actividad ya resuelta */
+  .actividad-completada-resumen {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+
+    margin-top: 20px;
+    padding: 18px 20px;
+
+    background: #ffffff;
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+  }
+
+  /* Encabezado con icono y mensaje */
+  .actividad-completada-encabezado {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Icono verde de confirmación */
+  .actividad-completada-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+
+    background: #dcfce7;
+    color: #15803d;
+    border-radius: 50%;
+
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  /* Organización del título y descripción */
+  .actividad-completada-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Título de confirmación */
+  .actividad-completada-titulo {
+    color: #166534;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  /* Mensaje de guardado */
+  .actividad-completada-descripcion {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  /* XP obtenidos anteriormente */
+  .actividad-completada-xp {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 9px 14px;
+
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+
+    color: #92400e;
+    font-size: 0.9rem;
+  }
+
+  /* Destacar la cantidad de XP */
+  .actividad-completada-xp strong {
+    font-weight: 800;
+    color: #78350f;
+  }
+
+  /* Adaptación para celulares */
+  @media (max-width: 600px) {
+    .actividad-completada-resumen {
+      padding: 14px;
+      gap: 12px;
+    }
+
+    .actividad-completada-icono {
+      width: 36px;
+      height: 36px;
+      font-size: 19px;
+    }
+
+    .actividad-completada-descripcion {
+      font-size: 0.85rem;
+    }
+  }
+
+  /* =========================================
+    EDUNEKO V1 - PROGRESO ANIMADO DE PRACTICA
+    ========================================= */
+
+  /*
+  * Estado inicial:
+  * la barra comienza visualmente en 0 %.
+  *
+  * No modifica el porcentaje real almacenado.
+  */
+  .barra-progreso .barra-progreso-relleno {
+    transform: scaleX(0);
+    transform-origin: left center;
+
+    /* Animar tanto la entrada como los cambios de progreso */
+    transition:
+      transform 2.5s ease-in-out,
+      width 0.65s ease-in-out;
+  }
+
+  /*
+  * Al entrar a Practica, Angular activa esta clase.
+  * La barra se expande hasta su ancho correspondiente.
+  */
+  .barra-progreso .barra-progreso-relleno.barra-progreso-animada {
+    transform: scaleX(1);
+  }
+
+  /*
+  * Accesibilidad:
+  * mostrar inmediatamente el progreso a quienes
+  * prefieren reducir las animaciones.
+  */
+  @media (prefers-reduced-motion: reduce) {
+    .barra-progreso .barra-progreso-relleno {
+      transition: none !important;
+    }
   }
 
   /* =====================================================

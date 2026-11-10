@@ -20,6 +20,104 @@ import { NekoMensaje } from '../../shared/neko-mensaje/neko-mensaje';
   styleUrl: './leccion.css'
 })
 export class Leccion implements OnInit, OnDestroy {
+  
+  // =====================================================
+  // NAVEGACIÓN POR ETAPAS - EDUNEKO V1
+  // =====================================================
+
+  /**
+   * Controla la etapa visible de la lección.
+   *
+   * 1 = Aprende: introducción y explicación.
+   * 2 = Observa: ejemplo y recursos visuales.
+   * 3 = Practica: actividades y progreso.
+   *
+   * Este valor no representa el progreso académico
+   * ni modifica los puntos XP del estudiante.
+   */
+  etapaActual: 1 | 2 | 3 = 1;
+  animarProgresoPractica: boolean = false;
+
+  /**
+   * Avanza a la siguiente etapa.
+   * No vuelve a consultar ni generar contenido.
+   */
+  avanzarEtapa(): void {
+  if (this.etapaActual >= 3) {
+    return;
+  }
+
+  // Detener el audio de la etapa anterior.
+  this.detenerAudio();
+
+  /* =====================================================
+   EDUNEKO V1 - ENTRADA A LA ETAPA PRACTICA
+   ===================================================== */
+
+  // Identificar si el estudiante está entrando a Practica.
+  const entrandoAPractica = this.etapaActual === 2;
+
+  // Preparar la barra antes de mostrar la etapa 3.
+  if (entrandoAPractica) {
+    this.animarProgresoPractica = false;
+  }
+
+  // Cambiar a la siguiente etapa.
+  this.etapaActual = (this.etapaActual + 1) as 1 | 2 | 3;
+
+  // Activar la animación después de que Angular
+  // haya tenido oportunidad de renderizar la barra.
+  if (entrandoAPractica && typeof window !== 'undefined') {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        this.animarProgresoPractica = true;
+      });
+    });
+  }
+
+  // Mantener el desplazamiento existente.
+  this.desplazarAlInicioEtapa();
+}
+
+  /**
+   * Regresa a la etapa anterior.
+   * Conserva las respuestas y el progreso existentes.
+   */
+  retrocederEtapa(): void {
+  if (this.etapaActual <= 1) {
+    return;
+  }
+
+  // Detener cualquier audio activo.
+  this.detenerAudio();
+
+  // Conservar respuestas y resultados existentes.
+  this.etapaActual = (this.etapaActual - 1) as 1 | 2 | 3;
+
+  // Mostrar el inicio de la etapa seleccionada.
+  this.desplazarAlInicioEtapa();
+}
+
+private desplazarAlInicioEtapa(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  const contenedor = document.querySelector('.navegacion-etapas');
+
+  if (!contenedor) {
+    return;
+  }
+
+  const reducirMovimiento = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  ).matches;
+
+  contenedor.scrollIntoView({
+    behavior: reducirMovimiento ? 'instant' : 'smooth',
+    block: 'start'
+  });
+}
 
   // 1. DATOS GENERALES DE LA LECCIÓN
 
@@ -332,6 +430,8 @@ export class Leccion implements OnInit, OnDestroy {
     this.cargando = true;
     this.generando = false;
     this.error = '';
+    this.etapaActual = 1;
+    this.detenerAudio();
 
     this.leccion = null;
     this.actividades = [];
@@ -1176,6 +1276,68 @@ export class Leccion implements OnInit, OnDestroy {
         ((maximo * indice) / 4).toFixed(2)
       )
     );
+  }
+
+  /**
+   * EDUNEKO V1 - Obtener los pasos del ejemplo resuelto.
+   *
+   * Identifica apartados con el formato:
+   * Paso 1: ...
+   * Paso 2: ...
+   *
+   * Conserva íntegramente el contenido original.
+   * Si no identifica una estructura válida,
+   * devuelve un único bloque con todo el texto.
+   */
+  obtenerPasosEjemplo(
+    ejemplo: string | null | undefined
+  ): string[] {
+
+    // Evitar errores si el ejemplo no contiene texto.
+    if (!ejemplo || !ejemplo.trim()) {
+      return [];
+    }
+
+    // Identificar únicamente encabezados numerados
+    // al inicio de una línea.
+    const separador = /(?=^\s*Paso\s+\d+\s*[:.)-])/gim;
+
+    const bloques = ejemplo
+      .split(separador)
+      .map(bloque => bloque.trim())
+      .filter(bloque => bloque.length > 0);
+
+    // Si no se identifican pasos, conservar
+    // el ejemplo completo sin modificarlo.
+    if (!bloques.some(bloque => /^Paso\s+\d+\s*[:.)-]/i.test(bloque))) {
+      return [ejemplo];
+    }
+
+    return bloques;
+  }
+
+  /**
+   * Comprueba si un bloque comienza con un paso numerado.
+   * Ejemplo: "Paso 1: Identificamos el patrón".
+   */
+  esPasoNumerado(bloque: string): boolean {
+    return /^Paso\s+\d+\s*[:.)-]/i.test(bloque);
+  }
+
+  /**
+   * Extrae el encabezado del paso.
+   * Ejemplo: "Paso 1".
+   */
+  obtenerEtiquetaPaso(bloque: string): string {
+    return bloque.match(/^Paso\s+\d+/i)?.[0] ?? '';
+  }
+
+  /**
+   * Obtiene la explicación sin repetir la etiqueta.
+   * No modifica el contenido original almacenado.
+   */
+  obtenerContenidoPaso(bloque: string): string {
+    return bloque.replace(/^Paso\s+\d+\s*[:.)-]\s*/i, '');
   }
 
   // 12. NAVEGACIÓN

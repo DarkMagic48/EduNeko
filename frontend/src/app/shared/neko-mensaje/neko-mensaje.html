@@ -21,9 +21,15 @@
     [class.neko-logro]="tipo === 'logro'"
     aria-label="Mensaje de Neko">
 
-    <!-- Representación provisional de Neko. -->
-    <div class="neko-avatar" aria-hidden="true">
-      {{ obtenerIcono() }}
+    <div class="neko-avatar">
+
+      <img
+        class="neko-avatar-imagen"
+        [src]="obtenerImagen()"
+        alt="Neko, mascota educativa de EduNeko"
+        width="96"
+        height="96">
+
     </div>
 
     <!-- Contenido del mensaje. -->

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import com.eduneko.dto.ActualizarPerfilEstudianteRequest;
 import com.eduneko.dto.ActualizarPreferenciasRequest;
@@ -100,4 +101,57 @@ public class EstudianteController {
 
         return ResponseEntity.ok(materias);
    }
+
+        /**
+         * Obtiene las materias seleccionadas por el estudiante
+         * autenticado durante el onboarding.
+         *
+         * GET /api/estudiante/materias
+         *
+         * Este endpoint es de solo lectura y se utilizará
+         * para mostrar las materias reales en el Dashboard.
+         */
+        @GetMapping("/materias")
+        public ResponseEntity<List<Materia>> obtenerMateriasSeleccionadas(
+                Authentication authentication) {
+
+        // Obtener el correo del usuario autenticado.
+        String correo = authentication.getName();
+
+        // Consultar las materias registradas en PostgreSQL.
+        List<Materia> materias =
+                materiaService.obtenerMateriasSeleccionadas(correo);
+
+        // Devolver las materias al frontend en formato JSON.
+        return ResponseEntity.ok(materias);
+        }
+
+    /**
+     * Consulta el estado de onboarding del estudiante autenticado.
+     *
+     * Este endpoint permite al frontend decidir si debe
+     * mostrar la pantalla de bienvenida o el Dashboard.
+     *
+     * GET /api/estudiante/estado-onboarding
+     */
+    @GetMapping("/estado-onboarding")
+    public ResponseEntity<Map<String, Boolean>> obtenerEstadoOnboarding(
+            Authentication authentication) {
+
+        // Obtener el correo del usuario autenticado.
+        String correo = authentication.getName();
+
+        // Consultar el estado almacenado en PostgreSQL.
+        boolean onboardingCompletado =
+                estudianteService.obtenerEstadoOnboarding(correo);
+
+        // Devolver el resultado en formato JSON.
+        return ResponseEntity.ok(
+                Map.of(
+                        "onboardingCompletado",
+                        onboardingCompletado
+                )
+        );
+    }
+
 }
