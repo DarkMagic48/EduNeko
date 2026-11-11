@@ -32,12 +32,34 @@
      un mensaje según los logros del estudiante.
      ===================================================== -->
 
-    @if (!cargandoLogros && !errorLogros) {
+    @if (
+      !cargandoLogros &&
+      !errorLogros &&
+      !cargandoPuntos &&
+      !errorPuntos &&
+      identidadConsultada &&
+      correoEstudiante &&
+      mensajeFelicitacionNeko
+    ) {
 
-    <app-neko-mensaje
+      <app-neko-mensaje
         tipo="motivacion"
-        [mensaje]="obtenerMensajeNeko()">
-    </app-neko-mensaje>
+        [mensaje]="mensajeFelicitacionNeko">
+      </app-neko-mensaje>
+
+      <!-- Permite cerrar y registrar la felicitación. -->
+      <div class="acciones-felicitacion-neko">
+
+        <button
+          type="button"
+          class="boton-cerrar-felicitacion"
+          (click)="cerrarFelicitacionNeko()">
+
+          ¡Gracias, Neko! 💜
+
+        </button>
+
+      </div>
 
     }
 
@@ -71,6 +93,70 @@
 
   <!-- Lista de insignias recibidas del backend. -->
   @if (!cargandoLogros && !errorLogros) {
+
+    <!-- ==========================================
+     EDUNEKO V1 - PROGRESO DE INSIGNIAS
+
+     Calcula el avance utilizando los logros
+     recibidos del backend.
+     ========================================== -->
+
+    @let insigniasObtenidas = contarInsigniasDesbloqueadas();
+    @let totalInsignias = logros.length;
+
+    @if (totalInsignias > 0) {
+
+      <section class="resumen-insignias">
+
+        <div class="resumen-insignias-encabezado">
+
+          <div>
+            <h2>🏅 Tu colección de insignias</h2>
+
+            <p>
+              ¡Sigue aprendiendo para completar tu colección!
+            </p>
+          </div>
+
+          <div class="resumen-insignias-cantidad">
+            <strong>
+              {{ insigniasObtenidas }}/{{ totalInsignias }}
+            </strong>
+
+            <span>Desbloqueadas</span>
+          </div>
+
+        </div>
+
+        <!-- Barra de progreso calculada automáticamente -->
+        <div
+          class="barra-insignias"
+          role="progressbar"
+          [attr.aria-valuenow]="insigniasObtenidas"
+          aria-valuemin="0"
+          [attr.aria-valuemax]="totalInsignias"
+          aria-label="Progreso de insignias desbloqueadas">
+
+          <div
+            class="barra-insignias-relleno"
+            [style.width.%]="(insigniasObtenidas / totalInsignias) * 100">
+          </div>
+
+        </div>
+
+        <div class="resumen-insignias-pie">
+
+          <span>Progreso de colección</span>
+
+          <strong>
+            {{ ((insigniasObtenidas / totalInsignias) * 100).toFixed(0) }} %
+          </strong>
+
+        </div>
+
+      </section>
+
+    }
 
     <section class="seccion-insignias">
 

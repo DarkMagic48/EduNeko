@@ -1,0 +1,601 @@
+
+/* ==========================================
+   EDUNEKO V1 - PANTALLA DE LOGROS
+   Identidad visual oficial y diseño responsive
+   ========================================== */
+
+/* Contenedor principal */
+.pagina-logros {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 32px 24px 60px;
+  color: #2F3545;
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+.pagina-logros *,
+.pagina-logros *::before,
+.pagina-logros *::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   1. ENCABEZADO
+   ========================================== */
+
+.encabezado-logros {
+  padding: 32px 40px;
+  margin-bottom: 32px;
+  border-radius: 26px;
+  background: linear-gradient(120deg, #F0EEFF, #E7FAF7);
+}
+
+.boton-volver {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  margin-bottom: 24px;
+  border: 1px solid #DAD7FF;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #6259D8;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.boton-volver:hover {
+  background: #F0EEFF;
+  transform: translateX(-3px);
+}
+
+.encabezado-logros h1 {
+  margin: 0 0 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.3;
+}
+
+.encabezado-logros > p {
+  max-width: 650px;
+  margin: 0 0 24px;
+  color: #596174;
+  line-height: 1.7;
+}
+
+/* Mensaje motivacional de Neko */
+.encabezado-logros app-neko-mensaje {
+  display: block;
+  max-width: 720px;
+}
+
+/* ==========================================
+   2. SECCIÓN DE INSIGNIAS
+   ========================================== */
+
+.seccion-insignias {
+  margin-top: 32px;
+}
+
+.seccion-insignias h2 {
+  margin: 0 0 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  color: #2F3545;
+}
+
+/* Cuadrícula adaptable de insignias */
+.lista-logros {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* ==========================================
+   3. TARJETAS DE LOGROS
+   ========================================== */
+
+.tarjeta-logro {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
+  padding: 26px;
+  background: #FFFFFF;
+  border: 2px solid #E8EAF2;
+  border-radius: 22px;
+  box-shadow: 0 6px 24px rgba(47, 53, 69, 0.05);
+
+  /* Animación de entrada y efecto hover independientes */
+  animation: aparecerLogro 0.55s ease-out both;
+
+  transition:
+    translate 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Los logros desbloqueados utilizan el morado de EduNeko */
+.tarjeta-logro.logro-desbloqueado {
+  border-color: #DAD7FF;
+}
+
+/* Los logros pendientes conservan un estilo neutro */
+.tarjeta-logro.logro-bloqueado {
+  border-color: #E8EAF2;
+  background: #FAFBFE;
+}
+
+/* Elevación discreta al pasar el cursor */
+@media (hover: hover) {
+  .tarjeta-logro:hover {
+    translate: 0 -5px;
+    box-shadow: 0 12px 28px rgba(108, 99, 255, 0.12);
+  }
+
+  .tarjeta-logro.logro-desbloqueado:hover {
+    border-color: #6C63FF;
+  }
+}
+
+/* ==========================================
+   4. ICONOS DE INSIGNIAS
+   ========================================== */
+
+.icono-logro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 20px;
+  background: #EDEBFF;
+  font-size: 40px;
+}
+
+/* Insignias obtenidas */
+.logro-desbloqueado .icono-logro {
+  background: linear-gradient(135deg, #EDEBFF, #E5F9F6);
+}
+
+/* Insignias pendientes */
+.logro-bloqueado .icono-logro {
+  background: #ECEEF4;
+  filter: grayscale(1);
+  opacity: 0.65;
+}
+
+/* ==========================================
+   5. INFORMACIÓN Y ESTADOS
+   ========================================== */
+
+.informacion-logro {
+  flex: 1;
+  min-width: 0;
+}
+
+.informacion-logro h3 {
+  margin: 0 0 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.informacion-logro p {
+  margin: 0 0 16px;
+  color: #697386;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* Etiqueta de estado */
+.estado-logro {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Estado desbloqueado */
+.logro-desbloqueado .estado-logro {
+  background: #E5F9F0;
+  color: #18794E;
+}
+
+/* Estado pendiente */
+.logro-bloqueado .estado-logro {
+  background: #ECEEF4;
+  color: #697386;
+}
+
+/* ==========================================
+   6. CARGA Y ERRORES
+   ========================================== */
+
+.pagina-logros > p[role="status"] {
+  padding: 24px;
+  border-radius: 16px;
+  background: #F5F7FB;
+  color: #596174;
+  text-align: center;
+}
+
+.error-logros {
+  padding: 24px;
+  border: 1px solid #F5C6C6;
+  border-radius: 16px;
+  background: #FFF5F5;
+  color: #B42318;
+}
+
+.error-logros p {
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.error-logros button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 12px;
+  background: #6C63FF;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.error-logros button:hover {
+  background: #5148D8;
+}
+
+/* ==========================================
+   7. ANIMACIONES
+   ========================================== */
+
+/* Aparición suave de las insignias */
+@keyframes aparecerLogro {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Entrada escalonada de las primeras insignias */
+.tarjeta-logro:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.tarjeta-logro:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.tarjeta-logro:nth-child(4) {
+  animation-delay: 0.3s;
+}
+
+/* ==========================================
+   8. ACCESIBILIDAD
+   ========================================== */
+
+.pagina-logros button:focus-visible {
+  outline: 3px solid #22C7B8;
+  outline-offset: 3px;
+}
+
+/* Respetar la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .pagina-logros *,
+  .pagina-logros *::before,
+  .pagina-logros *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .tarjeta-logro:hover,
+  .boton-volver:hover {
+    translate: none;
+    transform: none;
+  }
+}
+
+/* ==========================================
+   EDUNEKO V1 - PROGRESO DE INSIGNIAS
+   ========================================== */
+
+    .resumen-insignias {
+    margin-bottom: 32px;
+    padding: 26px 30px;
+    border: 1px solid #E8EAF2;
+    border-radius: 22px;
+    background: #FFFFFF;
+    box-shadow: 0 6px 24px rgba(47, 53, 69, 0.05);
+    }
+
+    .resumen-insignias-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 22px;
+    }
+
+    .resumen-insignias-encabezado h2 {
+    margin: 0 0 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    }
+
+    .resumen-insignias-encabezado p {
+    margin: 0;
+    color: #697386;
+    font-size: 14px;
+    }
+
+    .resumen-insignias-cantidad {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 4px;
+    }
+
+    .resumen-insignias-cantidad strong {
+    color: #6C63FF;
+    font-size: 28px;
+    }
+
+    .resumen-insignias-cantidad span {
+    color: #697386;
+    font-size: 12px;
+    }
+
+    .barra-insignias {
+    height: 14px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #EDEBFF;
+    }
+
+    .barra-insignias-relleno {
+    height: 100%;
+    border-radius: inherit;
+
+    background: linear-gradient(
+        90deg,
+        #6C63FF,
+        #22C7B8
+    );
+
+    transform-origin: left center;
+
+    /* Animación al entrar a la pantalla */
+    animation: llenarBarraInsignias 1.5s ease-out both;
+
+    /* Suaviza cambios posteriores de porcentaje */
+    transition: width 0.65s ease-in-out;
+    }
+
+    /* Llenado progresivo desde 0 hasta el valor real */
+    @keyframes llenarBarraInsignias {
+    from {
+        transform: scaleX(0);
+    }
+
+    to {
+        transform: scaleX(1);
+    }
+    }
+
+    .resumen-insignias-pie {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    color: #697386;
+    font-size: 13px;
+    }
+
+    .resumen-insignias-pie strong {
+    color: #5148C9;
+    }
+
+    /* Adaptación a dispositivos móviles */
+    @media (max-width: 480px) {
+    .resumen-insignias {
+        padding: 22px;
+    }
+
+    .resumen-insignias-encabezado {
+        align-items: flex-start;
+    }
+
+    .resumen-insignias-encabezado h2 {
+        font-size: 17px;
+    }
+
+    .resumen-insignias-cantidad strong {
+        font-size: 23px;
+    }
+    }
+
+    /* Accesibilidad */
+    @media (prefers-reduced-motion: reduce) {
+    .barra-insignias-relleno {
+        transition: none;
+    }
+    }
+
+
+/* ==========================================
+   EDUNEKO V1 - CELEBRACIÓN DE INSIGNIAS
+   ========================================== */
+
+    /*
+    * Prepara los iconos desbloqueados para
+    * una pequeña animación de celebración.
+    *
+    * No modifica los estados de los logros.
+    */
+    .logro-desbloqueado .icono-logro {
+    transform-origin: center;
+    transition:
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    /*
+    * Animación de celebración:
+    * la insignia aumenta ligeramente de tamaño,
+    * gira suavemente y vuelve a su posición.
+    */
+    @keyframes celebrarInsignia {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    30% {
+        transform: scale(1.13) rotate(-8deg);
+    }
+
+    60% {
+        transform: scale(1.1) rotate(7deg);
+    }
+    }
+
+    /*
+    * Activar la celebración solamente
+    * cuando se pasa el cursor sobre
+    * una insignia desbloqueada.
+    */
+    @media (hover: hover) {
+    .logro-desbloqueado:hover .icono-logro {
+        animation: celebrarInsignia 0.7s ease-in-out;
+        box-shadow: 0 6px 20px rgba(108, 99, 255, 0.16);
+    }
+    }
+
+    /*
+    * Accesibilidad: respetar la preferencia
+    * del estudiante de reducir movimiento.
+    */
+    @media (prefers-reduced-motion: reduce) {
+    .logro-desbloqueado .icono-logro {
+        animation: none !important;
+        transition: none;
+    }
+    }
+
+
+/* ==========================================
+   9. DISEÑO RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+  .pagina-logros {
+    padding: 20px 16px 44px;
+  }
+
+  .encabezado-logros {
+    padding: 26px 22px;
+  }
+
+  .lista-logros {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjeta-logro {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .encabezado-logros h1 {
+    font-size: 25px;
+  }
+
+  .tarjeta-logro {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .icono-logro {
+    width: 68px;
+    height: 68px;
+    font-size: 34px;
+  }
+
+  .boton-volver {
+    max-width: 100%;
+  }
+}
+
+
+/* ==========================================
+   EDUNEKO V1 - CIERRE DE FELICITACIONES
+   ========================================== */
+
+.acciones-felicitacion-neko {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.boton-cerrar-felicitacion {
+  padding: 11px 22px;
+  border: none;
+  border-radius: 999px;
+  background: #7353b8;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  /* Animación suave de movimiento y sombra. */
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.boton-cerrar-felicitacion:hover {
+  background: #5b3d9c;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(115, 83, 184, 0.28);
+}
+
+/* Efecto de presión al hacer clic. */
+.boton-cerrar-felicitacion:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 6px rgba(115, 83, 184, 0.2);
+}
+
+.boton-cerrar-felicitacion:focus-visible {
+  outline: 3px solid #b59ae8;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-cerrar-felicitacion {
+    transition: none;
+  }
+
+  .boton-cerrar-felicitacion:hover,
+  .boton-cerrar-felicitacion:active {
+    transform: none;
+  }
+}

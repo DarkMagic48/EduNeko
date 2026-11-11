@@ -39,11 +39,27 @@ public class GeneradorContenidoIAService {
                 "input", contenido
         );
 
+        long inicio = System.nanoTime();
+
         String respuesta = restClient.post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(solicitud)
-                .retrieve()
-                .body(String.class);
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(solicitud)
+        .retrieve()
+        .body(String.class);
+
+        // Calcular el tiempo transcurrido.
+        double tiempoSegundos =
+                (System.nanoTime() - inicio) / 1_000_000_000.0;
+
+        // Mostrar el resultado en la consola del backend.
+        System.out.println("===== RENDIMIENTO IA - EDUNEKO =====");
+        System.out.println("Modelo: " + modelo);
+        System.out.printf(
+                java.util.Locale.US,
+                "Tiempo de respuesta: %.2f segundos%n",
+                tiempoSegundos
+        );
+        System.out.println("===================================");
 
         try {
             JsonNode raiz = objectMapper.readTree(respuesta);

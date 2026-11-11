@@ -2985,3 +2985,429 @@ button:focus-visible {
       font-size: 1.05rem;
     }
   }
+
+
+/* =====================================================
+   EDUNEKO V1 - CELEBRACIÓN DE NUEVA INSIGNIA
+   ===================================================== */
+
+/* Fondo que destaca la celebración sobre la lección. */
+.celebracion-logro-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  box-sizing: border-box;
+
+  background: rgba(30, 27, 75, 0.65);
+  backdrop-filter: blur(5px);
+
+  overflow-y: auto;
+}
+
+/* Ventana principal de celebración. */
+.celebracion-logro {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+
+  box-sizing: border-box;
+  padding: 30px 26px;
+
+  background: #ffffff;
+  border: 2px solid #ddd6fe;
+  border-radius: 24px;
+
+  text-align: center;
+
+  box-shadow: 0 20px 60px rgba(30, 27, 75, 0.25);
+
+  animation: edunekoLogroEntrada 0.55s ease-out both;
+}
+
+/* Entrada suave de la ventana. */
+@keyframes edunekoLogroEntrada {
+  from {
+    transform: translateY(25px) scale(0.92);
+  }
+
+  to {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =====================================================
+   NEKO CELEBRANDO
+   ===================================================== */
+
+.celebracion-neko {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 12px;
+}
+
+.celebracion-neko img {
+  display: block;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+
+  transform-origin: center bottom;
+
+  animation: edunekoNekoCelebrando 1.1s ease-in-out 0.2s both;
+}
+
+/* Neko realiza dos pequeños saltos de alegría. */
+@keyframes edunekoNekoCelebrando {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+
+  25% {
+    transform: translateY(-15px) rotate(-6deg) scale(1.06);
+  }
+
+  50% {
+    transform: translateY(0) rotate(4deg) scale(0.98);
+  }
+
+  75% {
+    transform: translateY(-8px) rotate(-3deg) scale(1.04);
+  }
+}
+
+/* =====================================================
+   MENSAJE DE FELICITACIÓN
+   ===================================================== */
+
+.celebracion-logro h2 {
+  position: relative;
+  z-index: 1;
+
+  margin: 0 0 10px;
+
+  color: #5146e5;
+  font-size: 25px;
+  line-height: 1.25;
+}
+
+.celebracion-subtitulo {
+  margin: 0 0 22px;
+
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* =====================================================
+   INSIGNIA DESBLOQUEADA
+   ===================================================== */
+
+.celebracion-insignia {
+  position: relative;
+  z-index: 1;
+
+  padding: 22px 18px;
+
+  background: linear-gradient(135deg, #f5f3ff, #ecfeff);
+  border: 1px solid #ddd6fe;
+  border-radius: 18px;
+}
+
+.celebracion-insignia-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 14px;
+
+  background: #ffffff;
+  border: 2px solid #c4b5fd;
+  border-radius: 50%;
+
+  font-size: 40px;
+
+  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.15);
+
+  animation: edunekoInsigniaEntrada 0.7s ease-out 0.35s both;
+}
+
+/* La insignia aparece con un pequeño rebote. */
+@keyframes edunekoInsigniaEntrada {
+  0% {
+    transform: scale(0.5) rotate(-15deg);
+  }
+
+  65% {
+    transform: scale(1.12) rotate(5deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.celebracion-insignia h3 {
+  margin: 0 0 8px;
+
+  color: #312e81;
+  font-size: 19px;
+}
+
+.celebracion-insignia p {
+  margin: 0;
+
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   CONFETI DECORATIVO
+   ===================================================== */
+
+.celebracion-confeti {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.celebracion-confeti span {
+  position: absolute;
+  top: -35px;
+
+  font-size: 25px;
+
+  animation: edunekoConfetiCaida 2.2s ease-in forwards;
+}
+
+.celebracion-confeti span:nth-child(1) {
+  left: 10%;
+  animation-delay: 0.1s;
+}
+
+.celebracion-confeti span:nth-child(2) {
+  left: 30%;
+  animation-delay: 0.35s;
+}
+
+.celebracion-confeti span:nth-child(3) {
+  left: 50%;
+  animation-delay: 0.15s;
+}
+
+.celebracion-confeti span:nth-child(4) {
+  left: 70%;
+  animation-delay: 0.45s;
+}
+
+.celebracion-confeti span:nth-child(5) {
+  left: 90%;
+  animation-delay: 0.25s;
+}
+
+@keyframes edunekoConfetiCaida {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(540px) rotate(360deg);
+  }
+}
+
+/* =====================================================
+   BOTÓN PARA CONTINUAR
+   ===================================================== */
+
+.celebracion-boton {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px 20px;
+
+  background: #6c63ff;
+  border: none;
+  border-radius: 12px;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.celebracion-boton:hover {
+  background: #5146e5;
+  transform: translateY(-2px);
+}
+
+.celebracion-boton:focus-visible {
+  outline: 3px solid #22c7b8;
+  outline-offset: 3px;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 600px) {
+  .celebracion-logro {
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .celebracion-neko img {
+    width: 120px;
+    height: 120px;
+  }
+
+  .celebracion-logro h2 {
+    font-size: 21px;
+  }
+
+  .celebracion-insignia-icono {
+    width: 70px;
+    height: 70px;
+    font-size: 34px;
+  }
+}
+
+/* =====================================================
+   ACCESIBILIDAD - MOVIMIENTO REDUCIDO
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .celebracion-logro,
+  .celebracion-neko img,
+  .celebracion-insignia-icono,
+  .celebracion-confeti span {
+    animation: none !important;
+  }
+
+  .celebracion-confeti span {
+    display: none;
+  }
+
+  .celebracion-boton {
+    transition: none;
+  }
+}
+
+
+/* =====================================================
+   EDUNEKO V1 - ANIMACIÓN DE XP FLOTANTES
+
+   Se activa cuando el backend confirma que
+   el estudiante obtuvo puntos en una actividad.
+   ===================================================== */
+
+/* Contenedor que reserva espacio para la animación. */
+.xp-flotante-contenedor {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 54px;
+  margin: 8px 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Indicador visual de los puntos ganados. */
+.xp-flotante {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 9px 20px;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #dcfce7, #fef9c3);
+  border: 2px solid #86efac;
+
+  color: #166534;
+  font-size: 1.15rem;
+  font-weight: 800;
+
+  box-shadow: 0 5px 16px rgba(22, 163, 74, 0.18);
+
+  /* Movimiento de aparición, elevación y desaparición. */
+  animation: eduneko-xp-flotar 2.2s ease-out both;
+}
+
+/* Secuencia de la animación. */
+@keyframes eduneko-xp-flotar {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.7);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1.12);
+  }
+
+  45% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1);
+  }
+
+  75% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-42px) scale(0.95);
+  }
+}
+
+/* Ajustes para dispositivos móviles. */
+@media (max-width: 600px) {
+  .xp-flotante {
+    font-size: 1rem;
+    padding: 8px 16px;
+  }
+}
+
+/* Accesibilidad: respetar la preferencia de movimiento reducido. */
+@media (prefers-reduced-motion: reduce) {
+
+  .xp-flotante {
+    animation: eduneko-xp-accesible 2.2s linear both;
+  }
+
+  @keyframes eduneko-xp-accesible {
+    0%, 80% {
+      opacity: 1;
+      transform: none;
+    }
+
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+}

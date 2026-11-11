@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -9,7 +9,7 @@ import {
   ActividadResponse,
   EvaluacionActividadResponse
 } from '../../models/actividad.models';
-import { ProgresoService } from '../../services/progreso.service';
+import { ProgresoService, LogroResponse } from '../../services/progreso.service';
 import { ProgresoLeccionResponse } from '../../models/progreso.models';
 import { NekoMensaje } from '../../shared/neko-mensaje/neko-mensaje';
 
@@ -234,6 +234,10 @@ private desplazarAlInicioEtapa(): void {
     EvaluacionActividadResponse
   > = {};
 
+  xpFlotantes: Record<number, number> = {};
+
+  versionAnimacionXP: Record<number, number> = {};
+
   // Controla qué actividades están siendo evaluadas.
   evaluandoActividades: Record<number, boolean> = {};
 
@@ -250,6 +254,272 @@ private desplazarAlInicioEtapa(): void {
 
   // Mensaje de error independiente del resto de la lección.
   errorProgreso = '';
+
+  private logrosAnteriores: LogroResponse[] = [];
+  logrosInicializados = false;
+  errorCargaInicialLogros = false;
+  private actividadDuranteCargaInicialLogros = false;
+  private verificandoLogros = false;
+  private verificacionLogrosPendiente = false;
+
+  // =====================================================
+  // GAMIFICACIÓN - CELEBRACIÓN DE NUEVAS INSIGNIAS
+  // =====================================================
+
+  /**
+   * Insignia que se mostrará en la celebración.
+   *
+   * Cuando es null, no hay ninguna celebración visible.
+   * No modifica los logros registrados en el backend.
+   */
+  logroEnCelebracion: LogroResponse | null = null;
+  private elementoAnteriorCelebracion: HTMLElement | null = null;
+  private guardarFocoAnteriorCelebracion(): void {
+
+    if (this.logroEnCelebracion !== null) {
+      return;
+    }
+
+    const elementoActivo = document.activeElement;
+
+    this.elementoAnteriorCelebracion =
+      elementoActivo instanceof HTMLElement
+        ? elementoActivo
+        : null;
+  }
+
+  private colaCelebracionesLogros: LogroResponse[] = [];
+
+  @ViewChild('botonCerrarCelebracion')
+  set botonCerrarCelebracion(
+    elemento: ElementRef<HTMLButtonElement> | undefined
+  ) {
+    if (elemento && this.logroEnCelebracion !== null) {
+      elemento.nativeElement.focus();
+    }
+  }
+  /**
+   * Activa temporalmente una celebración de prueba.
+   *
+   * Este método se utilizará únicamente durante
+   * el desarrollo para validar la interfaz visual.
+   
+  probarCelebracionLogro(): void {
+
+    this.guardarFocoAnteriorCelebracion();
+
+    this.logroEnCelebracion = {
+      codigo: 'PRIMER_ACIERTO',
+      nombre: 'Primer acierto',
+      descripcion: '¡Has conseguido tu primer acierto!',
+      desbloqueado: true
+    };
+  }
+*/
+
+/**
+ * PRUEBA TEMPORAL - EDUNEKO V1
+ *
+ * Simula que Constancia acaba de desbloquearse.
+ *
+ * No modifica PostgreSQL, el backend ni los XP.
+ * Utiliza la misma cola de celebraciones del flujo real.
+ *
+ * Eliminar antes de finalizar el MVP.
+probarDesbloqueoConstancia(): void {
+
+  // Verificar que el estado inicial esté disponible.
+  if (!this.logrosInicializados) {
+    console.warn(
+      'Espera a que termine la carga inicial de insignias.'
+    );
+    return;
+  }
+
+  // Buscar Constancia en el estado conocido.
+  const constanciaAnterior = this.logrosAnteriores.find(
+    logro => logro.codigo === 'CONSTANCIA'
+  );
+
+  if (!constanciaAnterior) {
+    console.warn(
+      'No se encontró la insignia Constancia.'
+    );
+    return;
+  }
+
+  // Evitar simular un desbloqueo que ya existe.
+  if (constanciaAnterior.desbloqueado) {
+    console.warn(
+      'Constancia ya está desbloqueada.'
+    );
+    return;
+  }
+
+  // Crear una respuesta simulada con Constancia desbloqueada.
+  const constanciaDesbloqueada: LogroResponse = {
+    ...constanciaAnterior,
+    desbloqueado: true
+  };
+
+  // Aplicar la misma condición de comparación
+  // utilizada en verificarNuevosLogros().
+  const esNuevoLogro =
+    constanciaDesbloqueada.desbloqueado &&
+    !constanciaAnterior.desbloqueado;
+
+  if (esNuevoLogro) {
+
+    console.log(
+      '🧪 Prueba: desbloqueo simulado de Constancia.'
+    );
+
+    // Utilizar la cola real de celebraciones.
+    this.encolarCelebracionesLogros([
+      constanciaDesbloqueada
+    ]);
+  }
+}
+ */
+
+
+
+/**
+ * Agrega nuevas insignias a la cola de celebración.
+ *
+ * Evita agregar una insignia si ya está mostrándose
+ * o si se encuentra pendiente en la cola.
+ */
+private encolarCelebracionesLogros(
+  nuevosLogros: LogroResponse[]
+): void {
+
+  for (const logro of nuevosLogros) {
+
+    // Evitar repetir la insignia actualmente visible.
+    if (this.logroEnCelebracion?.codigo === logro.codigo) {
+      continue;
+    }
+
+    // Evitar duplicados dentro de la cola.
+    const yaEstaPendiente = this.colaCelebracionesLogros.some(
+      pendiente => pendiente.codigo === logro.codigo
+    );
+
+    if (!yaEstaPendiente) {
+      this.colaCelebracionesLogros.push(logro);
+    }
+  }
+
+  // Abrir la siguiente celebración si no hay otra visible.
+  this.mostrarSiguienteCelebracionLogro();
+}
+
+/**
+ * Muestra la siguiente insignia pendiente.
+ *
+ * Si ya existe una celebración abierta,
+ * espera hasta que el estudiante la cierre.
+ */
+private mostrarSiguienteCelebracionLogro(): void {
+
+  // No abrir otra ventana si ya hay una visible.
+  if (this.logroEnCelebracion !== null) {
+    return;
+  }
+
+  // No hacer nada si no quedan insignias.
+  if (this.colaCelebracionesLogros.length === 0) {
+    return;
+  }
+
+  // Guardar el foco antes de abrir la primera ventana.
+  if (this.elementoAnteriorCelebracion === null) {
+    this.guardarFocoAnteriorCelebracion();
+  }
+
+  // Mostrar la siguiente insignia.
+  this.logroEnCelebracion =
+    this.colaCelebracionesLogros.shift() ?? null;
+}
+
+  /**
+   * Cierra la celebración y permite al estudiante
+   * continuar con su lección normalmente.
+   */
+  cerrarCelebracionLogro(): void {
+
+    // Cerrar la celebración actual.
+    this.logroEnCelebracion = null;
+
+    // Si quedan insignias, continuar la secuencia.
+    if (this.colaCelebracionesLogros.length > 0) {
+      this.mostrarSiguienteCelebracionLogro();
+      return;
+    }
+
+    // Recuperar la referencia del elemento anterior.
+    const elementoAnterior = this.elementoAnteriorCelebracion;
+
+    // Limpiar la referencia para futuras celebraciones.
+    this.elementoAnteriorCelebracion = null;
+
+    // Devolver el foco si el elemento sigue en pantalla.
+    if (elementoAnterior?.isConnected) {
+      elementoAnterior.focus();
+    }
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  manejarEscapeCelebracion(evento: Event): void {
+
+    // No intervenir si no hay una celebración abierta.
+    if (this.logroEnCelebracion === null) {
+      return;
+    }
+
+    // Evitar el comportamiento predeterminado.
+    evento.preventDefault();
+    evento.stopPropagation();
+
+    // Cerrar la celebración actual.
+    // Si existen otras insignias pendientes,
+    // se mostrará la siguiente.
+    this.cerrarCelebracionLogro();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  manejarTabCelebracion(evento: Event): void {
+
+    // No intervenir si no hay celebración abierta.
+    if (this.logroEnCelebracion === null) {
+      return;
+    }
+
+    const teclado = evento as KeyboardEvent;
+
+    // Ignorar cualquier tecla distinta de Tab.
+    if (teclado.key !== 'Tab') {
+      return;
+    }
+
+    // Buscar el botón principal de la celebración.
+    const boton = document.querySelector<HTMLButtonElement>(
+      '.celebracion-logro .celebracion-boton'
+    );
+
+    if (!boton) {
+      return;
+    }
+
+    // Bloquear la navegación fuera del diálogo,
+    // tanto con Tab como con Shift + Tab.
+    teclado.preventDefault();
+    teclado.stopPropagation();
+
+    // Mantener el foco en el único botón interactivo.
+    boton.focus();
+  }
 
   // 4. CONTROL DE REPRODUCCIÓN DE AUDIO
 
@@ -412,6 +682,7 @@ private desplazarAlInicioEtapa(): void {
     }
 
     this.unidadId = id;
+    this.cargarEstadoInicialLogros();
 
     //Consultar las preferencias de aprendizaje del estudiante.
     this.cargarPreferenciaAuditiva();
@@ -738,6 +1009,13 @@ private desplazarAlInicioEtapa(): void {
   // 10. EVALUACIÓN DE RESPUESTAS
   comprobarRespuesta(actividadId: number): void {
 
+    if (!this.logrosInicializados) {
+      console.warn(
+        'EduNeko está preparando el estado inicial de las insignias.'
+      );
+      return;
+    }
+
     if (this.unidadId === null) {
       return;
     }
@@ -791,6 +1069,22 @@ private desplazarAlInicioEtapa(): void {
             actividad.puntosObtenidos =
               resultado.puntosObtenidos;
           }
+
+          const puntosGanados = resultado.puntosObtenidos;
+
+          if (
+            typeof puntosGanados === 'number' &&
+            Number.isFinite(puntosGanados) &&
+            puntosGanados > 0
+          ) {
+
+            // Guardar los puntos que aparecerán en pantalla.
+            this.xpFlotantes[actividadId] = puntosGanados;
+
+            // Actualizar la versión de la animación.
+            this.versionAnimacionXP[actividadId] =
+              (this.versionAnimacionXP[actividadId] ?? 0) + 1;
+          }
         }
 
         this.evaluandoActividades[actividadId] = false;
@@ -798,6 +1092,12 @@ private desplazarAlInicioEtapa(): void {
         // Consultar nuevamente el progreso después de
         // registrar el intento y actualizar el plan.
         this.cargarProgreso();
+        // Consultar las insignias después de que el backend
+        // haya confirmado el registro de la respuesta.
+        //
+        // Esta consulta no modifica los puntos XP,
+        // las respuestas ni las condiciones de desbloqueo.
+        this.verificarNuevosLogros();
       },
 
       error: () => {
@@ -809,6 +1109,163 @@ private desplazarAlInicioEtapa(): void {
       }
     });
   }
+
+  finalizarAnimacionXP(actividadId: number): void {
+
+    // Eliminar únicamente el indicador visual.
+    delete this.xpFlotantes[actividadId];
+
+  }
+
+/**
+ * Consulta las insignias existentes antes de que
+ * el estudiante pueda evaluar actividades.
+ *
+ * Si la consulta falla, conserva un estado de error
+ * que permitirá ofrecer un reintento.
+ */
+private cargarEstadoInicialLogros(): void {
+
+  // Reiniciar el estado de inicialización.
+  this.logrosInicializados = false;
+  this.logrosAnteriores = [];
+  this.actividadDuranteCargaInicialLogros = false;
+  this.errorCargaInicialLogros = false;
+
+  this.progresoService.obtenerLogros().subscribe({
+
+    next: (respuesta) => {
+
+      // Conservar una copia de las insignias actuales.
+      this.logrosAnteriores = respuesta.logros.map(
+        logro => ({ ...logro })
+      );
+
+      // La referencia inicial ya está disponible.
+      this.logrosInicializados = true;
+      this.errorCargaInicialLogros = false;
+
+      // Atender verificaciones que hayan quedado pendientes.
+      if (this.actividadDuranteCargaInicialLogros) {
+
+        this.actividadDuranteCargaInicialLogros = false;
+
+        this.verificarNuevosLogros();
+      }
+    },
+
+    error: (error) => {
+
+      console.error(
+        'No fue posible cargar las insignias iniciales.',
+        error
+      );
+
+      // Mantener bloqueada la evaluación hasta
+      // disponer de una referencia inicial confiable.
+      this.logrosInicializados = false;
+      this.errorCargaInicialLogros = true;
+    }
+  });
+}
+
+/**
+ * Permite repetir la consulta inicial de insignias
+ * después de un error de conexión.
+ */
+reintentarCargaInicialLogros(): void {
+
+  this.cargarEstadoInicialLogros();
+}
+  
+/**
+ * Verifica si el estudiante desbloqueó nuevas insignias.
+ *
+ * Si ya existe una consulta en ejecución, registra
+ * una verificación pendiente para no perderla.
+ */
+private verificarNuevosLogros(): void {
+
+  // No comparar si todavía no tenemos el estado inicial.
+  if (!this.logrosInicializados) {
+    this.actividadDuranteCargaInicialLogros = true;
+    return;
+  }
+
+  // Si ya existe una consulta, solicitar otra al finalizar.
+  if (this.verificandoLogros) {
+    this.verificacionLogrosPendiente = true;
+    return;
+  }
+
+  this.verificandoLogros = true;
+
+  this.progresoService.obtenerLogros().subscribe({
+
+    next: (respuesta) => {
+
+      // Detectar el cambio de bloqueado a desbloqueado.
+      const nuevosLogros = respuesta.logros.filter(
+        logro =>
+          logro.desbloqueado &&
+          this.logrosAnteriores.some(
+            anterior =>
+              anterior.codigo === logro.codigo &&
+              !anterior.desbloqueado
+          )
+      );
+
+      // Actualizar el estado conocido de las insignias.
+      this.logrosAnteriores = respuesta.logros.map(
+        logro => ({ ...logro })
+      );
+
+      // Todavía no mostramos la celebración automáticamente.
+      if (nuevosLogros.length > 0) {
+
+        console.log(
+          '🏆 Nuevas insignias desbloqueadas:',
+          nuevosLogros
+        );
+
+        // Mostrar la primera insignia nueva.
+        // El HTML existente abrirá la ventana automáticamente.
+        this.encolarCelebracionesLogros(nuevosLogros);
+      }
+
+      this.finalizarVerificacionLogros();
+    },
+
+    error: (error) => {
+
+      console.error(
+        'No fue posible verificar nuevos logros.',
+        error
+      );
+
+      this.finalizarVerificacionLogros();
+    }
+  });
+}
+
+/**
+ * Finaliza una consulta y ejecuta otra si alguna
+ * actividad solicitó una verificación mientras
+ * la consulta anterior estaba en proceso.
+ */
+private finalizarVerificacionLogros(): void {
+
+  this.verificandoLogros = false;
+
+  if (this.verificacionLogrosPendiente) {
+
+    // Limpiar la marca antes de iniciar otra consulta.
+    this.verificacionLogrosPendiente = false;
+
+    this.verificarNuevosLogros();
+  }
+}
+
 
   // 11. CONSULTA DEL PROGRESO REAL
   cargarProgreso(): void {

@@ -1,3 +1,100 @@
+
+<!-- Botón temporal para comprobar la celebración 
+<button
+  type="button"
+  (click)="probarCelebracionLogro()"
+  style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 3000;
+    padding: 14px;
+    background: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  ">
+  🏆 Probar logro
+</button>
+-->
+
+<!-- =====================================================
+     EDUNEKO V1 - PRUEBA TEMPORAL DE CONSTANCIA
+
+     Simula el desbloqueo de la insignia Constancia.
+     No modifica los datos del estudiante ni los XP.
+
+     Eliminar antes de finalizar el MVP.
+     ===================================================== 
+
+<button
+  type="button"
+  (click)="probarDesbloqueoConstancia()"
+  style="
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 3000;
+    padding: 14px;
+    background: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  ">
+
+  🔥 Probar Constancia
+
+</button>
+-->
+
+<!-- =====================================================
+     EDUNEKO V1 - ESTADO INICIAL DE INSIGNIAS
+
+     Informa al estudiante cuando se están preparando
+     las insignias o cuando ocurre un error de conexión.
+     ===================================================== -->
+
+@if (!logrosInicializados && !errorCargaInicialLogros) {
+
+  <!-- Mensaje mientras se consultan las insignias. -->
+  <div
+    class="estado-inicial-logros"
+    role="status"
+    aria-live="polite">
+
+    🐱 Neko está preparando tus insignias.
+    Espera un momento para continuar.
+
+  </div>
+
+}
+
+@if (errorCargaInicialLogros) {
+
+  <!-- Mensaje de error y opción para volver a intentar. -->
+  <div
+    class="estado-inicial-logros estado-inicial-logros-error"
+    role="alert">
+
+    <p>
+      No pudimos consultar tus insignias.
+      Reintenta la conexión para continuar con las actividades.
+    </p>
+
+    <button
+      type="button"
+      (click)="reintentarCargaInicialLogros()">
+
+      🔄 Reintentar conexión
+
+    </button>
+
+  </div>
+
+}
+
 <div class="pagina-leccion">
 
   <header class="encabezado">
@@ -1645,6 +1742,29 @@
 
           </div>
 
+          <!-- =====================================================
+              EDUNEKO V1 - XP FLOTANTES
+
+              Muestra los XP confirmados por el backend
+              al responder correctamente una actividad.
+
+              La animación se aplicará mediante CSS.
+              ===================================================== -->
+
+          <div
+            *ngIf="xpFlotantes[actividad.id] > 0"
+            class="xp-flotante-contenedor"
+            role="status"
+            aria-live="polite"
+          >
+            <span
+              class="xp-flotante"
+              (animationend)="finalizarAnimacionXP(actividad.id)"
+            >
+              ⭐ +{{ xpFlotantes[actividad.id] }} XP
+            </span>
+          </div>
+
           <!-- Resultado de la evaluación -->
           <div
             *ngIf="resultadosEvaluacion[actividad.id] as resultado"
@@ -1794,5 +1914,113 @@
     </ng-container>
 
   </main>
+
+
+<!-- =====================================================
+     EDUNEKO V1 - CELEBRACIÓN DE NUEVA INSIGNIA
+
+     Esta ventana aparece cuando existe un logro
+     asignado a logroEnCelebracion.
+
+     No modifica el progreso ni los puntos XP.
+     ===================================================== -->
+
+@if (logroEnCelebracion; as logro) {
+
+
+<!-- =====================================================
+     EDUNEKO V1 - PRUEBA TEMPORAL DE GAMIFICACIÓN
+
+     Permite visualizar la celebración de una insignia
+     sin modificar PostgreSQL, XP ni logros reales.
+
+     IMPORTANTE:
+     Eliminar este botón antes de finalizar el MVP.
+     ===================================================== 
+
+<button
+  type="button"
+  class="celebracion-boton"
+  style="display: block; width: min(300px, 90%); margin: 20px auto;"
+  (click)="probarCelebracionLogro()">
+
+  🏆 Probar celebración de logro
+
+</button>
+-->
+
+  <div class="celebracion-logro-fondo">
+
+    <section
+      class="celebracion-logro"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-celebracion"
+      aria-describedby="descripcion-celebracion">
+
+      <!-- Elementos decorativos de celebración. -->
+      <div class="celebracion-confeti" aria-hidden="true">
+        <span>⭐</span>
+        <span>✨</span>
+        <span>🎉</span>
+        <span>⭐</span>
+        <span>✨</span>
+      </div>
+
+      <!-- Neko utiliza su imagen oficial. -->
+      <div class="celebracion-neko">
+        <img
+          src="/images/neko/situaciones/neko_logro.png"
+          alt="Neko celebrando tu nuevo logro"
+          width="150"
+          height="150">
+      </div>
+
+      <!-- Mensaje de felicitación. -->
+      <h2 id="titulo-celebracion">
+        ¡Nuevo logro desbloqueado!
+      </h2>
+
+      <p class="celebracion-subtitulo">
+        ¡Tu esfuerzo está dando resultados!
+      </p>
+
+      <!-- Insignia obtenida. -->
+      <div class="celebracion-insignia">
+
+        <div class="celebracion-insignia-icono" aria-hidden="true">
+          @switch (logro.codigo) {
+            @case ('PRIMER_ACIERTO') { 🎯 }
+            @case ('PRIMERA_LECCION') { 📚 }
+            @case ('APRENDIZ_DESTACADO') { ⭐ }
+            @case ('CONSTANCIA') { 🔥 }
+            @default { 🏅 }
+          }
+        </div>
+
+        <h3>{{ logro.nombre }}</h3>
+
+        <p id="descripcion-celebracion">
+          {{ logro.descripcion }}
+        </p>
+
+      </div>
+
+      <!-- Cerrar la celebración. -->
+      <button
+        #botonCerrarCelebracion
+        type="button"
+        class="celebracion-boton"
+        (click)="cerrarCelebracionLogro()">
+
+        ¡Seguir aprendiendo!
+
+      </button>
+
+    </section>
+
+  </div>
+
+}
 
 </div>
