@@ -59,7 +59,14 @@ export class DiagnosticoMatematicas implements OnInit {
 
     this.diagnosticoService.iniciarDiagnostico().subscribe({
       next: (respuesta) => {
+
+        // Cargar el intento vigente desde el backend.
         this.diagnostico = respuesta;
+
+        // Recuperar respuestas y posición guardadas
+        // previamente en este navegador.
+        this.recuperarProgresoLocal();
+
         this.cargando = false;
 
         console.log(
@@ -78,22 +85,167 @@ export class DiagnosticoMatematicas implements OnInit {
   }
 
     seleccionarRespuesta(preguntaId: number, opcionId: number): void {
+
+    // Registrar la opción seleccionada por el estudiante.
     this.respuestasSeleccionadas[preguntaId] = opcionId;
+
+    // Conservar temporalmente las respuestas en el navegador.
+    this.guardarProgresoLocal();
+  }
+
+  guardarProgresoLocal(): boolean {
+
+  // No guardar si no existe un diagnóstico activo.
+  if (!this.diagnostico || this.resultado) {
+    return false;
+  }
+
+  // Identificar el intento para evitar mezclar diagnósticos.
+  const clave = `eduneko_diagnostico_${this.diagnostico.intentoId}`;
+
+  // Preparar los datos que se conservarán.
+  const progreso = {
+    intentoId: this.diagnostico.intentoId,
+    respuestas: this.respuestasSeleccionadas,
+    indicePreguntaActual: this.indicePreguntaActual
+  };
+
+  try {
+
+    // Guardar las respuestas y la posición actual.
+    localStorage.setItem(clave, JSON.stringify(progreso));
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      'No fue posible guardar el progreso del diagnóstico:',
+      error
+    );
+
+    return false;
+  }
+}
+
+  recuperarProgresoLocal(): void {
+
+  if (!this.diagnostico || this.resultado) {
+    return;
+  }
+
+  const clave = `eduneko_diagnostico_${this.diagnostico.intentoId}`;
+
+  try {
+    const datosGuardados = localStorage.getItem(clave);
+
+    if (!datosGuardados) {
+      return;
+    }
+
+    const progreso = JSON.parse(datosGuardados);
+
+    // Verificar que corresponda al intento actual.
+    if (
+      !progreso ||
+      progreso.intentoId !== this.diagnostico.intentoId
+    ) {
+      return;
+    }
+
+    // Recuperar únicamente respuestas correspondientes
+    // a preguntas y opciones válidas del diagnóstico.
+    const respuestasValidas: Record<number, number> = {};
+
+    for (const pregunta of this.diagnostico.preguntas) {
+
+      const opcionId = progreso.respuestas?.[pregunta.id];
+
+      const opcionValida = pregunta.opciones.some(
+        opcion => opcion.id === opcionId
+      );
+
+      if (opcionValida) {
+        respuestasValidas[pregunta.id] = opcionId;
+      }
+    }
+
+    this.respuestasSeleccionadas = respuestasValidas;
+
+    // Restaurar la posición únicamente si es válida.
+    const indice = progreso.indicePreguntaActual;
+
+    if (
+      Number.isInteger(indice) &&
+      indice >= 0 &&
+      indice < this.diagnostico.preguntas.length
+    ) {
+      this.indicePreguntaActual = indice;
+    }
+
+    } catch (error) {
+      console.error(
+        'No fue posible recuperar el progreso del diagnóstico:',
+        error
+      );
+    }
   }
 
   siguientePregunta(): void {
-    if (
-      this.diagnostico &&
-      this.indicePreguntaActual < this.diagnostico.preguntas.length - 1
-    ) {
-      this.indicePreguntaActual++;
+
+  if (
+    this.diagnostico &&
+    this.indicePreguntaActual < this.diagnostico.preguntas.length - 1
+  ) {
+    this.indicePreguntaActual++;
+
+      // Guardar la nueva posición del diagnóstico.
+      this.guardarProgresoLocal();
     }
   }
 
   preguntaAnterior(): void {
-    if (this.indicePreguntaActual > 0) {
-      this.indicePreguntaActual--;
+
+  if (this.indicePreguntaActual > 0) {
+    this.indicePreguntaActual--;
+
+      // Guardar la nueva posición del diagnóstico.
+      this.guardarProgresoLocal();
     }
+  }
+
+  guardarYSalir(): void {
+
+  // Evitar salir mientras se finaliza el diagnóstico.
+  if (this.finalizando || !this.diagnostico || this.resultado) {
+    return;
+  }
+
+  // Guardar el progreso y comprobar el resultado.
+  const guardadoExitoso = this.guardarProgresoLocal();
+
+  // Impedir la salida si el navegador no pudo guardar.
+  if (!guardadoExitoso) {
+    window.alert(
+      'No fue posible guardar tu progreso. ' +
+      'Permanece en el diagnóstico e inténtalo nuevamente.'
+    );
+    return;
+  }
+
+  // Solicitar confirmación antes de regresar.
+  const confirmar = window.confirm(
+    'Tu progreso se ha guardado correctamente ' +
+    'en este navegador.\n\n' +
+    '¿Deseas regresar al dashboard?'
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+    // Regresar al dashboard del estudiante.
+    this.router.navigate(['/dashboard']);
   }
 
   estaSeleccionada(preguntaId: number, opcionId: number): boolean {
@@ -159,10 +311,31 @@ export class DiagnosticoMatematicas implements OnInit {
   };
 
   this.diagnosticoService.finalizarDiagnostico(datos).subscribe({
-    next: (respuesta) => {
-      this.resultado = respuesta;
-      this.finalizando = false;
-    },
+  next: (respuesta) => {
+
+    // El backend confirmó que el diagnóstico finalizó.
+    this.resultado = respuesta;
+
+    // Eliminar las respuestas temporales del intento
+    // para evitar recuperar un diagnóstico ya finalizado.
+    if (this.diagnostico) {
+
+      const clave =
+        `eduneko_diagnostico_${this.diagnostico.intentoId}`;
+
+      try {
+        localStorage.removeItem(clave);
+      } catch (error) {
+        console.error(
+          'No fue posible limpiar el progreso local:',
+          error
+        );
+      }
+    }
+
+    // Restablecer el estado de finalización.
+    this.finalizando = false;
+  },
     error: (error) => {
       console.error('Error al finalizar diagnóstico:', error);
 

@@ -486,3 +486,170 @@ button:disabled {
     box-sizing: border-box;
   }
 }
+
+/* ==========================================
+   GUARDAR Y SALIR DEL DIAGNÓSTICO
+   ========================================== */
+
+/* Contenedor del botón y mensaje informativo */
+.diagnostico-guardar-salir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Botón secundario: guardar y regresar */
+.boton-guardar-salir {
+  padding: 12px 24px;
+  border: 2px solid #7c3aed;
+  border-radius: 12px;
+  background-color: transparent;
+  color: #7c3aed;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease,
+              color 0.2s ease;
+}
+
+/* Resaltar el botón al pasar el cursor */
+.boton-guardar-salir:hover:not(:disabled) {
+  background-color: #7c3aed;
+  color: #ffffff;
+}
+
+/* Accesibilidad mediante teclado */
+.boton-guardar-salir:focus-visible {
+  outline: 3px solid #a78bfa;
+  outline-offset: 3px;
+}
+
+/* Evitar interacción mientras finaliza el diagnóstico */
+.boton-guardar-salir:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mensaje debajo del botón */
+.diagnostico-aviso-guardado {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 480px) {
+  .boton-guardar-salir {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .diagnostico-guardar-salir {
+    margin-top: 20px;
+  }
+}
+
+/* ==========================================
+   GUARDAR Y SALIR DEL DIAGNÓSTICO
+   Estilos y animaciones oficiales de EduNeko
+   ========================================== */
+
+/* Contenedor del botón y mensaje informativo */
+.diagnostico-guardar-salir {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Botón secundario para guardar y regresar al dashboard */
+.boton-guardar-salir {
+  padding: 13px 24px;
+  border: 2px solid #6C63FF;
+  border-radius: 14px;
+  background: transparent;
+  color: #6C63FF;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+
+  /* Transiciones suaves consistentes con EduNeko */
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Cambia de color y se eleva ligeramente al pasar el cursor */
+.boton-guardar-salir:hover:not(:disabled) {
+  background: #6C63FF;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+/* Efecto de presión al hacer clic */
+.boton-guardar-salir:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Indicador de enfoque para navegación con teclado */
+.boton-guardar-salir:focus-visible {
+  outline: 3px solid #a5a0ff;
+  outline-offset: 3px;
+}
+
+/* Estado deshabilitado mientras finaliza el diagnóstico */
+.boton-guardar-salir:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Mensaje informativo debajo del botón */
+.diagnostico-aviso-guardado {
+  margin: 0;
+  color: #6b7280;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .boton-guardar-salir {
+    transition: none;
+  }
+
+  .boton-guardar-salir:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ==========================================
+   ADAPTACIÓN PARA DISPOSITIVOS MÓVILES
+   ========================================== */
+
+@media (max-width: 480px) {
+
+  /* Botón adaptable al ancho disponible */
+  .boton-guardar-salir {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  /* Ajustar separación en pantallas pequeñas */
+  .diagnostico-guardar-salir {
+    margin-top: 20px;
+  }
+}

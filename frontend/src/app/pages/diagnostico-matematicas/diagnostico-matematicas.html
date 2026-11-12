@@ -144,6 +144,25 @@
 
       </div>
 
+      <!-- GUARDAR PROGRESO Y REGRESAR AL DASHBOARD -->
+      <div class="diagnostico-guardar-salir">
+
+        <button
+          type="button"
+          class="boton-guardar-salir"
+          (click)="guardarYSalir()"
+          [disabled]="finalizando"
+        >
+          Guardar y salir
+        </button>
+
+        <p class="diagnostico-aviso-guardado">
+          Puedes continuar tu diagnóstico más tarde
+          desde este mismo navegador.
+        </p>
+
+      </div>
+
       <!-- FINALIZACIÓN -->
       @if (indicePreguntaActual === diagnostico.preguntas.length - 1) {
 
