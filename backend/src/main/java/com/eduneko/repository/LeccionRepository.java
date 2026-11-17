@@ -246,6 +246,22 @@ public class LeccionRepository {
     }
 
     /**
+     * Permite solicitar explícitamente un nuevo recurso después de que
+     * el anterior haya sido descartado. Nunca sobrescribe recursos existentes.
+     */
+    public int reiniciarRecursoVisualDescartado(Long leccionId) {
+        String sql = """
+            UPDATE leccion
+            SET estado_recurso_visual = 'PENDIENTE'
+            WHERE id = :leccionId
+              AND recurso_visual IS NULL
+              AND estado_recurso_visual IN ('NO_APLICABLE', 'RECHAZADO')
+            """;
+        return jdbc.update(sql, new MapSqlParameterSource()
+                .addValue("leccionId", leccionId));
+    }
+
+    /**
      * Actualiza el estado del enriquecimiento visual
      * de una lección existente.
      *

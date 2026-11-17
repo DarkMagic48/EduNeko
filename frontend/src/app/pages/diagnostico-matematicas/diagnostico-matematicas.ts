@@ -21,6 +21,9 @@ export class DiagnosticoMatematicas implements OnInit {
   cargando = false;
   error = '';
   indicePreguntaActual = 0;
+
+  // Solo se muestra la introducción antes de comenzar un intento nuevo.
+  mostrarIntroduccion = true;
   finalizando = false;
   errorFinalizacion = '';
   resultado: DiagnosticoResultadoResponse | null = null;
@@ -67,6 +70,10 @@ export class DiagnosticoMatematicas implements OnInit {
         // previamente en este navegador.
         this.recuperarProgresoLocal();
 
+        // Si el estudiante ya avanzó, llevarlo directamente a su pregunta.
+        this.mostrarIntroduccion =
+          this.totalRespondidas === 0 && this.indicePreguntaActual === 0;
+
         this.cargando = false;
 
         console.log(
@@ -88,6 +95,8 @@ export class DiagnosticoMatematicas implements OnInit {
 
     // Registrar la opción seleccionada por el estudiante.
     this.respuestasSeleccionadas[preguntaId] = opcionId;
+    // Limpiar avisos anteriores cuando el estudiante responde.
+    this.errorFinalizacion = '';
 
     // Conservar temporalmente las respuestas en el navegador.
     this.guardarProgresoLocal();
@@ -191,6 +200,17 @@ export class DiagnosticoMatematicas implements OnInit {
     }
   }
 
+  // Los temas se obtienen de las preguntas del grado real, no de una lista inventada.
+  get temasEvaluados(): string[] {
+    return [...new Set(this.diagnostico?.preguntas.map(p => p.tema) ?? [])];
+  }
+
+  comenzarDiagnostico(): void {
+    if (this.diagnostico && !this.resultado) {
+      this.mostrarIntroduccion = false;
+    }
+  }
+
   siguientePregunta(): void {
 
   if (
@@ -277,16 +297,56 @@ export class DiagnosticoMatematicas implements OnInit {
       this.totalRespondidas === this.diagnostico.preguntas.length;
   }
 
+  // Permite identificar las preguntas omitidas sin recorrerlas una por una.
+  get preguntasPendientes(): { numero: number; indice: number }[] {
+    if (!this.diagnostico) {
+      return [];
+    }
+
+    return this.diagnostico.preguntas
+      .map((pregunta, indice) => ({
+        numero: indice + 1,
+        indice,
+        respondida: this.respuestasSeleccionadas[pregunta.id] !== undefined
+      }))
+      .filter(pregunta => !pregunta.respondida)
+      .map(({ numero, indice }) => ({ numero, indice }));
+  }
+
+  // Reutiliza el guardado existente al saltar a cualquier pregunta.
+  irAPregunta(indice: number): void {
+    if (!this.diagnostico || this.resultado || this.finalizando ||
+        !Number.isInteger(indice) || indice < 0 ||
+        indice >= this.diagnostico.preguntas.length) {
+      return;
+    }
+
+    this.indicePreguntaActual = indice;
+    this.guardarProgresoLocal();
+  }
+
+  irAUltimaPregunta(): void {
+    if (this.diagnostico) {
+      this.irAPregunta(this.diagnostico.preguntas.length - 1);
+    }
+  }
+
   finalizarDiagnostico(): void {
 
-  if (
-    !this.diagnostico ||
-    !this.todasRespondidas ||
-    this.finalizando ||
-    this.resultado
-  ) {
+  if (!this.diagnostico || this.finalizando || this.resultado) {
     return;
   }
+
+  // No enviar respuestas incompletas al backend; la interfaz muestra
+  // las preguntas pendientes con acceso directo a cada una.
+  if (!this.todasRespondidas) {
+    this.errorFinalizacion =
+      'Te faltan ' + this.preguntasPendientes.length +
+      ' preguntas por responder. Selecciona el número para completarlas.';
+    return;
+  }
+
+  this.errorFinalizacion = '';
 
   const confirmar = window.confirm(
     '¿Estás seguro de que deseas finalizar el diagnóstico? ' +
@@ -294,6 +354,7 @@ export class DiagnosticoMatematicas implements OnInit {
   );
 
   if (!confirmar) {
+    // No bloquear ni deshabilitar el botón: puede confirmar de nuevo.
     return;
   }
 
@@ -367,6 +428,10 @@ export class DiagnosticoMatematicas implements OnInit {
 
   return [...this.resultado.resultadosPorTema]
     .sort((a, b) => a.totalAciertos - b.totalAciertos);
+  }
+
+  volverDashboard(): void {
+    void this.router.navigate(['/dashboard']);
   }
 
   irAlPlanAprendizaje(): void {

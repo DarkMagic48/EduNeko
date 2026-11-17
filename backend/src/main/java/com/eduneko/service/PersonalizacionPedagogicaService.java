@@ -44,25 +44,11 @@ public class PersonalizacionPedagogicaService {
         8. Considera el ritmo de estudio.
         9. Prioriza las modalidades de aprendizaje preferidas,
            sin restringir al estudiante a una sola modalidad.
-        10. Recursos Visuales Personalizados:
-            - Los recursos visuales pueden beneficiar a todos
-            los estudiantes, independientemente de sus preferencias.
-            - Si prefiere_visual es true, prioriza incluir un
-            recurso visual cuando ayude a comprender el concepto.
-            - Si prefiere_visual es false, también puedes incluir
-            un recurso visual cuando tenga utilidad pedagógica.
-            - El recurso debe corresponder al concepto central
-            desarrollado en la explicación y el ejemplo resuelto.
-            - Ajusta su complejidad al grado escolar recibido:
-            primero, segundo o tercero de secundaria.
-            - Respeta los PDA y el objetivo curricular.
-            - Considera la prioridad, el nivel de explicación
-            y el nivel de reto preferido.
-            - No introduzcas contenidos de grados superiores
-            que no sean necesarios para la lección.
-            - No inventes información curricular.
-            - No solicites imágenes externas ni generadas por IA.
-            - No incluyas instrucciones HTML, SVG o JavaScript.
+        10. Los recursos visuales se generarán en una petición
+            posterior, a partir del ejemplo resuelto validado.
+            Por eso debes concentrarte en la corrección matemática
+            y NO producir dibujos ni recursosVisual aquí.
+            El campo recursoVisual debe ser siempre null.
         11. Si prefiere actividades prácticas, incorpora
             situaciones cotidianas y procedimientos aplicados.
         12. Si prefiere recursos auditivos, redacta explicaciones
@@ -160,6 +146,9 @@ public class PersonalizacionPedagogicaService {
           del ejemplo resuelto.
 
         - No utilices expresiones como:
+          "Visualización sugerida:"
+          "Visualizacion sugerida:"
+          "Representación visual sugerida:"
           "Diagrama sugerido:"
           "Imagen sugerida:"
           "Dibuja un diagrama para mostrar..."
@@ -172,86 +161,14 @@ public class PersonalizacionPedagogicaService {
         - Conserva todos los cálculos, fórmulas
           y razonamientos necesarios.
 
-        RECURSO VISUAL ESTRUCTURADO:
-        21. Puedes incluir un recurso visual cuando ayude
-            a comprender el concepto central de la lección.
-
-        22. Si prefiere_visual es true, prioriza un recurso
-            visual adecuado, pero nunca fuerces uno incorrecto.
-
-        23. Si prefiere_visual es false, también puedes
-            incluir un recurso cuando tenga utilidad educativa.
-
-        24. El recurso visual debe corresponder al grado
-            escolar, objetivo, PDA y ejemplo resuelto.
-
-        25. Los tipos de recursos visuales permitidos son:
-            - "barra_fraccionaria"
-            - "recta_numerica"
-
-        26. Selecciona el recurso según el concepto central
-            de la lección y su utilidad pedagógica.
-
-            Utiliza "barra_fraccionaria" para representar:
-            - Fracciones propias.
-            - Fracciones equivalentes a enteros.
-            - Fracciones impropias.
-            - Números mixtos positivos, convertidos
-              a su fracción impropia equivalente.
-
-        27. Reglas para "barra_fraccionaria":
-            - numerador y denominador deben ser enteros.
-            - denominador debe estar entre 1 y 12.
-            - numerador debe estar entre 0 y
-              denominador multiplicado por 4.
-            - Se permiten hasta cuatro barras.
-            - Cada barra representa un entero dividido
-              en partes iguales.
-            - El diagrama debe ser coherente con
-              la explicación y el ejemplo resuelto.
-
-        28. Utiliza "recta_numerica" cuando sea útil
-            representar la ubicación de un número
-            sobre una recta numérica.
-
-            Es adecuada para:
-            - Números enteros positivos y negativos.
-            - Comparación y orden de números.
-            - Ubicación de números decimales.
-            - Identificación del cero y de números
-              a su izquierda o derecha.
-
-            Reglas para "recta_numerica":
-            - minimo: número donde inicia el rango.
-            - maximo: número donde termina el rango.
-            - intervalo: distancia positiva entre marcas.
-            - valorDestacado: número que se señalará.
-            - minimo debe ser menor que maximo.
-            - valorDestacado debe estar entre
-              minimo y maximo, inclusive.
-            - Todos los valores deben ser números finitos.
-            - La cantidad de intervalos calculada como
-              (maximo - minimo) / intervalo
-              no debe superar 20.
-            - intervalo debe ser mayor o igual a 0.00000001.
-            - Utiliza preferentemente intervalos sencillos,
-              como 1, 2, 5, 0.5 o 0.1.
-            - El valor destacado debe corresponder
-              al contenido explicado en la lección.
-
-            No utilices este componente para representar
-            desigualdades, intervalos abiertos o cerrados,
-            ni múltiples puntos simultáneos.
-
-        29. Si ninguno de los recursos disponibles
-            representa correctamente el concepto central,
-            devuelve recursoVisual como null.
-
-            No fuerces diagramas inadecuados.
-
-            No generes HTML, SVG, JavaScript,
-            enlaces de imágenes ni tipos de recursos
-            visuales diferentes de los permitidos.
+        SEPARACIÓN ENTRE LECCIÓN Y RECURSO VISUAL:
+        21. El contenido de la lección debe ser matemáticamente
+            correcto por sí mismo; no depende de una ilustración.
+        22. No construyas diagramas en esta primera petición.
+            El enriquecimiento visual se realizará después y
+            verificará su correspondencia con el ejemplo aprobado.
+        23. Incluye siempre "recursoVisual": null, incluso si
+            prefiere_visual o prefiere_practica están activadas.
 
         FORMATO:
         Devuelve exclusivamente un objeto JSON válido con:
@@ -262,41 +179,6 @@ public class PersonalizacionPedagogicaService {
           "ejemploResuelto": "Ejemplo correcto, paso a paso",
           "recursoVisual": null
         }
-
-        Cuando corresponda una barra fraccionaria,
-        reemplaza null por un objeto con esta estructura:
-
-        {
-          "tipo": "barra_fraccionaria",
-          "titulo": "Representación de tres cuartos",
-          "datos": {
-            "numerador": 3,
-            "denominador": 4
-          }
-        }
-
-        
-        Cuando corresponda una recta numérica,
-        reemplaza recursoVisual por un objeto
-        con esta estructura:
-
-        {
-          "tipo": "recta_numerica",
-          "titulo": "Ubicación del número -2",
-          "datos": {
-            "minimo": -5,
-            "maximo": 5,
-            "intervalo": 1,
-            "valorDestacado": -2
-          }
-        }
-
-        Selecciona únicamente uno de los dos tipos
-        de recurso visual por lección.
-
-        El recurso debe representar correctamente
-        un concepto explicado en la lección.
-
 
         No agregues Markdown ni texto fuera del JSON.
         """;
@@ -358,6 +240,15 @@ public class PersonalizacionPedagogicaService {
 
             7. Genera como máximo un recurso visual.
 
+            8. Si contexto.preferenciasAprendizaje.prefiere_visual
+               es true, prioriza un recurso visual pedagógicamente
+               adecuado, sin inventar datos ni forzar un diagrama.
+
+            9. Si contexto.preferenciasAprendizaje.prefiere_practica
+               es true, favorece un recurso con exploración interactiva
+               cuando el concepto y los valores lo permitan. Los
+               recursos siguen siendo visibles para todos los alumnos.
+
             TIPOS PERMITIDOS:
 
             - barra_fraccionaria
@@ -366,6 +257,48 @@ public class PersonalizacionPedagogicaService {
             - patron_figuras_2d
             - "plano_cartesiano"
             - "grafica_estadistica"
+            - "grafica_funcion"
+            - "modelo_proporcionalidad"
+            - "triangulo_rectangulo"
+            - "modelo_probabilidad"
+            - "prisma_rectangular"
+            - "segmento_geometrico"
+            - "modelo_ecuacion"
+            - "tabla_valores"
+            - "mapa_conceptual"
+            - "angulo_geometrico"
+            - "grafica_circular"
+            - "construccion_geometrica"
+            - "solido_revolucion"
+            - "sistema_lineal"
+            - "triangulos_congruentes"
+
+            PRINCIPIO DE CORRESPONDENCIA CON EL EJEMPLO:
+            - Representa el RESULTADO FINAL del ejemplo resuelto,
+              con los trazos auxiliares cuando sean necesarios.
+            - Nunca elijas un segmento como único recurso si se
+              explica la construcción de su mediatriz; ni un ángulo
+              aislado si se explica su bisectriz.
+            - Si el ejemplo incluye medidas y etiquetas, respétalas.
+              No agregues puntos ni medidas que cambien el problema.
+            - Si el tipo no puede mostrar la construcción explicada,
+              devuelve null en vez de una figura incompleta.
+
+            ECUACIONES CUADRÁTICAS Y FACTORIZACIÓN:
+            - Si la lección resuelve ax²+bx+c=0 con dos raíces
+              reales, utiliza preferentemente "grafica_funcion".
+            - Copia a, b y c de la ecuación de la lección,
+              incluyendo los signos; no los inventes.
+            - El rango minimoX..maximoX debe incluir AMBAS raíces.
+            - valorX puede ser una de esas raíces; Angular mostrará
+              automáticamente ambos cortes con el eje X.
+            - En (x-2)(x-3)=0 los factores contienen -2 y -3,
+              pero las soluciones son x=2 y x=3.
+            - NO utilices "recta_numerica" para representar dos raíces:
+              ese componente solo destaca un punto y puede confundir
+              los términos de los factores con las soluciones.
+            - Si no puedes representar los resultados correctamente,
+              devuelve null en lugar de un recurso ambiguo.
 
             ============================================
             RECURSO 1: BARRA FRACCIONARIA
@@ -388,6 +321,22 @@ public class PersonalizacionPedagogicaService {
             - numerador entre 0 y denominador * 4.
             - Máximo cuatro barras.
             - Valores relacionados con la lección.
+
+            FORMATOS JSON (ejemplos ilustrativos):
+
+            EJEMPLO DE BARRA FRACCIONARIA:
+
+            {
+              "tipo": "barra_fraccionaria",
+              "titulo": "Representación de tres cuartos",
+              "datos": {
+                "numerador": 3,
+                "denominador": 4
+              }
+            }
+
+            IMPORTANTE: Estos ejemplos muestran únicamente el formato.
+            No copies valores que no aparezcan en la lección.
 
             ============================================
             RECURSO 2: RECTA NUMÉRICA
@@ -479,6 +428,24 @@ public class PersonalizacionPedagogicaService {
             aporta una explicación útil, selecciona
             otro recurso compatible o devuelve null.
 
+            FORMATOS JSON (ejemplos ilustrativos):
+
+            EJEMPLO DE RECTA NUMÉRICA:
+
+            {
+              "tipo": "recta_numerica",
+              "titulo": "Ubicación del número -2",
+              "datos": {
+                "minimo": -5,
+                "maximo": 5,
+                "intervalo": 1,
+                "valorDestacado": -2
+              }
+            }
+
+            IMPORTANTE: Estos ejemplos muestran únicamente el formato.
+            No copies valores que no aparezcan en la lección.
+
             ============================================
             RECURSO 3: FIGURA GEOMÉTRICA 2D
             ============================================
@@ -499,6 +466,100 @@ public class PersonalizacionPedagogicaService {
             - base: número positivo
             - altura: número positivo
             - unidad: unidad de medida
+
+            - Puede incluir opcionalmente un objeto "algebra"
+              cuando el ejemplo resuelto utilice un rectángulo
+              para explicar una ecuación o expresión algebraica.
+
+            - El objeto "algebra" debe contener:
+              - incognita: variable utilizada en el ejemplo.
+              - expresionBase: expresión algebraica de la base.
+              - expresionAltura: expresión algebraica de la altura.
+              - areaConocida: área numérica indicada en el problema.
+
+            - Las expresiones deben corresponder exactamente
+              a las dimensiones descritas en el ejemplo resuelto.
+
+            - Los valores numéricos de base y altura deben
+              corresponder a las dimensiones obtenidas al
+              resolver correctamente la incógnita.
+
+            - Comprueba que:
+              base * altura = areaConocida.
+
+            - No inventes expresiones algebraicas ni áreas.
+
+            - Si el ejemplo utiliza únicamente dimensiones
+              numéricas, NO incluyas el objeto "algebra".
+
+            - No agregues "algebra": null a rectángulos sencillos.
+
+            - Esta capacidad es opcional y debe utilizarse
+              únicamente cuando aporte valor pedagógico.
+
+              EJEMPLO JSON:
+              {
+              "tipo": "figura_geometrica_2d",
+              "titulo": "Rectángulo con dimensiones algebraicas",
+              "datos": {
+                "figura": "rectangulo",
+                "base": 6,
+                "altura": 4,
+                "unidad": "cm",
+                "algebra": {
+                  "incognita": "x",
+                  "expresionBase": "x + 2",
+                  "expresionAltura": "x",
+                  "areaConocida": 24
+                }
+              }
+            }
+
+            REGLAS PARA RECTÁNGULOS ALGEBRAICOS:
+
+            1. Utiliza el objeto "algebra" únicamente cuando el
+              contenido de la lección requiera trabajar con
+              expresiones algebraicas de dimensiones.
+
+            2. La incógnita debe ser siempre "x".
+
+            3. Para EduNeko V1, las expresiones admitidas son:
+              - x
+              - x + n
+              - x - n
+              donde n es un número positivo.
+
+            4. Al menos una dimensión debe tener exactamente
+              la expresión "x".
+
+            5. Ambas expresiones deben utilizar el mismo valor
+              positivo de x.
+
+            6. Los valores numéricos "base" y "altura" deben
+              coincidir con el resultado de evaluar las
+              expresiones algebraicas.
+
+            7. "areaConocida" debe ser igual a base * altura.
+
+            8. No generes expresiones como 2x, 3x + 1, x/2,
+              x² o expresiones con paréntesis en esta versión.
+
+            9. Si el tema no requiere álgebra, genera un
+              rectángulo normal sin el objeto "algebra".
+
+            EJEMPLO VÁLIDO:
+            expresionBase = "x + 2"
+            expresionAltura = "x"
+            base = 6
+            altura = 4
+            areaConocida = 24
+
+            EJEMPLO INVÁLIDO:
+            expresionBase = "x + 10"
+            expresionAltura = "x"
+            base = 6
+            altura = 4
+            areaConocida = 24
 
             triangulo:
             - figura: "triangulo"
@@ -606,6 +667,61 @@ public class PersonalizacionPedagogicaService {
 
             Nunca generes una figura aproximada
             únicamente para evitar devolver null.
+
+            FORMATOS JSON (ejemplos ilustrativos):
+
+            EJEMPLO DE CUADRADO:
+
+            {
+              "tipo": "figura_geometrica_2d",
+              "titulo": "Cuadrado de lado 5 cm",
+              "datos": {
+                "figura": "cuadrado",
+                "lado": 5,
+                "unidad": "cm"
+              }
+            }
+
+            EJEMPLO DE RECTÁNGULO:
+
+            {
+              "tipo": "figura_geometrica_2d",
+              "titulo": "Rectángulo de base 8 cm y altura 4 cm",
+              "datos": {
+                "figura": "rectangulo",
+                "base": 8,
+                "altura": 4,
+                "unidad": "cm"
+              }
+            }
+
+            EJEMPLO DE TRIÁNGULO:
+
+            {
+              "tipo": "figura_geometrica_2d",
+              "titulo": "Triángulo de base 6 cm y altura 3 cm",
+              "datos": {
+                "figura": "triangulo",
+                "base": 6,
+                "altura": 3,
+                "unidad": "cm"
+              }
+            }
+
+            EJEMPLO DE CÍRCULO:
+
+            {
+              "tipo": "figura_geometrica_2d",
+              "titulo": "Círculo de radio 4 cm",
+              "datos": {
+                "figura": "circulo",
+                "radio": 4,
+                "unidad": "cm"
+              }
+            }
+
+            IMPORTANTE: Estos ejemplos muestran únicamente el formato.
+            No copies valores que no aparezcan en la lección.
 
             ============================================
             RECURSO 4: PATRONES DE FIGURAS 2D
@@ -725,6 +841,49 @@ public class PersonalizacionPedagogicaService {
               la sucesión con las capacidades actuales,
               devuelve null.
 
+            FORMATOS JSON (ejemplos ilustrativos):
+
+            EJEMPLO DE PATRÓN DE CUADRADOS:
+
+            {
+              "tipo": "patron_figuras_2d",
+              "titulo": "Crecimiento del perímetro de cuadrados",
+              "datos": {
+                "modalidad": "crecimiento",
+                "unidad": "cm",
+                "regla": "El lado es x cm y el perímetro es P(x) = 4x.",
+                "elementos": [
+                  {
+                    "posicion": 1,
+                    "figura": "cuadrado",
+                    "lado": 1,
+                    "perimetro": 4
+                  },
+                  {
+                    "posicion": 2,
+                    "figura": "cuadrado",
+                    "lado": 2,
+                    "perimetro": 8
+                  },
+                  {
+                    "posicion": 3,
+                    "figura": "cuadrado",
+                    "lado": 3,
+                    "perimetro": 12
+                  },
+                  {
+                    "posicion": 4,
+                    "figura": "cuadrado",
+                    "lado": 4,
+                    "perimetro": 16
+                  }
+                ]
+              }
+            }
+
+            IMPORTANTE: Estos ejemplos muestran únicamente el formato.
+            No copies valores que no aparezcan en la lección.
+
             ============================================
             RECURSO 5: PLANO CARTESIANO
             ============================================
@@ -805,7 +964,43 @@ public class PersonalizacionPedagogicaService {
 
             Si la lección requiere una representación
             más avanzada, devuelve null.
-            
+
+            FORMATOS JSON (ejemplos ilustrativos):
+
+            EJEMPLO DE PLANO CARTESIANO:
+
+            {
+              "tipo": "plano_cartesiano",
+              "titulo": "Ubicación de puntos en el plano cartesiano",
+              "datos": {
+                "minimoX": -5,
+                "maximoX": 5,
+                "minimoY": -5,
+                "maximoY": 5,
+                "intervalo": 1,
+                "puntos": [
+                  {
+                    "x": 2,
+                    "y": 3,
+                    "etiqueta": "A"
+                  },
+                  {
+                    "x": -3,
+                    "y": -2,
+                    "etiqueta": "B"
+                  },
+                  {
+                    "x": 0,
+                    "y": 0,
+                    "etiqueta": "C"
+                  }
+                ]
+              }
+            }
+
+            IMPORTANTE: Estos ejemplos muestran únicamente el formato.
+            No copies valores que no aparezcan en la lección.
+
             ============================================
             RECURSO 6: GRÁFICA ESTADÍSTICA
             ============================================
@@ -926,177 +1121,9 @@ public class PersonalizacionPedagogicaService {
             correctamente mediante barras o líneas,
             devuelve null.
 
-            ============================================
-            SELECCIÓN DEL RECURSO
-            ============================================
+            FORMATOS JSON (ejemplos ilustrativos):
 
-            Evalúa los seis tipos disponibles.
-
-            Cuando una lección describa una sucesión
-            de varias figuras con dimensiones explícitas,
-            prioriza patron_figuras_2d frente a
-            figura_geometrica_2d.
-
-            Selecciona el que mejor represente
-            un concepto central de la lección.
-
-            No fuerces un recurso por el grado escolar
-            ni por el nombre de la unidad.
-
-            Si ningún recurso es adecuado,
-            devuelve null.
-
-            ============================================
-            FORMATO DE RESPUESTA
-            ============================================
-
-            Devuelve exclusivamente un objeto JSON válido
-            o el valor JSON null.
-
-            EJEMPLO: BARRA FRACCIONARIA
-
-            {
-              "tipo": "barra_fraccionaria",
-              "titulo": "Representación de tres cuartos",
-              "datos": {
-                "numerador": 3,
-                "denominador": 4
-              }
-            }
-
-            EJEMPLO: RECTA NUMÉRICA
-
-            {
-              "tipo": "recta_numerica",
-              "titulo": "Ubicación del número -2",
-              "datos": {
-                "minimo": -5,
-                "maximo": 5,
-                "intervalo": 1,
-                "valorDestacado": -2
-              }
-            }
-
-            EJEMPLO: CUADRADO
-
-            {
-              "tipo": "figura_geometrica_2d",
-              "titulo": "Cuadrado de lado 5 cm",
-              "datos": {
-                "figura": "cuadrado",
-                "lado": 5,
-                "unidad": "cm"
-              }
-            }
-
-            EJEMPLO: RECTÁNGULO
-
-            {
-              "tipo": "figura_geometrica_2d",
-              "titulo": "Rectángulo de base 8 cm y altura 4 cm",
-              "datos": {
-                "figura": "rectangulo",
-                "base": 8,
-                "altura": 4,
-                "unidad": "cm"
-              }
-            }
-
-            EJEMPLO: TRIÁNGULO
-
-            {
-              "tipo": "figura_geometrica_2d",
-              "titulo": "Triángulo de base 6 cm y altura 3 cm",
-              "datos": {
-                "figura": "triangulo",
-                "base": 6,
-                "altura": 3,
-                "unidad": "cm"
-              }
-            }
-
-            EJEMPLO: CÍRCULO
-
-            {
-              "tipo": "figura_geometrica_2d",
-              "titulo": "Círculo de radio 4 cm",
-              "datos": {
-                "figura": "circulo",
-                "radio": 4,
-                "unidad": "cm"
-              }
-            }
-            
-            EJEMPLO: PATRÓN DE CUADRADOS
-
-            {
-              "tipo": "patron_figuras_2d",
-              "titulo": "Crecimiento del perímetro de cuadrados",
-              "datos": {
-                "modalidad": "crecimiento",
-                "unidad": "cm",
-                "regla": "El lado es x cm y el perímetro es P(x) = 4x.",
-                "elementos": [
-                  {
-                    "posicion": 1,
-                    "figura": "cuadrado",
-                    "lado": 1,
-                    "perimetro": 4
-                  },
-                  {
-                    "posicion": 2,
-                    "figura": "cuadrado",
-                    "lado": 2,
-                    "perimetro": 8
-                  },
-                  {
-                    "posicion": 3,
-                    "figura": "cuadrado",
-                    "lado": 3,
-                    "perimetro": 12
-                  },
-                  {
-                    "posicion": 4,
-                    "figura": "cuadrado",
-                    "lado": 4,
-                    "perimetro": 16
-                  }
-                ]
-              }
-            }
-
-            EJEMPLO: PLANO CARTESIANO
-
-            {
-              "tipo": "plano_cartesiano",
-              "titulo": "Ubicación de puntos en el plano cartesiano",
-              "datos": {
-                "minimoX": -5,
-                "maximoX": 5,
-                "minimoY": -5,
-                "maximoY": 5,
-                "intervalo": 1,
-                "puntos": [
-                  {
-                    "x": 2,
-                    "y": 3,
-                    "etiqueta": "A"
-                  },
-                  {
-                    "x": -3,
-                    "y": -2,
-                    "etiqueta": "B"
-                  },
-                  {
-                    "x": 0,
-                    "y": 0,
-                    "etiqueta": "C"
-                  }
-                ]
-              }
-            }
-            
-            EJEMPLO: GRÁFICA ESTADÍSTICA DE BARRAS
+            EJEMPLO DE GRÁFICA ESTADÍSTICA DE BARRAS:
 
             {
               "tipo": "grafica_estadistica",
@@ -1121,25 +1148,407 @@ public class PersonalizacionPedagogicaService {
               }
             }
 
-            Los ejemplos anteriores solo ilustran
-            el formato JSON.
+            IMPORTANTE: Estos ejemplos muestran únicamente el formato.
+            No copies valores que no aparezcan en la lección.
 
-            No copies sus valores si no aparecen
-            en la lección proporcionada.
+            ============================================
+            RECURSO 7: GRÁFICA DE FUNCIÓN
+            ============================================
+            Para relaciones y = ax² + bx + c, ecuaciones lineales
+            y cuadráticas cuando la lección incluya los coeficientes.
+            Campos obligatorios: a, b, c, minimoX, maximoX, valorX.
+            a, b entre -10 y 10, c entre -20 y 20.
+            -10 <= minimoX < maximoX <= 10, diferencia >= 1.
+            valorX debe pertenecer al intervalo.
+            La curva debe tener magnitudes y entre -1000 y 1000.
+            Para funciones lineales utiliza a=0.
+            El estudiante podrá explorar otros valores de x.
 
-            Si ningún recurso corresponde:
+            FORMATO JSON DE EJEMPLO (solo si los valores están presentes en la lección):
+            {
+              "tipo": "grafica_funcion",
+              "titulo": "Relación cuadrática y = x² - 4",
+              "datos": {
+                "a": 1, "b": 0, "c": -4,
+                "minimoX": -5, "maximoX": 5, "valorX": 2
+              }
+            }
 
-            null
+            ============================================
+            RECURSO 8: MODELO DE PROPORCIONALIDAD DIRECTA
+            ============================================
+            Utiliza cantidades positivas relacionadas por una
+            misma razón constante, por ejemplo, precio y cantidad.
+            cantidadBase y cantidadCorrespondiente > 0 y <= 10000.
+            unidadBase y unidadCorrespondiente son textos no vacíos
+            de máximo 20 caracteres. No es para proporcionalidad inversa.
 
-            IMPORTANTE:
+            FORMATO JSON DE EJEMPLO (solo si corresponde a los valores de la lección):
+            {
+              "tipo": "modelo_proporcionalidad",
+              "titulo": "Relación entre cuadernos y precio",
+              "datos": {
+                "cantidadBase": 2,
+                "cantidadCorrespondiente": 30,
+                "unidadBase": "cuadernos",
+                "unidadCorrespondiente": "pesos"
+              }
+            }
 
-            No generes HTML, SVG, JavaScript,
-            Markdown ni enlaces externos.
+            ============================================
+            RECURSO 9: TRIÁNGULO RECTÁNGULO
+            ============================================
+            Solo para triángulos rectángulos, teorema de Pitágoras,
+            semejanza o relaciones trigonométricas. Catetos
+            positivos y <= 1000, unidad de medida no vacía
+            de máximo 12 caracteres. No incluyas hipotenusa:
+            Angular la calculará mediante sqrt(a² + b²).
 
-            No devuelvas una lección completa.
+            FORMATO JSON DE EJEMPLO (solo si los catetos aparecen en la lección):
+            {
+              "tipo": "triangulo_rectangulo",
+              "titulo": "Triángulo de catetos 3 cm y 4 cm",
+              "datos": {
+                "catetoA": 3,
+                "catetoB": 4,
+                "unidad": "cm"
+              }
+            }
 
-            No incluyas introduccion, explicacion,
-            ejemploResuelto ni actividades.
+            ============================================
+            RECURSO 10: MODELO DE PROBABILIDAD CLÁSICA
+            ============================================
+            Para espacios finitos de casos equiprobables, como dados
+            o extracciones sencillas. favorables y total enteros,
+            0 <= favorables <= total, 1 <= total <= 24.
+            evento es un texto de máximo 80 caracteres.
+            No usar cuando los resultados NO sean equiprobables.
+
+            FORMATO JSON DE EJEMPLO (solo si los casos aparecen en la lección):
+            {
+              "tipo": "modelo_probabilidad",
+              "titulo": "Probabilidad al lanzar un dado equilibrado",
+              "datos": {
+                "favorables": 2, "total": 6,
+                "evento": "Obtener un número par menor que 5"
+              }
+            }
+
+            ============================================
+            RECURSO 11: PRISMA RECTANGULAR
+            ============================================
+            Para volumen de cajas y prismas rectangulares, con
+            largo, ancho y alto numéricos entre 0.5 y 50,
+            y unidad de medida no vacía de hasta 12 caracteres.
+            El volumen será calculado por Angular: largo × ancho × alto.
+            No usar para cilindros, conos ni prismas no rectangulares.
+
+            FORMATO JSON DE EJEMPLO (solo si esas medidas están en la lección):
+            {
+              "tipo": "prisma_rectangular",
+              "titulo": "Volumen de una caja rectangular",
+              "datos": {
+                "largo": 5, "ancho": 3, "alto": 2, "unidad": "cm"
+              }
+            }
+
+            ============================================
+            RECURSO 12: SEGMENTO GEOMÉTRICO
+            ============================================
+            Para longitud de un segmento, distancia entre dos puntos,
+            medición en una dimensión. NO para construir mediatrices. Nunca representes una línea
+            con un rectángulo delgado o una altura inventada.
+            FORMATO JSON: {"tipo":"segmento_geometrico","titulo":"Segmento AB",
+              "datos":{"longitud":5,"unidad":"cm"}}
+            Longitud positiva <=10000; unidad no vacía <=12 caracteres.
+            Usa únicamente la longitud y unidad presentes en la lección.
+
+            ============================================
+            RECURSO 13: ECUACIÓN LINEAL
+            ============================================
+            Para ecuaciones de la forma ax+b=c con solución única.
+            FORMATO JSON: {"tipo":"modelo_ecuacion","titulo":"Ecuación 2x+3=7",
+              "datos":{"a":2,"b":3,"c":7}}
+            0.001 <= |a| <= 20; |b| y |c| <=100.
+            La solución (c-b)/a debe estar entre -20 y 20.
+            No uses para ecuaciones cuadráticas ni sistemas lineales.
+
+            ============================================
+            RECURSO 14: TABLA DE VALORES
+            ============================================
+            Para relaciones matemáticas tabuladas, sucesiones,
+            proporcionalidad inversa, conversiones y funciones.
+            FORMATO JSON: {"tipo":"tabla_valores","titulo":"Valores de y=2x",
+              "datos":{"encabezadoX":"x","encabezadoY":"y",
+                "pares":[{"x":1,"y":2},{"x":2,"y":4}]}}
+            Entre 2 y 10 pares; todos los números finitos y <=100000
+            en valor absoluto. Los pares deben estar explícitamente
+            disponibles en la lección o deducirse sin ambigüedad de
+            una regla o fórmula dada. No inventes datos estadísticos.
+
+            ============================================
+            RECURSO 15: MAPA CONCEPTUAL
+            ============================================
+            Para explicar temas abstractos o secuencias de conceptos
+            que no admitan un diagrama geométrico adecuado.
+            Usa entre 2 y 5 conceptos que aparezcan en la lección.
+            Cada concepto tiene etiqueta (máximo 80 caracteres) y
+            detalle (máximo 240 caracteres) matemáticamente correcto.
+            FORMATO JSON: {"tipo":"mapa_conceptual","titulo":"Jerarquía de operaciones",
+              "datos":{"conceptos":[
+                {"etiqueta":"Paréntesis","detalle":"Resolver agrupaciones primero"},
+                {"etiqueta":"Potencias","detalle":"Resolver potencias después"}]}}
+            Los ejemplos son solo de forma, no afirmes que representan
+            correctamente un contenido si no aparece en la lección.
+            Este recurso sirve de alternativa cuando no exista una
+            visualización numérica válida, sin inventar dimensiones.
+
+            ============================================
+            RECURSO 16: ÁNGULO GEOMÉTRICO
+            ============================================
+            Para ángulos definidos en grados, no para alturas ni áreas.
+            NO utilizar como diagrama completo de una bisectriz.
+            FORMATO JSON: {"tipo":"angulo_geometrico","titulo":"Ángulo de 60 grados",
+              "datos":{"grados":60}}
+            Grados entre 1 y 359 inclusive.
+
+            ============================================
+            RECURSO 17: GRÁFICA CIRCULAR
+            ============================================
+            Para porcentajes que forman un total coherente de 100%.
+            FORMATO JSON: {"tipo":"grafica_circular","titulo":"Distribución por categoría",
+              "datos":{"segmentos":[{"etiqueta":"A","porcentaje":40},
+                                     {"etiqueta":"B","porcentaje":60}]}}
+            Entre 2 y 8 sectores; cada porcentaje entre 0 y 100,
+            exclusivamente positivo y menor que 100; sumatoria 100
+            con tolerancia 0.01. No inventes porcentajes faltantes.
+
+            ============================================
+            RECURSO 18: CONSTRUCCIONES GEOMÉTRICAS COMPLETAS
+            ============================================
+            FORMATOS JSON: mediatriz, bisectriz o ambas.
+
+            Si el ejemplo describe construir una MEDIATRIZ con regla y compás,
+            usa exclusivamente el subtipo mediatriz:
+            {"tipo":"construccion_geometrica","titulo":"Mediatriz de AB",
+             "datos":{"construccion":"mediatriz","longitud":6,"unidad":"cm"}}
+            - Si la lección NO especifica longitud, omite longitud
+              Y unidad en el JSON: dibuja un esquema sin escala.
+            - Si hay longitud: >0 y <=10000; unidad explícita.
+            - El diagrama dibuja A, B, punto medio M, arcos de compás,
+              dos intersecciones y la RECTA PERPENDICULAR FINAL.
+            - Los arcos de compás deben tener el mismo radio, mayor
+              que la mitad del segmento; los puntos de corte se unen.
+
+            Si el ejemplo construye la BISECTRIZ de un ángulo, usa:
+            {"tipo":"construccion_geometrica","titulo":"Bisectriz del ángulo",
+             "datos":{"construccion":"bisectriz","grados":80}}
+            - Si el ejemplo no da grados, omite grados y dibuja
+              una bisectriz ESQUEMÁTICA, sin etiquetar 80°.
+            - Si especifica grados, deben estar entre 30 y 150;
+              no inventes valores.
+            - El diagrama muestra dos lados iniciales, arcos auxiliares
+              y la SEMIRRECTA FINAL que divide el ángulo en dos mitades.
+            - Las medidas/longitudes de arcos auxiliares son
+              construcciones gráficas, no medidas del problema.
+            - Si la lección enseña AMBAS construcciones, utiliza:
+              {"tipo":"construccion_geometrica",
+               "titulo":"Mediatriz y bisectriz: trazos finales",
+               "datos":{"construccion":"mediatriz_y_bisectriz"}}
+              Agrega longitud+unidad y/o grados ÚNICAMENTE cuando sean
+              datos exactos del ejemplo. Angular muestra ambos diagramas.
+            - No añadas longitudes ni ángulos numéricos inventados;
+              el esquema sin escala sí puede ilustrar relaciones exactas.
+            - No uses segmento_geometrico para mediatrices ni
+              angulo_geometrico para bisectrices; quedarían incompletos.
+
+            PRIORIDAD PEDAGÓGICA:
+            Si la lección explica un segmento que NO es mediatriz,
+            elige segmento_geometrico, nunca un rectángulo.
+            Para construcciones geométricas, usa la figura construida
+            aunque no se den medidas: con trazo correcto y sin escala.
+            Para otros temas no geométricos sin números exactos,
+            mapa_conceptual con conceptos verdaderos de la lección.
+            Para preferencia visual intenta generar un recurso correcto
+            en cualquiera de los tres grados, pero si no hay información
+            verificable devuelve null en lugar de una ilustración falsa.
+            Las exploraciones prácticas se habilitan desde Angular
+            exclusivamente cuando el estudiante tiene prefiere_practica.
+            ============================================
+            RECURSO 19: SISTEMA DE ECUACIONES LINEALES
+            ============================================
+            Para segundo de secundaria: dos ecuaciones con dos incógnitas
+            y una solución única. Representa AMBAS rectas y el punto de corte.
+            "tipo": "sistema_lineal", datos obligatorios:
+            a1,b1,c1,a2,b2,c2,minimoX,maximoX,minimoY,maximoY.
+            Ecuaciones exactamente a1·x+b1·y=c1 y a2·x+b2·y=c2.
+            Coeficientes de -20 a 20, constantes de -100 a 100.
+            Cada par (a,b) no puede ser (0,0), y determinante
+            a1*b2-a2*b1 distinto de 0. Los ejes deben tener rangos
+            dentro de -10..10 e incluir la intersección real.
+            No uses este tipo para sistemas sin solución o infinitas.
+            FORMATO JSON de ejemplo (NO COPIAR salvo que corresponda):
+            {"tipo":"sistema_lineal","titulo":"Intersección de las rectas",
+             "datos":{"a1":1,"b1":1,"c1":5,"a2":1,"b2":-1,"c2":1,
+                      "minimoX":-1,"maximoX":6,"minimoY":-1,"maximoY":6}}
+            Comprueba algebraicamente el punto solución antes de responder.
+            Si no hay ecuaciones numéricas identificables, elige otro
+            recurso coherente o devuelve null.
+
+            ============================================
+            RECURSO 20: SÓLIDOS DE REVOLUCIÓN
+            ============================================
+            Para el currículo de tercero: cilindros, conos y esferas,
+            cuando el ejemplo resuelto indique medidas exactas.
+            "tipo": "solido_revolucion"; datos: forma, radio, unidad
+            y altura obligatoria SOLO para cono y cilindro.
+            Forma debe ser: "cilindro", "cono" o "esfera".
+            Radio y altura mayores que cero, hasta 50; unidad de 1 a 12
+            caracteres. No uses las dimensiones de un prisma para un cono.
+            Fórmulas: cilindro V=πr²h, cono V=πr²h/3,
+            esfera V=4πr³/3. Los resultados se calculan en Angular.
+            FORMATO JSON de ejemplo (NO COPIAR si faltan esas medidas):
+            {"tipo":"solido_revolucion", "titulo":"Volumen del cilindro",
+             "datos":{"forma":"cilindro","radio":2,"altura":5,"unidad":"cm"}}
+            Si el enunciado no da dimensiones numéricas, usa un
+            mapa conceptual fiel o devuelve null, nunca inventes valores.
+
+            ============================================
+            ============================================
+            RECURSO 21: TRIÁNGULOS CONGRUENTES (LLL)
+            ============================================
+
+            TIPO: "triangulos_congruentes".
+
+            Utilízalo únicamente cuando el ejemplo resuelto
+            demuestre la congruencia de dos triángulos por el
+            criterio Lado-Lado-Lado (LLL), con tres longitudes
+            explícitas y lados correspondientes identificables.
+
+            RESULTADO VISUAL:
+            - Dibujar ambos triángulos completos, ABC y DEF.
+            - Identificar los lados correspondientes:
+              AB = DE, BC = EF y AC = DF.
+            - Mostrar medidas y unidad del ejemplo resuelto.
+            - Indicar que son congruentes por LLL.
+            - No sustituirlo por un solo triángulo o por
+              un mapa conceptual con tarjetas de texto.
+
+            ESTRUCTURA DE datos:
+            - criterio: exactamente "LLL".
+            - ladoAB: longitud del segmento AB.
+            - ladoBC: longitud del segmento BC.
+            - ladoAC: longitud del segmento AC.
+            - unidad: exactamente "mm", "cm", "m" o "km".
+
+            VALIDACIONES MATEMÁTICAS:
+            1. Todas las longitudes son numéricas y positivas.
+            2. Respeta los límites de dimensionValida del backend.
+            3. Verifica la desigualdad triangular estricta:
+               ladoAB + ladoBC > ladoAC,
+               ladoAB + ladoAC > ladoBC,
+               ladoBC + ladoAC > ladoAB.
+            4. Conserva exactamente las medidas, unidades y
+               correspondencias del ejemplo aprobado.
+            5. Nunca inventes lados, ángulos ni etiquetas.
+            6. No confundas congruencia con semejanza.
+            7. Si el ejemplo utiliza LAL o ALA, NO presentes
+               LLL como si fuera el criterio demostrado.
+            8. Si el ejemplo usa otros nombres de vértices
+               incompatibles con ABC y DEF, devuelve null.
+            9. Si faltan las tres medidas y no se pueden deducir
+               sin ambigüedad, devuelve null.
+
+            FORMATO JSON (ilustrativo; no copiar valores ajenos):
+            {
+              "tipo": "triangulos_congruentes",
+              "titulo": "Congruencia de triángulos por LLL",
+              "datos": {
+                "criterio": "LLL",
+                "ladoAB": 5,
+                "ladoBC": 7,
+                "ladoAC": 6,
+                "unidad": "cm"
+              }
+            }
+
+            El ejemplo anterior es solo de estructura.
+            No copies 5, 7 ni 6 si no aparecen en la lección.
+
+            ============================================
+            SELECCIÓN DEL RECURSO
+            ============================================
+
+            Analiza los 21 tipos disponibles, incluidos los que
+            aparecen al final del catálogo, y selecciona únicamente
+            el que represente fielmente el ejemplo aprobado.
+            No favorezcas un recurso por su orden de aparición
+            ni porque tenga ejemplos JSON más extensos.
+
+            Cuando una lección describa una sucesión
+            de varias figuras con dimensiones explícitas,
+            prioriza patron_figuras_2d frente a
+            figura_geometrica_2d.
+
+            Selecciona el que mejor represente
+            un concepto central de la lección.
+
+            No fuerces un recurso por el grado escolar
+            ni por el nombre de la unidad.
+
+            Si una lección trata de congruencia de triángulos
+            por LLL, prioriza triangulos_congruentes cuando
+            existan los tres lados y las correspondencias reales.
+            No lo reemplaces por mapa_conceptual.
+
+            Para geometría constructiva, congruencia y semejanza,
+            evita mapas de texto como sustitutos de un diagrama
+            geométrico que el ejemplo necesite para comprenderse.
+            No uses figuras genéricas o incompletas para fingir
+            que muestran el procedimiento terminado.
+
+            Si ningún recurso es matemáticamente adecuado,
+            devuelve null.
+
+            ============================================
+            FORMATO DE RESPUESTA
+            ============================================
+
+            Devuelve exclusivamente un objeto JSON válido
+            o el valor JSON null.
+
+            Si existe un recurso matemáticamente adecuado,
+            utiliza exactamente la estructura especificada
+            en la sección de ese tipo de recurso.
+
+            El objeto JSON debe contener:
+            - "tipo": uno de los 21 tipos permitidos.
+            - "titulo": descripción matemática específica.
+            - "datos": objeto con los campos obligatorios
+              del tipo seleccionado, sin campos inventados.
+
+            REGLAS FINALES:
+
+            1. Considera los 21 recursos sin favorecer los primeros
+               de la lista ni los ejemplos más extensos.
+            2. Usa el formato JSON propio del tipo elegido.
+            3. Los ejemplos JSON anteriores son ilustrativos;
+               nunca copies números o medidas ajenos a la lección.
+            4. Todos los valores, etiquetas y correspondencias
+               deben ser fieles al contenido educativo aprobado.
+            5. No inventes medidas, coordenadas, datos,
+               resultados ni relaciones matemáticas.
+            6. Prioriza el recurso matemático específico cuando
+               represente correctamente el concepto central.
+            7. Un mapa_conceptual no sustituye construcciones,
+               congruencia, semejanza ni diagramas geométricos
+               específicos necesarios para el ejemplo.
+            8. Si ningún recurso disponible puede representar
+               fielmente la lección, devuelve exclusivamente null.
+            9. No generes HTML, SVG, JavaScript, Markdown
+               ni enlaces externos.
+            10. No reescribas la lección ni incluyas introduccion,
+                explicacion, ejemploResuelto o actividades.
 
             Devuelve exclusivamente JSON válido o null.
             """;

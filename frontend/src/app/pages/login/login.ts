@@ -30,7 +30,10 @@ export class Login {
       Validators.email
     ]),
     password: new FormControl('', [
-      Validators.required
+      Validators.required,
+      Validators.minLength(8),
+      // Coincide con el requisito de registro, sin revelar credenciales del servidor.
+      Validators.pattern(/^(?=.*[A-Za-z])(?=.*[0-9]).{8,}$/)
     ])
   });
 
@@ -56,6 +59,9 @@ export class Login {
       correo: this.formularioLogin.value.correo ?? '',
       password: this.formularioLogin.value.password ?? ''
     };
+
+    // Un nuevo inicio de sesión no debe reutilizar el token de otra cuenta.
+    this.authService.logout();
 
     // Mantener el estado de carga durante ambas consultas.
     this.cargando = true;
@@ -94,11 +100,16 @@ export class Login {
 
         error: error => {
 
+          // Si falló el login o la verificación posterior, no dejar sesión parcial.
+          this.authService.logout();
+
           // Mostrar el error sin asumir que el onboarding
           // está completo o incompleto.
-          this.mensajeError =
-            error.error?.mensaje ??
-            'No fue posible iniciar sesión o verificar tu configuración. Intenta nuevamente.';
+          // No revelar si existe el correo: evita enumeración de cuentas.
+          // Las reglas de formato se muestran directamente en cada campo.
+          this.mensajeError = error.status === 401 || error.status === 403
+            ? 'Correo o contraseña incorrectos. Revisa tus datos e inténtalo de nuevo.'
+            : 'No fue posible iniciar sesión o verificar tu configuración. Intenta nuevamente.';
         }
       });
   }

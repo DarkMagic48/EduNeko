@@ -41,8 +41,35 @@
     </p>
   }
 
+  <!-- Presentación previa: utiliza los temas reales del diagnóstico del grado. -->
+  @if (diagnostico && diagnostico.preguntas.length > 0 && !resultado && mostrarIntroduccion) {
+    <section class="diagnostico-progreso" aria-labelledby="titulo-antes-diagnostico">
+      <h2 id="titulo-antes-diagnostico">Antes de comenzar</h2>
+      <p>
+        Responderás {{ diagnostico.preguntas.length }} preguntas de
+        {{ diagnostico.gradoEscolar }}.º de secundaria para adaptar
+        tu aprendizaje. No es una calificación escolar.
+      </p>
+      <p>Estos son los temas que vamos a explorar:</p>
+      <ul>
+        @for (tema of temasEvaluados; track tema) {
+          <li>{{ tema }}</li>
+        }
+      </ul>
+      <p>Responde con calma: podrás guardar y continuar desde este navegador.</p>
+      <div class="diagnostico-navegacion">
+        <button type="button" class="boton-anterior" (click)="guardarYSalir()">
+          Volver al dashboard
+        </button>
+        <button type="button" class="boton-siguiente" (click)="comenzarDiagnostico()">
+          Comenzar diagnóstico
+        </button>
+      </div>
+    </section>
+  }
+
   <!-- DIAGNÓSTICO ACTIVO -->
-  @if (diagnostico && diagnostico.preguntas.length > 0 && !resultado) {
+  @if (diagnostico && diagnostico.preguntas.length > 0 && !resultado && !mostrarIntroduccion) {
 
     <!-- PROGRESO -->
     <section class="diagnostico-progreso">
@@ -142,6 +169,18 @@
           Siguiente
         </button>
 
+        <!-- Acceso rápido sin tener que recorrer todas las preguntas. -->
+        @if (indicePreguntaActual < diagnostico.preguntas.length - 1) {
+          <button
+            type="button"
+            class="boton-ir-final"
+            (click)="irAUltimaPregunta()"
+            [disabled]="finalizando"
+          >
+            Ir a la última pregunta
+          </button>
+        }
+
       </div>
 
       <!-- GUARDAR PROGRESO Y REGRESAR AL DASHBOARD -->
@@ -169,17 +208,30 @@
         <div class="finalizacion-diagnostico">
 
           @if (!todasRespondidas) {
-            <p class="diagnostico-aviso">
-              Responde todas las preguntas antes
-              de finalizar tu diagnóstico.
+            <p class="diagnostico-aviso" role="status">
+              Tienes {{ preguntasPendientes.length }} preguntas sin responder.
+              Puedes abrirlas directamente desde esta lista:
             </p>
+            <div class="diagnostico-pendientes" aria-label="Preguntas pendientes">
+              @for (pendiente of preguntasPendientes; track pendiente.indice) {
+                <button
+                  type="button"
+                  class="boton-pregunta-pendiente"
+                  (click)="irAPregunta(pendiente.indice)"
+                  [disabled]="finalizando"
+                  [attr.aria-label]="'Ir a la pregunta ' + pendiente.numero"
+                >
+                  Pregunta {{ pendiente.numero }}
+                </button>
+              }
+            </div>
           }
 
           <button
             type="button"
             class="boton-finalizar"
             (click)="finalizarDiagnostico()"
-            [disabled]="!todasRespondidas || finalizando"
+            [disabled]="finalizando"
           >
             {{ finalizando
               ? 'Finalizando...'
@@ -321,6 +373,10 @@
           Ahora puedes comenzar a aprender con
           un plan personalizado para ti.
         </p>
+
+        <button type="button" class="boton-anterior" (click)="volverDashboard()">
+          ← Volver al dashboard
+        </button>
 
         <button
           type="button"

@@ -1,0 +1,41 @@
+/* Usa la tipografía, distribución y paleta ya establecidas en EduNeko. */
+.perfil-container { max-width: 1050px; margin: 0 auto; padding: 32px 24px 64px; color: #2F3545; font-family: 'DM Sans', sans-serif; }
+.perfil-container * { box-sizing: border-box; }
+.perfil-volver { display: inline-block; margin-bottom: 20px; color: #5148C9; font-weight: 700; text-decoration: none; }
+.perfil-volver:hover { text-decoration: underline; }
+.perfil-encabezado { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 30px; margin-bottom: 24px; background: #F1EFFF; border-radius: 24px; }
+.perfil-etiqueta { font-size: 12px; color: #6259D8; font-weight: 700; letter-spacing: .7px; }
+.perfil-encabezado h1, .perfil-tarjeta h2 { font-family: 'Poppins', sans-serif; }
+.perfil-encabezado h1 { margin: 10px 0; }
+.perfil-encabezado p { margin-bottom: 0; line-height: 1.6; }
+.perfil-encabezado img { width: 150px; height: 145px; object-fit: contain; }
+.perfil-tarjeta { padding: 28px; margin-bottom: 24px; border: 1px solid #E9EAF2; border-radius: 22px; background: #FFFFFF; }
+.perfil-tarjeta h2 { margin-top: 0; }
+.perfil-tarjeta p { color: #697386; line-height: 1.6; }
+.perfil-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 22px 0; }
+.perfil-campos label { display: flex; flex-direction: column; gap: 8px; font-weight: 700; }
+.perfil-campos select, .perfil-campos input { min-height: 48px; padding: 10px 14px; border: 1px solid #E9EAF2; border-radius: 12px; color: #2F3545; background: #FFFFFF; font: inherit; }
+.perfil-modalidades { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.perfil-modalidades label { padding: 18px; border: 2px solid #E9EAF2; border-radius: 16px; font-weight: 700; cursor: pointer; }
+.perfil-modalidades label:has(input:checked) { border-color: #6C63FF; background: #F1EFFF; }
+.perfil-modalidades input { accent-color: #6C63FF; }
+.perfil-boton { min-height: 48px; padding: 12px 24px; border: 0; border-radius: 14px; background: #6C63FF; color: #FFFFFF; font: 700 15px 'DM Sans', sans-serif; cursor: pointer; }
+.perfil-boton:disabled { opacity: .5; cursor: not-allowed; }
+.perfil-boton:focus-visible, .perfil-volver:focus-visible { outline: 3px solid #22C7B8; outline-offset: 3px; }
+.perfil-tarjeta .perfil-nota { font-size: 13px; color: #9A6414; }
+.perfil-tarjeta .perfil-error { color: #B42318; }
+.perfil-tarjeta .perfil-exito { color: #5148C9; }
+@media (max-width: 640px) {
+  .perfil-container { padding: 16px 12px 40px; }
+  .perfil-encabezado { flex-direction: column-reverse; text-align: center; }
+  .perfil-campos, .perfil-modalidades { grid-template-columns: 1fr; }
+  .perfil-tarjeta { padding: 20px; }
+  .perfil-boton { width: 100%; }
+}
+
+/* Indicadores de interacción sin modificar la identidad cromática. */
+.perfil-boton:hover:not(:disabled) { background: #5146E5; box-shadow: 0 8px 20px rgba(108,99,255,.25); }
+.perfil-volver { padding: 10px 16px; border: 2px solid #6C63FF; border-radius: 12px; background: #F1EFFF; }
+.perfil-volver:hover { background: #E9EAF2; box-shadow: 0 5px 15px rgba(108,99,255,.15); }
+.perfil-modalidades label { transition: border-color .2s ease, box-shadow .2s ease; }
+.perfil-modalidades label:hover { border-color: #6C63FF; box-shadow: 0 4px 12px rgba(108,99,255,.12); }

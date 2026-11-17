@@ -47,6 +47,10 @@
 
       <div class="registro-card">
 
+        <button type="button" routerLink="/login" class="registro-volver">
+          ← Volver a iniciar sesión
+        </button>
+
         <h1>Crear cuenta</h1>
 
         <p class="registro-subtitle">
@@ -126,7 +130,13 @@
               formControlName="password"
               placeholder="Crea una contraseña"
               autocomplete="new-password"
+              minlength="8"
+              aria-describedby="registro-requisitos-password"
             >
+
+            <p id="registro-requisitos-password" class="registro-ayuda-password">
+              Mínimo 8 caracteres, con al menos una letra y un número.
+            </p>
 
             @if (
               formularioRegistro.controls.password.hasError('required') &&
@@ -134,6 +144,16 @@
             ) {
               <p class="field-error">
                 La contraseña es obligatoria.
+              </p>
+            }
+            @if (
+              formularioRegistro.controls.password.touched &&
+              !formularioRegistro.controls.password.hasError('required') &&
+              (formularioRegistro.controls.password.hasError('minlength') ||
+               formularioRegistro.controls.password.hasError('pattern'))
+            ) {
+              <p class="field-error" role="alert">
+                Usa al menos 8 caracteres, una letra y un número.
               </p>
             }
 

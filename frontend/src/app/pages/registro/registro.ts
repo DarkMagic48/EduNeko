@@ -32,7 +32,10 @@ export class Registro {
       Validators.email
     ]),
     password: new FormControl('', [
-      Validators.required
+      Validators.required,
+      Validators.minLength(8),
+      // Al menos una letra y un número, sin prohibir símbolos.
+      Validators.pattern(/^(?=.*[A-Za-z])(?=.*[0-9]).{8,}$/)
     ]),
     confirmarPassword: new FormControl('', [
       Validators.required

@@ -1,3 +1,12 @@
+/** Datos del estudiante autenticado consultados en modo lectura. */
+export interface PerfilEstudianteResponse {
+  edad: number | null;
+  gradoEscolar: number | null;
+}
+
+/** Preferencias efectivamente guardadas en PostgreSQL. */
+export type PreferenciasEstudianteResponse = ActualizarPreferenciasRequest;
+
 export interface ActualizarPerfilEstudianteRequest {
     edad: number;
     gradoEscolar: number;

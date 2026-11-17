@@ -603,6 +603,12 @@ button:focus-visible {
     text-align: center;
   }
 
+  /* Ocultar las figuras que excedan la cantidad
+   seleccionada mediante el control interactivo. */
+  .patron-figura-item[hidden] {
+    display: none !important;
+  }
+
   /* Identifica la posición dentro de la sucesión. */
   .patron-figura-posicion {
     margin: 0 0 8px;
@@ -3409,5 +3415,260 @@ button:focus-visible {
       opacity: 0;
       transform: none;
     }
+  }
+}
+
+/* Recursos ampliados: mismos tonos y bordes de las tarjetas EduNeko. */
+.eduneko-visual-ampliado { display: block; width: 100%; max-width: 650px; height: auto; margin: 16px auto; }
+.eduneko-proporcion-pares { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 18px; margin: 18px 0; }
+.eduneko-proporcion-pares > div { display: flex; flex-direction: column; align-items: center; min-width: 130px; padding: 20px; border: 2px solid #6C63FF; border-radius: 16px; background: #F1EFFF; color: #5148C9; }
+.eduneko-proporcion-pares strong { font-size: 22px; }
+.eduneko-visual-controles { display: grid; gap: 12px; max-width: 500px; margin: 20px auto; padding: 16px; border-radius: 16px; background: #F1EFFF; }
+.eduneko-visual-controles input { width: 100%; accent-color: #6C63FF; }
+.eduneko-visual-controles button { min-height: 44px; padding: 10px 16px; border: 2px solid #6C63FF; border-radius: 12px; background: #FFFFFF; color: #5148C9; font: 700 14px 'DM Sans', sans-serif; cursor: pointer; }
+.eduneko-visual-controles button:focus-visible { outline: 3px solid #22C7B8; outline-offset: 3px; }
+
+/* Casos equiprobables: la paleta oficial diferencia favorables y restantes. */
+.eduneko-probabilidad-casillas {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
+  gap: 6px; max-width: 510px; margin: 18px auto;
+}
+.eduneko-probabilidad-casillas span {
+  display: block; min-height: 34px; background: #F1EFFF;
+  border: 2px solid #E9EAF2; border-radius: 8px;
+}
+.eduneko-probabilidad-casillas .eduneko-caso-favorable {
+  background: #6C63FF; border-color: #5148C9;
+}
+
+/* Recursos visuales nuevos: dimensiones y colores heredados de EduNeko. */
+.eduneko-tabla-visual { width: min(100%, 620px); border-collapse: collapse; margin: 18px auto; }
+.eduneko-tabla-visual th, .eduneko-tabla-visual td { padding: 12px; border: 1px solid #E9EAF2; text-align: center; }
+.eduneko-tabla-visual th { background: #F1EFFF; color: #5148C9; }
+.eduneko-visual-resaltado { background: #F1EFFF; border-color: #6C63FF !important; }
+.eduneko-mapa-conceptual { display: grid; gap: 14px; margin: 20px auto; padding-left: 25px; max-width: 650px; }
+.eduneko-mapa-conceptual li { padding: 15px; border: 2px solid #E9EAF2; border-radius: 14px; }
+.eduneko-mapa-conceptual li strong { display: block; color: #5148C9; margin-bottom: 6px; }
+.eduneko-mapa-conceptual li span { line-height: 1.5; }
+.eduneko-leyenda-circular { padding: 0; margin: 12px auto; max-width: 560px; display: flex; flex-wrap: wrap; list-style: none; gap: 8px; }
+.eduneko-leyenda-circular li { padding: 9px 12px; border: 2px solid #E9EAF2; border-radius: 10px; }
+
+/* R3: controles específicos de exploración, con la MISMA paleta y estructura visual. */
+.eduneko-visual-controles label {
+  color: #5148C9;
+  font: 700 0.98rem 'DM Sans', sans-serif;
+  line-height: 1.45;
+}
+.eduneko-visual-controles input[type="range"] {
+  min-height: 28px;
+  cursor: pointer;
+}
+.eduneko-visual-controles input[type="range"]:focus-visible {
+  outline: 3px solid #22C7B8;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+.eduneko-visual-controles button {
+  transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+.eduneko-visual-controles button:hover {
+  background: #F1EFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(81,72,201,.14);
+}
+.eduneko-visual-controles button:active { transform: translateY(0); }
+.eduneko-control-observacion {
+  color: #2F3545;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.eduneko-construccion-svg { max-width: 650px; }
+.eduneko-construccion-resumen { max-width: 650px; margin-inline: auto; }
+@media (prefers-reduced-motion: reduce) {
+  .eduneko-visual-controles button { transition: none; }
+  .eduneko-visual-controles button:hover { transform: none; }
+}
+
+
+/* =====================================================
+   EDUNEKO V1 - MENSAJES Y BOTONES DE ESTADO
+   Estilos para errores, reintentos y finalización.
+   ===================================================== */
+
+/* Mensaje inicial de consulta de insignias */
+.estado-inicial-logros {
+  width: min(100% - 32px, 1000px);
+  margin: 20px auto;
+  padding: 20px 24px;
+
+  background: #f5f3ff;
+  border: 1px solid #ddd9ff;
+  border-radius: 16px;
+
+  color: var(--color-text);
+  font-family: var(--font-body);
+  text-align: center;
+  line-height: 1.6;
+
+  animation: aparecerMensajeNeko 0.4s ease-out both;
+}
+
+/* Estados de error */
+.estado-inicial-logros-error,
+.error-progreso,
+.error-actividades {
+  background: #fff5f2;
+  border: 1px solid #ffd5c9;
+  border-radius: 16px;
+  padding: 20px;
+  color: #91412d;
+}
+
+.error-progreso,
+.error-actividades {
+  margin: 16px 0;
+}
+
+.estado-inicial-logros-error p,
+.error-progreso p,
+.error-actividades p {
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+/* Botones de reintento y finalización */
+.estado-inicial-logros-error button,
+.error-progreso button,
+.error-actividades button,
+.mensaje-leccion-completada button,
+.estado-error .boton-principal,
+.estado-error .boton-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 46px;
+  padding: 12px 20px;
+
+  background: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  border-radius: 14px;
+
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  cursor: pointer;
+  translate: none;
+
+  box-shadow: 0 5px 14px rgba(108, 99, 255, 0.18);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Acción secundaria: regresar al plan */
+.estado-error .boton-secundario {
+  background: #f2f0ff;
+  border-color: #ddd9ff;
+  color: #5146e5;
+  box-shadow: none;
+}
+
+/* Interacciones con mouse */
+@media (hover: hover) {
+  .estado-inicial-logros-error button:hover:not(:disabled),
+  .error-progreso button:hover:not(:disabled),
+  .error-actividades button:hover:not(:disabled),
+  .mensaje-leccion-completada button:hover:not(:disabled),
+  .estado-error .boton-principal:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.24);
+  }
+
+  .estado-error .boton-secundario:hover:not(:disabled) {
+    background: #e8e5ff;
+    border-color: #c8c2ff;
+    color: #5146e5;
+    transform: translateY(-2px);
+  }
+}
+
+/* Respuesta al presionar */
+.estado-inicial-logros-error button:active:not(:disabled),
+.error-progreso button:active:not(:disabled),
+.error-actividades button:active:not(:disabled),
+.mensaje-leccion-completada button:active:not(:disabled),
+.estado-error button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Accesibilidad con teclado */
+.estado-inicial-logros-error button:focus-visible,
+.error-progreso button:focus-visible,
+.error-actividades button:focus-visible,
+.mensaje-leccion-completada button:focus-visible,
+.estado-error button:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+/* Entrada suave de mensajes */
+.estado-error,
+.error-progreso,
+.error-actividades,
+.mensaje-leccion-completada {
+  animation: aparecerMensajeNeko 0.4s ease-out both;
+}
+
+@keyframes aparecerMensajeNeko {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Diseño responsive */
+@media (max-width: 600px) {
+  .estado-inicial-logros-error button,
+  .error-progreso button,
+  .error-actividades button,
+  .mensaje-leccion-completada button {
+    width: 100%;
+  }
+
+  .estado-error .acciones button {
+    width: 100%;
+  }
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .estado-inicial-logros,
+  .estado-error,
+  .error-progreso,
+  .error-actividades,
+  .mensaje-leccion-completada {
+    animation: none;
+  }
+
+  .estado-inicial-logros-error button,
+  .error-progreso button,
+  .error-actividades button,
+  .mensaje-leccion-completada button,
+  .estado-error button {
+    transition: none;
+    transform: none;
   }
 }

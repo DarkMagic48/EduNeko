@@ -58,6 +58,13 @@ export class LeccionService {
    * - Valida la estructura y coherencia matemática.
    * - Devuelve la lección con el recurso actualizado.
    */
+  /** Solo se llama tras una acción explícita del estudiante. */
+  reintentarRecursoVisual(unidadId: number): Observable<LeccionResponse> {
+    return this.http.post<LeccionResponse>(
+      `${this.apiUrl}/unidades/${unidadId}/reintentar-visual`, {}
+    );
+  }
+
   enriquecerLeccionVisualmente(
     unidadId: number
   ): Observable<LeccionResponse> {

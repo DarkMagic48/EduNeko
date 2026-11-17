@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LeccionService } from '../../services/leccion.service';
-import { LeccionResponse, ElementoPatronFiguras2D, PlanoCartesianoDatos, GraficaEstadisticaDatos } from '../../models/leccion.models';
+import { LeccionResponse, ElementoPatronFiguras2D, PlanoCartesianoDatos, GraficaEstadisticaDatos, GraficaFuncionDatos, SolidoRevolucionDatos, SistemaLinealDatos, FiguraGeometrica2DDatos } from '../../models/leccion.models';
 import { ActividadService } from '../../services/actividad.service';
 import {
   ActividadResponse,
@@ -118,6 +118,627 @@ private desplazarAlInicioEtapa(): void {
     block: 'start'
   });
 }
+
+  // Exploraciones para recursos existentes. Solo varía el dibujo local.
+  valorRectaExploracion: number | null = null;
+  factorFigura2d = 1;
+  pasosPatronVisibles: number | null = null;
+  desplazamientoPuntos = 0;
+  indiceGraficaResaltado: number | null = null;
+
+  // Exploraciones para recursos ampliados: valores originales permanecen inmutables.
+  factorSegmento = 1;
+  valorEcuacion: number | null = null;
+  indiceTabla: number | null = null;
+  indiceConcepto: number | null = null;
+  anguloExploracion: number | null = null;
+  indiceCircular: number | null = null;
+
+  // Construcciones geométricas: muestran SIEMPRE el trazo terminado.
+  // Los controles solo exploran el dibujo si prefiere_practica=true.
+  radioCompasMediatriz: number | null = null;
+  gradosBisectrizExploracion: number | null = null;
+
+
+/**
+ * CONGRUENCIA DE TRIÁNGULOS — CRITERIO LLL
+ *
+ * Controla qué pareja de lados correspondientes
+ * está resaltada durante la exploración práctica.
+ *
+ * No modifica las medidas originales almacenadas.
+ */
+ladoCongruenciaSeleccionado: 'AB' | 'BC' | 'AC' | null = null;
+
+/**
+ * Permite seleccionar o desmarcar una pareja de lados.
+ *
+ * La interacción solo está disponible cuando el
+ * estudiante tiene activada la preferencia práctica.
+ */
+seleccionarLadoCongruencia(lado: 'AB' | 'BC' | 'AC'): void {
+
+  if (!this.prefierePractica) {
+    return;
+  }
+
+  this.ladoCongruenciaSeleccionado =
+    this.ladoCongruenciaSeleccionado === lado
+      ? null
+      : lado;
+}
+
+/**
+ * Calcula la geometría de dos triángulos congruentes
+ * a partir de las tres longitudes del criterio LLL.
+ *
+ * Los triángulos conservan sus proporciones reales.
+ * No supone ángulos rectos ni inventa alturas.
+ *
+ * El segundo triángulo es una traslación exacta
+ * del primero: ABC corresponde a DEF.
+ *
+ * Las coordenadas son unidades internas del SVG,
+ * no representan centímetros.
+ */
+geometriaTriangulosCongruentes(datos: {
+  ladoAB: number;
+  ladoBC: number;
+  ladoAC: number;
+}) {
+
+  if (!datos) {
+    return null;
+  }
+
+  const {
+    ladoAB: ab,
+    ladoBC: bc,
+    ladoAC: ac
+  } = datos;
+
+  // Validar las longitudes recibidas.
+  if (
+    ![ab, bc, ac].every(
+      valor => Number.isFinite(valor) && valor > 0
+    ) ||
+    ab + bc <= ac ||
+    ab + ac <= bc ||
+    bc + ac <= ab
+  ) {
+    return null;
+  }
+
+  // Colocar inicialmente A=(0,0) y B=(AB,0).
+  // Calcular C utilizando las tres longitudes.
+  const proyeccionC =
+    (ac * ac + ab * ab - bc * bc) / (2 * ab);
+
+  const alturaC = Math.sqrt(
+    Math.max(
+      0,
+      ac * ac - proyeccionC * proyeccionC
+    )
+  );
+
+  // Calcular una escala uniforme para que ambos
+  // triángulos se representen sin deformaciones.
+  const izquierda = Math.min(0, ab, proyeccionC);
+  const derecha = Math.max(0, ab, proyeccionC);
+
+  const escala = Math.min(
+    240 / Math.max(derecha - izquierda, 0.000001),
+    175 / Math.max(alturaC, 0.000001)
+  );
+
+  const origenX =
+    180 - ((izquierda + derecha) / 2) * escala;
+
+  const baseY = 245;
+
+  // Coordenadas del primer triángulo ABC.
+  const A = {
+    x: origenX,
+    y: baseY
+  };
+
+  const B = {
+    x: origenX + ab * escala,
+    y: baseY
+  };
+
+  const C = {
+    x: origenX + proyeccionC * escala,
+    y: baseY - alturaC * escala
+  };
+
+  // Trasladar el primer triángulo para crear
+  // un segundo triángulo exactamente congruente.
+  const trasladar = (
+    p: { x: number; y: number }
+  ) => ({
+    x: p.x + 360,
+    y: p.y
+  });
+
+  const D = trasladar(A);
+  const E = trasladar(B);
+  const F = trasladar(C);
+
+  // Convertir los vértices al formato SVG.
+  const puntos = (
+    vertices: { x: number; y: number }[]
+  ) =>
+    vertices
+      .map(
+        p => `${p.x.toFixed(2)},${p.y.toFixed(2)}`
+      )
+      .join(' ');
+
+  /**
+   * Calcula una posición exterior para mostrar
+   * las etiquetas de longitud junto a cada lado.
+   *
+   * Evita colocar las medidas dentro del triángulo.
+   */
+  const etiqueta = (
+    p: { x: number; y: number },
+    q: { x: number; y: number },
+    opuesto: { x: number; y: number }
+  ) => {
+
+    const medioX = (p.x + q.x) / 2;
+    const medioY = (p.y + q.y) / 2;
+
+    const largo = Math.hypot(
+      q.x - p.x,
+      q.y - p.y
+    );
+
+    let nx = (q.y - p.y) / largo;
+    let ny = -(q.x - p.x) / largo;
+
+    // Orientar la etiqueta hacia el exterior.
+    if (
+      (opuesto.x - medioX) * nx +
+      (opuesto.y - medioY) * ny > 0
+    ) {
+      nx = -nx;
+      ny = -ny;
+    }
+
+    return {
+      x: medioX + 18 * nx,
+      y: medioY + 18 * ny
+    };
+  };
+
+  // Devolver las coordenadas de ambos triángulos
+  // y sus parejas de lados correspondientes.
+  return {
+    trianguloABC: puntos([A, B, C]),
+    trianguloDEF: puntos([D, E, F]),
+
+    vertices: {
+      A, B, C,
+      D, E, F
+    },
+
+    lados: [
+      {
+        id: 'AB' as const,
+        par: 'DE',
+        medida: ab,
+        a1: A,
+        b1: B,
+        a2: D,
+        b2: E,
+        etiquetaABC: etiqueta(A, B, C),
+        etiquetaDEF: etiqueta(D, E, F)
+      },
+      {
+        id: 'BC' as const,
+        par: 'EF',
+        medida: bc,
+        a1: B,
+        b1: C,
+        a2: E,
+        b2: F,
+        etiquetaABC: etiqueta(B, C, A),
+        etiquetaDEF: etiqueta(E, F, D)
+      },
+      {
+        id: 'AC' as const,
+        par: 'DF',
+        medida: ac,
+        a1: A,
+        b1: C,
+        a2: D,
+        b2: F,
+        etiquetaABC: etiqueta(A, C, B),
+        etiquetaDEF: etiqueta(D, F, E)
+      }
+    ]
+  };
+}
+
+  /** Un solo botón restablece todos los experimentos cuando cambia la lección. */
+  restablecerExploracionesVisuales(): void {
+    this.xExploracionFuncion = null;
+    this.multiplicadorProporcionalidad = 1;
+    this.escalaTriangulo = 1;
+    this.factorEscalaSolido = 1;
+    this.desplazamientoRectaSistema = 0;
+    this.favorablesExploracion = null;
+    this.factorAlturaPrisma = 1;
+    this.valorRectaExploracion = null;
+    this.factorFigura2d = 1;
+    this.pasosPatronVisibles = null;
+    this.desplazamientoPuntos = 0;
+    this.indiceGraficaResaltado = null;
+    this.factorSegmento = 1;
+    this.valorEcuacion = null;
+    this.indiceTabla = null;
+    this.indiceConcepto = null;
+    this.anguloExploracion = null;
+    this.indiceCircular = null;
+    this.radioCompasMediatriz = null;
+    this.gradosBisectrizExploracion = null;
+    this.ladoCongruenciaSeleccionado = null;
+    this.cerrarExploracionFraccion();
+  }
+
+  /** Altura exacta de las dos intersecciones de arcos de igual radio.
+   *  AB mide 300 unidades SVG y cada centro dista 150 de su punto medio.
+   *  Se mantiene r > 150 para que la construcción sea geométricamente válida.
+   */
+  alturaCruceMediatriz(radioRelativo: number): number {
+    const radio = 300 * Math.max(0.55, Math.min(0.75, radioRelativo));
+    return Math.sqrt(radio * radio - 150 * 150);
+  }
+
+  /** Arco auxiliar correcto de regla y compás alrededor de A o B. */
+  arcoMediatriz(lado: 'izquierdo' | 'derecho', radioRelativo: number): string {
+    const radio = 300 * Math.max(0.55, Math.min(0.75, radioRelativo));
+    const h = this.alturaCruceMediatriz(radioRelativo);
+    return `M 300 ${190 - h} A ${radio} ${radio} 0 0 ${lado === 'izquierdo' ? 1 : 0} 300 ${190 + h}`;
+  }
+
+  /** Punto en una semirrecta que forma un ángulo en grados con la horizontal. */
+  puntoRayoBisectriz(grados: number, distancia: number): { x: number; y: number } {
+    const radianes = grados * Math.PI / 180;
+    return { x: 300 + Math.cos(radianes) * distancia,
+             y: 325 - Math.sin(radianes) * distancia };
+  }
+
+  /** Intersección exterior de dos arcos de igual radio centrados en C y D.
+   *  La intersección queda sobre la bisectriz exacta, no es decorativa.
+   */
+  interseccionArcosBisectriz(grados: number): { x: number; y: number } {
+    const mitad = grados * Math.PI / 360;
+    const distancia = 120 * Math.cos(mitad) +
+      Math.sqrt(135 * 135 - Math.pow(120 * Math.sin(mitad), 2));
+    return this.puntoRayoBisectriz(grados / 2, distancia);
+  }
+
+  /** Arco angular que marca el ángulo inicial sin fingir otras medidas. */
+  arcoAnguloBisectriz(grados: number, radio = 66): string {
+    const extremo = this.puntoRayoBisectriz(grados, radio);
+    return `M ${300 + radio} 325 A ${radio} ${radio} 0 0 0 ${extremo.x} ${extremo.y}`;
+  }
+
+  /** Área exacta con longitud de lado modificada por el factor práctico. */
+  areaFigura(datos: FiguraGeometrica2DDatos): number {
+    const f = this.factorFigura2d * this.factorFigura2d;
+    switch (datos.figura) {
+      case 'cuadrado': return (datos.lado ?? 0) ** 2 * f;
+      case 'rectangulo': return (datos.base ?? 0) * (datos.altura ?? 0) * f;
+      case 'triangulo': return (datos.base ?? 0) * (datos.altura ?? 0) / 2 * f;
+      case 'circulo': return Math.PI * (datos.radio ?? 0) ** 2 * f;
+    }
+  }
+
+  /** No inventar el perímetro de un triángulo del que solo se conoce base/altura. */
+  perimetroFigura(datos: FiguraGeometrica2DDatos): number | null {
+    switch (datos.figura) {
+      case 'cuadrado': return 4 * (datos.lado ?? 0) * this.factorFigura2d;
+      case 'rectangulo': return 2 * ((datos.base ?? 0) + (datos.altura ?? 0)) * this.factorFigura2d;
+      case 'circulo': return 2 * Math.PI * (datos.radio ?? 0) * this.factorFigura2d;
+      case 'triangulo': return null;
+    }
+  }
+
+  /** Dibuja base y altura conservando su proporción real.
+   *  El dibujo es ilustrativo pero las dimensiones no se inventan.
+   */
+  dimensionesFigura2D(datos: FiguraGeometrica2DDatos): {
+    x: number; y: number; ancho: number; alto: number
+  } {
+    const base = Math.max(0.00001, datos.base ?? 1);
+    const altura = Math.max(0.00001, datos.altura ?? 1);
+    const factor = Math.min(250 / base, 160 / altura);
+    const ancho = base * factor;
+    const alto = altura * factor;
+    return { x: 200 - ancho / 2, y: 208 - alto, ancho, alto };
+  }
+
+  /** Contextualiza una selección en una gráfica sin inventar datos nuevos. */
+  promedioGrafica(datos: GraficaEstadisticaDatos): number {
+    if (!datos.elementos.length) return 0;
+    return datos.elementos.reduce((suma, dato) => suma + dato.valor, 0) /
+      datos.elementos.length;
+  }
+
+  clasificacionAngulo(grados: number): string {
+    if (grados < 90) return 'agudo';
+    if (grados === 90) return 'recto';
+    if (grados < 180) return 'obtuso';
+    if (grados === 180) return 'llano';
+    return 'cóncavo';
+  }
+
+  /** Coordenadas y dirección de un ángulo sin alterar su medida inicial. */
+  extremoAngulo(grados: number): { x: number; y: number } {
+    const radianes = grados * Math.PI / 180;
+    return { x: 200 + Math.cos(radianes) * 105,
+             y: 170 - Math.sin(radianes) * 105 };
+  }
+
+  /** Arco sectorial exacto para distribución porcentual, sin crear HTML externo. */
+  sectorCircular(segmentos: { porcentaje: number }[], indice: number): string {
+    const inicio = segmentos.slice(0, indice).reduce((a, b) => a + b.porcentaje, 0);
+    const amplitud = segmentos[indice]?.porcentaje ?? 0;
+    const a0 = (inicio / 100 * 2 * Math.PI) - Math.PI / 2;
+    // Un círculo de 100% usa dos semicírculos para evitar el arco degenerado.
+    const a1 = ((inicio + amplitud) / 100 * 2 * Math.PI) - Math.PI / 2;
+    const x0 = 150 + 105 * Math.cos(a0), y0 = 150 + 105 * Math.sin(a0);
+    const x1 = 150 + 105 * Math.cos(a1), y1 = 150 + 105 * Math.sin(a1);
+    const grande = amplitud > 50 ? 1 : 0;
+    return `M 150 150 L ${x0} ${y0} A 105 105 0 ${grande} 1 ${x1} ${y1} Z`;
+  }
+
+  // Explora el sistema desplazando la segunda recta en paralelo.
+  // El problema resuelto y sus coeficientes originales NO cambian.
+  desplazamientoRectaSistema = 0;
+
+  interseccionSistema(datos: SistemaLinealDatos): { x: number; y: number; visible: boolean } {
+    const determinante = datos.a1 * datos.b2 - datos.a2 * datos.b1;
+    const constante2 = datos.c2 + this.desplazamientoRectaSistema;
+    const x = (datos.c1 * datos.b2 - constante2 * datos.b1) / determinante;
+    const y = (datos.a1 * constante2 - datos.a2 * datos.c1) / determinante;
+    return { x, y,
+      visible: x >= datos.minimoX && x <= datos.maximoX &&
+        y >= datos.minimoY && y <= datos.maximoY };
+  }
+
+  posicionSistema(datos: SistemaLinealDatos, x: number, y: number): {x: number; y: number} {
+    return {
+      x: 40 + 520 * (x - datos.minimoX) / (datos.maximoX - datos.minimoX),
+      y: 280 - 240 * (y - datos.minimoY) / (datos.maximoY - datos.minimoY)
+    };
+  }
+
+  /** Ubica los ejes en cero o en el borde visible del plano. */
+  ejesSistema(datos: SistemaLinealDatos): { x: number; y: number } {
+    const x = Math.max(datos.minimoX, Math.min(0, datos.maximoX));
+    const y = Math.max(datos.minimoY, Math.min(0, datos.maximoY));
+    return this.posicionSistema(datos, x, y);
+  }
+
+  /** Recorta una recta a los límites del plano; admite rectas verticales. */
+  segmentoSistema(datos: SistemaLinealDatos, a: number, b: number, c: number):
+      { x1: number; y1: number; x2: number; y2: number } | null {
+    const posibles: {x:number; y:number}[] = [];
+    const epsilon = 1e-8;
+    if (Math.abs(b) > epsilon) {
+      for (const x of [datos.minimoX, datos.maximoX]) {
+        const y = (c - a * x) / b;
+        if (y >= datos.minimoY - epsilon && y <= datos.maximoY + epsilon)
+          posibles.push({x, y: Math.max(datos.minimoY, Math.min(datos.maximoY, y))});
+      }
+    }
+    if (Math.abs(a) > epsilon) {
+      for (const y of [datos.minimoY, datos.maximoY]) {
+        const x = (c - b * y) / a;
+        if (x >= datos.minimoX - epsilon && x <= datos.maximoX + epsilon)
+          posibles.push({x: Math.max(datos.minimoX, Math.min(datos.maximoX, x)), y});
+      }
+    }
+    if (posibles.length < 2) return null;
+    let pareja = {a: posibles[0], b: posibles[1], distancia: -1};
+    for (const p of posibles) for (const q of posibles) {
+      const distancia = (p.x-q.x)**2 + (p.y-q.y)**2;
+      if (distancia > pareja.distancia) pareja={a:p,b:q,distancia};
+    }
+    const p = this.posicionSistema(datos, pareja.a.x, pareja.a.y);
+    const q = this.posicionSistema(datos, pareja.b.x, pareja.b.y);
+    return {x1:p.x,y1:p.y,x2:q.x,y2:q.y};
+  }
+
+  // Los sólidos se escalan para experimentar, sin alterar la lección.
+  factorEscalaSolido = 1;
+
+  volumenSolidoRevolucion(datos: SolidoRevolucionDatos): number {
+    const r = datos.radio * this.factorEscalaSolido;
+    if (datos.forma === 'esfera') {
+      return (4 / 3) * Math.PI * Math.pow(r, 3);
+    }
+    const h = (datos.altura ?? 0) * this.factorEscalaSolido;
+    return datos.forma === 'cilindro'
+      ? Math.PI * r * r * h
+      : Math.PI * r * r * h / 3;
+  }
+
+  // Recursos interactivos: solo afectan la presentación, nunca el contenido guardado.
+  xExploracionFuncion: number | null = null;
+  multiplicadorProporcionalidad = 1;
+  escalaTriangulo = 1;
+
+  iniciarExploracionFuncion(valorX: number): void {
+    if (this.prefierePractica) this.xExploracionFuncion = valorX;
+  }
+
+  cambiarXFuncion(valorX: number): void {
+    if (this.prefierePractica && Number.isFinite(valorX)) {
+      this.xExploracionFuncion = valorX;
+    }
+  }
+
+  calcularYFuncion(datos: GraficaFuncionDatos, x: number): number {
+    return datos.a * x * x + datos.b * x + datos.c;
+  }
+
+  /**
+   * Calcula las raíces reales de una función cuadrática para
+   * destacarlas en la gráfica cuando caen dentro del dominio.
+   * No cambia el JSON de la lección ni guarda datos en el servidor.
+   */
+  obtenerRaicesRealesVisibles(datos: GraficaFuncionDatos): number[] {
+    const { a, b, c, minimoX, maximoX } = datos;
+
+    // La gráfica lineal conserva su comportamiento anterior.
+    if (![a, b, c, minimoX, maximoX].every(Number.isFinite) || a === 0) {
+      return [];
+    }
+
+    const discriminante = b * b - 4 * a * c;
+    if (discriminante < 0) {
+      return [];
+    }
+
+    const raizDiscriminante = Math.sqrt(discriminante);
+    const raices = [(-b - raizDiscriminante) / (2 * a),
+                    (-b + raizDiscriminante) / (2 * a)].sort((x, y) => x - y);
+    const tolerancia = 1e-9;
+
+    return raices
+      .filter((valor, indice) => indice === 0 || Math.abs(valor - raices[indice - 1]) > tolerancia)
+      .filter(valor => valor >= minimoX - tolerancia && valor <= maximoX + tolerancia);
+  }
+
+  /** Devuelve una polilínea SVG acotada para mostrar la función sin HTML remoto. */
+  obtenerPuntosFuncion(datos: GraficaFuncionDatos): string {
+    const valores = Array.from({ length: 81 }, (_, indice) => {
+      const x = datos.minimoX + (datos.maximoX - datos.minimoX) * indice / 80;
+      return { x, y: this.calcularYFuncion(datos, x) };
+    });
+    const minY = Math.min(0, ...valores.map(punto => punto.y));
+    const maxY = Math.max(0, ...valores.map(punto => punto.y));
+    const rangoY = Math.max(1, maxY - minY);
+    return valores.map(punto => {
+      const sx = 40 + (punto.x - datos.minimoX) / (datos.maximoX - datos.minimoX) * 520;
+      const sy = 280 - (punto.y - minY) / rangoY * 240;
+      return `${sx.toFixed(2)},${sy.toFixed(2)}`;
+    }).join(' ');
+  }
+
+  posicionPuntoFuncion(datos: GraficaFuncionDatos, x: number): { x: number; y: number } {
+    const valores = Array.from({ length: 81 }, (_, indice) => {
+      const valor = datos.minimoX + (datos.maximoX - datos.minimoX) * indice / 80;
+      return this.calcularYFuncion(datos, valor);
+    });
+    const minY = Math.min(0, ...valores);
+    const maxY = Math.max(0, ...valores);
+    return {
+      x: 40 + (x - datos.minimoX) / (datos.maximoX - datos.minimoX) * 520,
+      y: 280 - (this.calcularYFuncion(datos, x) - minY) / Math.max(1, maxY - minY) * 240
+    };
+  }
+
+  /** Dibuja triángulos semejantes conservando la razón real de sus catetos. */
+  geometriaTriangulo(catetoA: number, catetoB: number): {
+    base: number; altura: number; inicioY: number;
+  } {
+    const factor = Math.min(290 / catetoA, 200 / catetoB) * this.escalaTriangulo / 3;
+    const base = catetoA * factor;
+    const altura = catetoB * factor;
+    return { base, altura, inicioY: 245 - altura };
+  }
+
+  /** Ubicación correcta del eje horizontal y=0 en la escala del gráfico. */
+  posicionEjeHorizontalFuncion(datos: GraficaFuncionDatos): number {
+    const valores = Array.from({ length: 81 }, (_, indice) => {
+      const x = datos.minimoX + (datos.maximoX - datos.minimoX) * indice / 80;
+      return this.calcularYFuncion(datos, x);
+    });
+    const minY = Math.min(0, ...valores);
+    const maxY = Math.max(0, ...valores);
+    return 280 - (0 - minY) / Math.max(1, maxY - minY) * 240;
+  }
+
+  /** El eje vertical se coloca en x=0, o en el borde si queda fuera del dominio. */
+  posicionEjeVerticalFuncion(datos: GraficaFuncionDatos): number {
+    const x = Math.min(datos.maximoX, Math.max(datos.minimoX, 0));
+    return 40 + (x - datos.minimoX) / (datos.maximoX - datos.minimoX) * 520;
+  }
+
+  tamanoAnguloRecto(base: number, altura: number): number {
+    return Math.min(14, base / 3, altura / 3);
+  }
+
+  // Experimentos de probabilidad con casos equiprobables.
+  favorablesExploracion: number | null = null;
+  construirCasillasProbabilidad(total: number): number[] {
+    return Array.from({ length: total }, (_, indice) => indice);
+  }
+
+  // Prisma de dimensiones proporcionadas; la altura es manipulable sin afectar datos guardados.
+  factorAlturaPrisma = 1;
+
+  carasPrisma(largo: number, ancho: number, alto: number): {
+    frente: string; superior: string; lateral: string;
+  } {
+    // Se calcula el factor usando la altura máxima (3x), así el cuerpo
+    // mantiene su escala horizontal cuando cambia la altura interactiva.
+    const factor = Math.min(380 / (largo + 0.45 * ancho),
+      210 / (alto * 3 + 0.28 * ancho));
+    const l = largo * factor;
+    const desplazamientoX = ancho * factor * 0.45;
+    const desplazamientoY = ancho * factor * 0.28;
+    const altura = alto * this.factorAlturaPrisma * factor;
+    const izquierda = 85;
+    const abajo = 270;
+    const tope = abajo - altura;
+    const derecha = izquierda + l;
+    return {
+      frente: `${izquierda},${abajo} ${derecha},${abajo} ${derecha},${tope} ${izquierda},${tope}`,
+      superior: `${izquierda},${tope} ${derecha},${tope} ${derecha + desplazamientoX},${tope - desplazamientoY} ${izquierda + desplazamientoX},${tope - desplazamientoY}`,
+      lateral: `${derecha},${abajo} ${derecha + desplazamientoX},${abajo - desplazamientoY} ${derecha + desplazamientoX},${tope - desplazamientoY} ${derecha},${tope}`
+    };
+  }
+
+  calcularHipotenusa(catetoA: number, catetoB: number): number {
+    return Math.hypot(catetoA, catetoB);
+  }
+
+  reintentandoRecursoVisual = false;
+  errorReintentoVisual = '';
+
+  reintentarRecursoVisual(): void {
+    if (!this.unidadId || !this.leccion || this.leccion.recurso_visual ||
+        this.reintentandoRecursoVisual) {
+      return;
+    }
+    this.reintentandoRecursoVisual = true;
+    this.errorReintentoVisual = '';
+    this.leccionService.reintentarRecursoVisual(this.unidadId).subscribe({
+      next: respuesta => {
+        if (this.leccion && respuesta.id === this.leccion.id) {
+          this.leccion = {
+            ...this.leccion,
+            recurso_visual: respuesta.recurso_visual,
+            estado_recurso_visual: respuesta.estado_recurso_visual
+          };
+        }
+        this.reintentandoRecursoVisual = false;
+      },
+      error: () => {
+        this.errorReintentoVisual =
+          'No fue posible volver a generar el recurso visual. Puedes continuar estudiando.';
+        this.reintentandoRecursoVisual = false;
+      }
+    });
+  }
 
   // 1. DATOS GENERALES DE LA LECCIÓN
 
@@ -705,6 +1326,9 @@ private mostrarSiguienteCelebracionLogro(): void {
     this.detenerAudio();
 
     this.leccion = null;
+    // Reiniciar todas las exploraciones al cargar otra lección,
+    // sin sobrescribir el recurso de PostgreSQL.
+    this.restablecerExploracionesVisuales();
     this.actividades = [];
 
     this.respuestasSeleccionadas = {};
@@ -735,7 +1359,7 @@ private mostrarSiguienteCelebracionLogro(): void {
         }
 
         // 4. Intentar enriquecer la lección existente
-        // utilizando los seis recursos visuales disponibles.
+        // utilizando los recursos visuales disponibles.
         this.leccionService
           .enriquecerLeccionVisualmente(this.unidadId!)
           .subscribe({
@@ -751,7 +1375,8 @@ private mostrarSiguienteCelebracionLogro(): void {
               ) {
                 this.leccion = {
                   ...this.leccion,
-                  recurso_visual: leccionEnriquecida.recurso_visual
+                  recurso_visual: leccionEnriquecida.recurso_visual,
+                  estado_recurso_visual: leccionEnriquecida.estado_recurso_visual
                 };
               }
             },
@@ -819,7 +1444,7 @@ private mostrarSiguienteCelebracionLogro(): void {
       }
 
       // 3. Solicitar el enriquecimiento visual de la lección.
-      // El backend selecciona y valida uno de los seis
+      // El backend selecciona y valida uno de los recursos
       // componentes visuales disponibles.
       this.leccionService
         .enriquecerLeccionVisualmente(this.unidadId!)
@@ -833,7 +1458,8 @@ private mostrarSiguienteCelebracionLogro(): void {
               this.leccion = {
                 ...this.leccion,
                 recurso_visual:
-                  leccionEnriquecida.recurso_visual
+                  leccionEnriquecida.recurso_visual,
+                estado_recurso_visual: leccionEnriquecida.estado_recurso_visual
               };
             }
           },

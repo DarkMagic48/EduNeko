@@ -51,10 +51,11 @@ public class ValidadorContenidoIAService {
                 Si es null o no existe, no rechaces la lección
                 únicamente por la ausencia de un diagrama.
 
-            12. Los únicos tipos de recursos visuales
-                admitidos actualmente son:
+            12. En la generación inicial se admiten:
                 - "barra_fraccionaria"
                 - "recta_numerica"
+                - "construccion_geometrica" (resultado de mediatriz
+                  o bisectriz, no solo el paso inicial)
 
                 Si existe un recurso visual, verifica que
                 corresponda al concepto matemático explicado.
@@ -92,6 +93,14 @@ public class ValidadorContenidoIAService {
                 No apruebes recursos que intenten representar
                 desigualdades, intervalos abiertos o cerrados,
                 ni múltiples puntos simultáneos.
+
+            14a. Para "construccion_geometrica":
+                 - "mediatriz" debe mostrar el punto medio y la recta
+                   perpendicular construida con arcos de compás.
+                 - "bisectriz" debe mostrar el ángulo dividido en
+                   dos ángulos iguales por la semirrecta final.
+                 - Rechaza usar solo un segmento o ángulo inicial
+                   cuando el ejemplo exige el trazo terminado.
 
             15. Comprueba la coherencia matemática entre
                 el recurso visual, la explicación y
@@ -181,6 +190,99 @@ public class ValidadorContenidoIAService {
          *
          * No realiza llamadas a OpenAI ni modifica PostgreSQL.
          */
+
+
+/**
+ * Evalúa expresiones algebraicas sencillas:
+ * x, x + n, x - n.
+ *
+ * Devuelve null cuando la expresión no está soportada.
+ */
+private Double evaluarExpresionRectangulo(
+        String expresion,
+        double valorX) {
+
+    if (expresion == null || !Double.isFinite(valorX)) {
+        return null;
+    }
+
+    // Eliminar espacios para normalizar la expresión.
+    String normalizada = expresion.replaceAll("\\s+", "");
+
+    // Caso: x
+    if (normalizada.equals("x")) {
+        return valorX;
+    }
+
+    // Admitir únicamente x+n o x-n.
+    if (!normalizada.matches("x[+-]\\d+(\\.\\d+)?")) {
+        return null;
+    }
+
+    try {
+        // Extraer el desplazamiento con su signo.
+        double desplazamiento =
+                Double.parseDouble(normalizada.substring(1));
+
+        double resultado = valorX + desplazamiento;
+
+        return Double.isFinite(resultado) ? resultado : null;
+
+    } catch (NumberFormatException ex) {
+        return null;
+    }
+}
+
+/**
+ * Comprueba que las dimensiones numéricas correspondan
+ * a las expresiones algebraicas con el mismo valor de x.
+ *
+ * Para V1 se requiere al menos una expresión igual a x.
+ */
+private boolean validarDimensionesAlgebraicasRectangulo(
+        String expresionBase,
+        String expresionAltura,
+        double base,
+        double altura) {
+
+    String baseNormalizada =
+            expresionBase.replaceAll("\\s+", "");
+
+    String alturaNormalizada =
+            expresionAltura.replaceAll("\\s+", "");
+
+    // Obtener x desde la dimensión que lo representa directamente.
+    double valorX;
+
+    if (baseNormalizada.equals("x")) {
+        valorX = base;
+    } else if (alturaNormalizada.equals("x")) {
+        valorX = altura;
+    } else {
+        return false;
+    }
+
+    Double baseEvaluada =
+            evaluarExpresionRectangulo(expresionBase, valorX);
+
+    Double alturaEvaluada =
+            evaluarExpresionRectangulo(expresionAltura, valorX);
+
+    if (baseEvaluada == null || alturaEvaluada == null) {
+        return false;
+    }
+
+    // Comparar resultados con tolerancia numérica.
+    double toleranciaBase =
+            Math.max(1.0, Math.abs(base)) * 1e-8;
+
+    double toleranciaAltura =
+            Math.max(1.0, Math.abs(altura)) * 1e-8;
+
+    return Math.abs(baseEvaluada - base) <= toleranciaBase
+            && Math.abs(alturaEvaluada - altura) <= toleranciaAltura;
+}
+
         public boolean validarEstructuraRecursoVisual(
                 JsonNode recursoVisual) {
 
@@ -305,10 +407,118 @@ public class ValidadorContenidoIAService {
                         // Un cuadrado requiere un lado positivo.
                         return dimensionValida(datos.path("lado"));
                         }
+                        
+                        case "rectangulo" -> {
 
-                        case "rectangulo", "triangulo" -> {
+                        // ============================================
+                        // VALIDACIÓN DE RECTÁNGULOS
+                        // ============================================
 
-                        // Ambas figuras requieren base y altura positivas.
+                        // Las dimensiones deben ser positivas y válidas.
+                        if (!dimensionValida(datos.path("base"))
+                                || !dimensionValida(datos.path("altura"))) {
+                                return false;
+                        }
+
+                        double base = datos.path("base").doubleValue();
+                        double altura = datos.path("altura").doubleValue();
+
+                        // Evitar figuras excesivamente alargadas
+                        // que puedan confundirse con segmentos.
+                        if (Math.max(base, altura) /
+                                Math.min(base, altura) > 20) {
+                                return false;
+                        }
+
+                        // ============================================
+                        // ÁLGEBRA OPCIONAL
+                        // ============================================
+
+                        // Los rectángulos normales siguen siendo válidos.
+                        if (!datos.has("algebra")) {
+                                return true;
+                        }
+
+                        JsonNode algebra = datos.path("algebra");
+
+                        // Cuando existe álgebra, debe ser un objeto.
+                        if (!algebra.isObject()) {
+                                return false;
+                        }
+
+                        JsonNode incognita = algebra.path("incognita");
+                        JsonNode expresionBase = algebra.path("expresionBase");
+                        JsonNode expresionAltura = algebra.path("expresionAltura");
+                        JsonNode areaConocida = algebra.path("areaConocida");
+
+                        // ============================================
+                        // VALIDAR EL NUEVO CONTRATO
+                        // ============================================
+
+                        // La variable algebraica admitida inicialmente es x.
+                        if (!incognita.isTextual()
+                                || !incognita.asText().equals("x")) {
+                                return false;
+                        }
+
+                        // Ambas expresiones deben existir y contener texto.
+                        if (!expresionBase.isTextual()
+                                || expresionBase.asText().isBlank()
+                                || !expresionAltura.isTextual()
+                                || expresionAltura.asText().isBlank()) {
+                                return false;
+                        }
+
+                        // Limitar la longitud de las expresiones.
+                        // Evita recibir cadenas excesivamente grandes.
+                        if (expresionBase.asText().length() > 100
+                                || expresionAltura.asText().length() > 100) {
+                                return false;
+                        }
+
+                        // El área conocida debe ser numérica.
+                        if (!areaConocida.isNumber()) {
+                                return false;
+                        }
+
+                        double area = areaConocida.doubleValue();
+                        double areaCalculada = base * altura;
+
+                        // Verificar valores finitos y positivos.
+                        if (!Double.isFinite(area)
+                                || !Double.isFinite(areaCalculada)
+                                || area <= 0) {
+                                return false;
+                        }
+
+                        // ============================================
+                        // VERIFICACIÓN MATEMÁTICA DEL ÁREA
+                        // ============================================
+
+                        // Comprobar que las dimensiones numéricas
+                        // correspondan al área conocida.
+                        double tolerancia =
+        Math.max(1.0, Math.abs(areaCalculada)) * 1e-8;
+
+if (Math.abs(area - areaCalculada) > tolerancia) {
+    return false;
+}
+
+// ============================================
+// VERIFICACIÓN DE EXPRESIONES ALGEBRAICAS
+// ============================================
+
+// Comprobar que ambas expresiones produzcan
+// las dimensiones numéricas usando el mismo x.
+return validarDimensionesAlgebraicasRectangulo(
+        expresionBase.asText(),
+        expresionAltura.asText(),
+        base,
+        altura
+);
+                        }
+
+                        case "triangulo" -> {
                         return dimensionValida(datos.path("base"))
                                 && dimensionValida(datos.path("altura"));
                         }
@@ -669,12 +879,415 @@ public class ValidadorContenidoIAService {
                                 return true;
                                 }
 
+                        // Gráfica de y = ax² + bx + c, con dominio y valores acotados.
+                        case "grafica_funcion" -> {
+                                JsonNode a = datos.path("a");
+                                JsonNode b = datos.path("b");
+                                JsonNode c = datos.path("c");
+                                JsonNode minX = datos.path("minimoX");
+                                JsonNode maxX = datos.path("maximoX");
+                                JsonNode valorX = datos.path("valorX");
+                                if (!a.isNumber() || !b.isNumber() || !c.isNumber() ||
+                                        !minX.isNumber() || !maxX.isNumber() || !valorX.isNumber()) {
+                                        return false;
+                                }
+                                double va = a.doubleValue();
+                                double vb = b.doubleValue();
+                                double vc = c.doubleValue();
+                                double min = minX.doubleValue();
+                                double max = maxX.doubleValue();
+                                double seleccionado = valorX.doubleValue();
+                                if (!Double.isFinite(va) || !Double.isFinite(vb) || !Double.isFinite(vc) ||
+                                        !Double.isFinite(min) || !Double.isFinite(max) ||
+                                        !Double.isFinite(seleccionado) ||
+                                        Math.abs(va) > 10 || Math.abs(vb) > 10 || Math.abs(vc) > 20 ||
+                                        min < -10 || max > 10 || min >= max || max - min < 1 ||
+                                        seleccionado < min || seleccionado > max) {
+                                        return false;
+                                }
+                                // El SVG admite valores y entre -1000 y 1000.
+                                for (int i = 0; i <= 80; i++) {
+                                        double x = min + (max - min) * i / 80;
+                                        double y = va * x * x + vb * x + vc;
+                                        if (!Double.isFinite(y) || Math.abs(y) > 1000) {
+                                                return false;
+                                        }
+                                }
+                                return true;
+                        }
+
+                        // Sistemas 2×2 con intersección única y visible.
+                        case "sistema_lineal" -> {
+                                String[] campos = {"a1","b1","c1","a2","b2","c2",
+                                        "minimoX","maximoX","minimoY","maximoY"};
+                                for (String nombre : campos) {
+                                        JsonNode valor = datos.path(nombre);
+                                        if (!valor.isNumber() || !Double.isFinite(valor.doubleValue()))
+                                                return false;
+                                }
+                                double a1=datos.path("a1").doubleValue(), b1=datos.path("b1").doubleValue();
+                                double c1=datos.path("c1").doubleValue(), a2=datos.path("a2").doubleValue();
+                                double b2=datos.path("b2").doubleValue(), c2=datos.path("c2").doubleValue();
+                                double minX=datos.path("minimoX").doubleValue(), maxX=datos.path("maximoX").doubleValue();
+                                double minY=datos.path("minimoY").doubleValue(), maxY=datos.path("maximoY").doubleValue();
+                                double determinante=a1*b2-a2*b1;
+                                if (Math.abs(determinante) < 1e-6
+                                        || Math.hypot(a1,b1)<1e-6 || Math.hypot(a2,b2)<1e-6
+                                        || Math.abs(a1)>20 || Math.abs(a2)>20
+                                        || Math.abs(b1)>20 || Math.abs(b2)>20
+                                        || Math.abs(c1)>100 || Math.abs(c2)>100
+                                        || minX < -10 || maxX > 10 || minY < -10 || maxY > 10
+                                        || minX >= maxX || minY >= maxY || maxX-minX < 1 || maxY-minY < 1)
+                                        return false;
+                                double x=(c1*b2-c2*b1)/determinante;
+                                double y=(a1*c2-a2*c1)/determinante;
+                                return Double.isFinite(x) && Double.isFinite(y)
+                                        && x>=minX && x<=maxX && y>=minY && y<=maxY;
+                        }
+
+                        // Volúmenes de cilindros, conos y esferas: datos explícitos.
+                        case "solido_revolucion" -> {
+                                String forma = datos.path("forma").asText("");
+                                JsonNode radio = datos.path("radio");
+                                JsonNode altura = datos.path("altura");
+                                JsonNode unidad = datos.path("unidad");
+                                if (!("cilindro".equals(forma) || "cono".equals(forma)
+                                        || "esfera".equals(forma)) || !radio.isNumber()
+                                        || !unidad.isTextual() || unidad.asText().isBlank()
+                                        || unidad.asText().length() > 12) {
+                                        return false;
+                                }
+                                double r = radio.doubleValue();
+                                if (!Double.isFinite(r) || r <= 0 || r > 50) return false;
+                                if ("esfera".equals(forma)) {
+                                        return altura.isMissingNode() || altura.isNull();
+                                }
+                                double h = altura.asDouble(Double.NaN);
+                                return altura.isNumber() && Double.isFinite(h)
+                                        && h > 0 && h <= 50;
+                        }
+
+                        // Proporcionalidad directa con cantidades positivas y etiquetas legibles.
+                        case "modelo_proporcionalidad" -> {
+                                JsonNode base = datos.path("cantidadBase");
+                                JsonNode correspondiente = datos.path("cantidadCorrespondiente");
+                                JsonNode unidadBase = datos.path("unidadBase");
+                                JsonNode unidadCorrespondiente = datos.path("unidadCorrespondiente");
+                                if (!base.isNumber() || !correspondiente.isNumber() ||
+                                        !unidadBase.isTextual() || !unidadCorrespondiente.isTextual()) {
+                                        return false;
+                                }
+                                double x = base.doubleValue();
+                                double y = correspondiente.doubleValue();
+                                return Double.isFinite(x) && Double.isFinite(y) &&
+                                        x > 0 && x <= 10000 && y > 0 && y <= 10000 &&
+                                        !unidadBase.asText().isBlank() &&
+                                        unidadBase.asText().length() <= 20 &&
+                                        !unidadCorrespondiente.asText().isBlank() &&
+                                        unidadCorrespondiente.asText().length() <= 20;
+                        }
+
+                        // Representación geométrica de Pitágoras y triángulos semejantes.
+                        case "triangulo_rectangulo" -> {
+                                JsonNode a = datos.path("catetoA");
+                                JsonNode b = datos.path("catetoB");
+                                JsonNode unidad = datos.path("unidad");
+                                if (!a.isNumber() || !b.isNumber() || !unidad.isTextual()) {
+                                        return false;
+                                }
+                                double va = a.doubleValue();
+                                double vb = b.doubleValue();
+                                return Double.isFinite(va) && Double.isFinite(vb) &&
+                                        va >= 0.1 && va <= 1000 && vb >= 0.1 && vb <= 1000 &&
+                                        Math.max(va, vb) / Math.min(va, vb) <= 20 &&
+                                        !unidad.asText().isBlank() && unidad.asText().length() <= 12;
+                        }
+
+                        // Probabilidad clásica: un conjunto finito de casos equiprobables.
+                        case "modelo_probabilidad" -> {
+                                JsonNode favorables = datos.path("favorables");
+                                JsonNode total = datos.path("total");
+                                JsonNode evento = datos.path("evento");
+                                if (!favorables.isIntegralNumber() || !total.isIntegralNumber() ||
+                                        !favorables.canConvertToInt() || !total.canConvertToInt() ||
+                                        !evento.isTextual()) {
+                                        return false;
+                                }
+                                int f = favorables.intValue();
+                                int t = total.intValue();
+                                return t >= 1 && t <= 24 && f >= 0 && f <= t &&
+                                        !evento.asText().isBlank() && evento.asText().length() <= 80;
+                        }
+
+                        // Prisma rectangular: valores acotados para su dibujo proporcionado.
+                        case "prisma_rectangular" -> {
+                                JsonNode largo = datos.path("largo");
+                                JsonNode ancho = datos.path("ancho");
+                                JsonNode alto = datos.path("alto");
+                                JsonNode unidad = datos.path("unidad");
+                                if (!largo.isNumber() || !ancho.isNumber() || !alto.isNumber() ||
+                                        !unidad.isTextual()) {
+                                        return false;
+                                }
+                                double l = largo.doubleValue();
+                                double a = ancho.doubleValue();
+                                double h = alto.doubleValue();
+                                return Double.isFinite(l) && Double.isFinite(a) && Double.isFinite(h) &&
+                                        l >= 0.5 && l <= 50 && a >= 0.5 && a <= 50 &&
+                                        h >= 0.5 && h <= 50 &&
+                                        !unidad.asText().isBlank() && unidad.asText().length() <= 12;
+                        }
+
+                        // Segmento 1D: evita simular longitudes con rectángulos diminutos.
+                        case "segmento_geometrico" -> {
+                                JsonNode longitud = datos.path("longitud");
+                                JsonNode unidad = datos.path("unidad");
+                                return longitud.isNumber() && unidad.isTextual() &&
+                                        Double.isFinite(longitud.doubleValue()) &&
+                                        longitud.doubleValue() > 0 && longitud.doubleValue() <= 10000 &&
+                                        !unidad.asText().isBlank() && unidad.asText().length() <= 12;
+                        }
+
+                        // Ax + b = c, con solución única dentro del rango explorable.
+                        case "modelo_ecuacion" -> {
+                                JsonNode a = datos.path("a"), b = datos.path("b"), c = datos.path("c");
+                                if (!a.isNumber() || !b.isNumber() || !c.isNumber()) return false;
+                                double va = a.doubleValue(), vb = b.doubleValue(), vc = c.doubleValue();
+                                if (!Double.isFinite(va) || !Double.isFinite(vb) || !Double.isFinite(vc) ||
+                                        Math.abs(va) < 0.001 || Math.abs(va) > 20 ||
+                                        Math.abs(vb) > 100 || Math.abs(vc) > 100) return false;
+                                double solucion = (vc - vb) / va;
+                                return Double.isFinite(solucion) && solucion >= -20 && solucion <= 20;
+                        }
+
+                        // Tabla de pares: datos numéricos finitos y encabezados claros.
+                        case "tabla_valores" -> {
+                                JsonNode pares = datos.path("pares");
+                                JsonNode x = datos.path("encabezadoX"), y = datos.path("encabezadoY");
+                                if (!x.isTextual() || !y.isTextual() ||
+                                        x.asText().isBlank() || y.asText().isBlank() ||
+                                        x.asText().length() > 35 || y.asText().length() > 35 ||
+                                        !pares.isArray() || pares.size() < 2 || pares.size() > 10) return false;
+                                for (JsonNode par : pares) {
+                                        JsonNode vx = par.path("x"), vy = par.path("y");
+                                        if (!vx.isNumber() || !vy.isNumber() ||
+                                                !Double.isFinite(vx.doubleValue()) ||
+                                                !Double.isFinite(vy.doubleValue()) ||
+                                                Math.abs(vx.doubleValue()) > 100000 ||
+                                                Math.abs(vy.doubleValue()) > 100000) return false;
+                                }
+                                return true;
+                        }
+
+                        // Mapa conceptual: no inventa geometría para temas abstractos.
+                        case "mapa_conceptual" -> {
+                                JsonNode conceptos = datos.path("conceptos");
+                                if (!conceptos.isArray() || conceptos.size() < 2 || conceptos.size() > 5) return false;
+                                for (JsonNode item : conceptos) {
+                                        JsonNode etiqueta = item.path("etiqueta"), detalle = item.path("detalle");
+                                        if (!etiqueta.isTextual() || !detalle.isTextual() ||
+                                                etiqueta.asText().isBlank() || detalle.asText().isBlank() ||
+                                                etiqueta.asText().length() > 80 ||
+                                                detalle.asText().length() > 240) return false;
+                                }
+                                return true;
+                        }
+
+                        // Ángulos sexagesimales con dos semirrectas precisas.
+                        case "angulo_geometrico" -> {
+                                JsonNode grados = datos.path("grados");
+                                return grados.isNumber() && Double.isFinite(grados.doubleValue()) &&
+                                        grados.doubleValue() >= 1 && grados.doubleValue() <= 359;
+                        }
+
+                        // Sectores circulares: proporciones no negativas y total del 100%.
+                        case "grafica_circular" -> {
+                                JsonNode segmentos = datos.path("segmentos");
+                                if (!segmentos.isArray() || segmentos.size() < 2 || segmentos.size() > 8) return false;
+                                double suma = 0;
+                                for (JsonNode segmento : segmentos) {
+                                        JsonNode etiqueta = segmento.path("etiqueta");
+                                        JsonNode porcentaje = segmento.path("porcentaje");
+                                        if (!etiqueta.isTextual() || etiqueta.asText().isBlank() ||
+                                                etiqueta.asText().length() > 35 || !porcentaje.isNumber() ||
+                                                !Double.isFinite(porcentaje.doubleValue()) ||
+                                                porcentaje.doubleValue() <= 0 || porcentaje.doubleValue() >= 100) return false;
+                                        suma += porcentaje.doubleValue();
+                                }
+                                return Math.abs(suma - 100) <= 0.01;
+                        }
+
+                        // Construcción completa: no requiere inventar una medida.
+                        // Si la lección proporciona longitud/grados, se validan;
+                        // si no, Angular dibuja un esquema sin medidas etiquetadas.
+                        case "construccion_geometrica" -> {
+                                String construccion = datos.path("construccion").asText("");
+                                boolean conMediatriz = "mediatriz".equals(construccion)
+                                        || "mediatriz_y_bisectriz".equals(construccion);
+                                boolean conBisectriz = "bisectriz".equals(construccion)
+                                        || "mediatriz_y_bisectriz".equals(construccion);
+                                if (!conMediatriz && !conBisectriz) return false;
+
+                                JsonNode longitud = datos.path("longitud");
+                                JsonNode unidad = datos.path("unidad");
+                                if (conMediatriz && !longitud.isMissingNode() && !longitud.isNull()) {
+                                        if (!longitud.isNumber() || !unidad.isTextual()
+                                                || !Double.isFinite(longitud.doubleValue())
+                                                || longitud.doubleValue() <= 0 || longitud.doubleValue() > 10000
+                                                || unidad.asText().isBlank() || unidad.asText().length() > 12) return false;
+                                } else if (conMediatriz && !unidad.isMissingNode() && !unidad.isNull()) {
+                                        // Una unidad sin longitud induce una medición falsa.
+                                        return false;
+                                }
+                                JsonNode grados = datos.path("grados");
+                                if (conBisectriz && !grados.isMissingNode() && !grados.isNull()) {
+                                        if (!grados.isNumber() || !Double.isFinite(grados.doubleValue())
+                                                || grados.doubleValue() < 30 || grados.doubleValue() > 150) return false;
+                                }
+                                // Rechazar campos ajenos a un subtipo, incluso si el JSON es válido.
+                                if (!conMediatriz && (!longitud.isMissingNode() || !unidad.isMissingNode())) return false;
+                                if (!conBisectriz && !grados.isMissingNode()) return false;
+                                return true;
+                        }
+
+                                /**
+                                 * RECURSO: TRIÁNGULOS CONGRUENTES
+                                 *
+                                 * Valida el criterio Lado-Lado-Lado (LLL).
+                                 *
+                                 * Angular representará dos triángulos con las
+                                 * mismas longitudes correspondientes.
+                                 *
+                                 * No modifica ni afecta otros recursos visuales.
+                                 */
+                                case "triangulos_congruentes" -> {
+
+                                // Validar el criterio de congruencia.
+                                String criterio = datos.path("criterio").asText("");
+
+                                if (!"LLL".equals(criterio)) {
+                                        return false;
+                                }
+
+                                // Recuperar los tres lados del primer triángulo.
+                                // El segundo tendrá las mismas medidas.
+                                JsonNode ladoAB = datos.path("ladoAB");
+                                JsonNode ladoBC = datos.path("ladoBC");
+                                JsonNode ladoAC = datos.path("ladoAC");
+
+                                // Las tres longitudes deben ser números positivos.
+                                if (!dimensionValida(ladoAB)
+                                        || !dimensionValida(ladoBC)
+                                        || !dimensionValida(ladoAC)) {
+                                        return false;
+                                }
+
+                                double ab = ladoAB.doubleValue();
+                                double bc = ladoBC.doubleValue();
+                                double ac = ladoAC.doubleValue();
+
+                                // Comprobar la desigualdad triangular.
+                                // La suma de dos lados debe superar al tercero.
+                                if (ab + bc <= ac
+                                        || ab + ac <= bc
+                                        || bc + ac <= ab) {
+                                        return false;
+                                }
+
+                                // Validar la unidad de medida.
+                                String unidad = datos.path("unidad").asText("");
+
+                                return unidad.equals("mm")
+                                        || unidad.equals("cm")
+                                        || unidad.equals("m")
+                                        || unidad.equals("km");
+                                }
+
+
                         // Rechaza tipos todavía no implementados.
                         default -> {
                         return false;
                         }
                 }
                 }
+
+        /**
+         * Protección adicional para una ecuación cuadrática explícita del
+         * ejemplo, como x² - 5x + 6 = 0. Se omite si el enunciado no tiene
+         * una ecuación reconocible o incluye varias distintas.
+         *
+         * No pretende interpretar todo el álgebra: el revisor de IA sigue
+         * encargado de los demás casos y del contexto curricular.
+         */
+        String verificarCorrespondenciaCuadratica(
+                Map<String, Object> leccion, JsonNode recurso) {
+
+                if (recurso == null || !recurso.isObject()) return null;
+                String tipo = recurso.path("tipo").asText("");
+                if (!"grafica_funcion".equals(tipo)
+                        && !"recta_numerica".equals(tipo)) return null;
+
+                String texto = String.valueOf(leccion.getOrDefault("ejemplo_resuelto", ""));
+                String normalizado = texto.replace('−', '-')
+                        .replace('–', '-').replaceAll("\\s+", "");
+
+                // a x² + b x + c = 0, con coeficientes numéricos opcionales.
+                var expresion = java.util.regex.Pattern.compile(
+                        "(?<![\\p{Alnum}])([+-]?(?:\\d+(?:\\.\\d+)?)?)x(?:²|\\^2)"
+                        + "([+-](?:\\d+(?:\\.\\d+)?)?x)?"
+                        + "([+-]\\d+(?:\\.\\d+)?)?=0(?![0-9])");
+                var coincidencias = expresion.matcher(normalizado);
+                double[] coeficientes = null;
+                while (coincidencias.find()) {
+                        double a = coeficienteExplicito(coincidencias.group(1));
+                        String terminoX = coincidencias.group(2);
+                        double b = terminoX == null ? 0
+                                : coeficienteExplicito(terminoX.substring(0, terminoX.length() - 1));
+                        double c = coincidencias.group(3) == null ? 0
+                                : Double.parseDouble(coincidencias.group(3));
+                        if (coeficientes != null) {
+                                if (Math.abs(coeficientes[0] - a) > 1e-8
+                                        || Math.abs(coeficientes[1] - b) > 1e-8
+                                        || Math.abs(coeficientes[2] - c) > 1e-8) {
+                                        return null; // Varios ejercicios: decidir con el revisor de IA.
+                                }
+                        }
+                        coeficientes = new double[]{a, b, c};
+                }
+                if (coeficientes == null || coeficientes[0] == 0) return null;
+
+                double a = coeficientes[0], b = coeficientes[1], c = coeficientes[2];
+                double discriminante = b*b - 4*a*c;
+                if (!Double.isFinite(discriminante) || discriminante < 0) return null;
+                double raiz1 = (-b - Math.sqrt(discriminante)) / (2*a);
+                double raiz2 = (-b + Math.sqrt(discriminante)) / (2*a);
+                if (!Double.isFinite(raiz1) || !Double.isFinite(raiz2)) return null;
+
+                if ("recta_numerica".equals(tipo) && Math.abs(raiz1 - raiz2) > 1e-8) {
+                        return "La recta numérica solo destaca un punto y no muestra "
+                                + "las dos raíces reales del ejemplo. Usa grafica_funcion.";
+                }
+                if (!"grafica_funcion".equals(tipo)) return null;
+
+                JsonNode datos = recurso.path("datos");
+                if (Math.abs(datos.path("a").asDouble(Double.NaN) - a) > 1e-8
+                        || Math.abs(datos.path("b").asDouble(Double.NaN) - b) > 1e-8
+                        || Math.abs(datos.path("c").asDouble(Double.NaN) - c) > 1e-8) {
+                        return "Los coeficientes de la gráfica no coinciden con la cuadrática resuelta.";
+                }
+                double min = datos.path("minimoX").asDouble(Double.NaN);
+                double max = datos.path("maximoX").asDouble(Double.NaN);
+                if (!(min <= raiz1 && raiz1 <= max && min <= raiz2 && raiz2 <= max)) {
+                        return "La gráfica debe incluir todas las raíces reales del ejemplo resuelto.";
+                }
+                return null;
+        }
+
+        private double coeficienteExplicito(String texto) {
+                if (texto == null || texto.isEmpty() || "+".equals(texto)) return 1;
+                if ("-".equals(texto)) return -1;
+                return Double.parseDouble(texto);
+        }
 
         /**
          * Comprueba si un recurso visual es pedagógicamente
@@ -699,6 +1312,43 @@ public class ValidadorContenidoIAService {
                 );
         }
 
+        // Validación determinista adicional para cuadráticas explícitas.
+        // Reduce confusiones de signos entre los factores y las raíces.
+        String errorCuadratica = verificarCorrespondenciaCuadratica(leccion, recursoVisual);
+        if (errorCuadratica != null) {
+                return new ResultadoValidacion(false, errorCuadratica);
+        }
+
+        // Una construcción debe mostrar el resultado terminado.
+        // Este filtro determinista evita aprobar un segmento inicial
+        // en una lección cuyo ejemplo resuelto enseña la mediatriz.
+        // También protege las lecciones que enseñan ambas construcciones.
+        String ejemplo = String.valueOf(
+                leccion.getOrDefault("ejemplo_resuelto", ""))
+                .toLowerCase(java.util.Locale.ROOT);
+        boolean requiereMediatriz = ejemplo.contains("mediatr");
+        boolean requiereBisectriz = ejemplo.contains("bisectr");
+        if (requiereMediatriz || requiereBisectriz) {
+                if (!"construccion_geometrica".equals(
+                        recursoVisual.path("tipo").asText(""))) {
+                        return new ResultadoValidacion(false,
+                                "El ejemplo exige el trazo final de la mediatriz o bisectriz; "
+                                + "una figura inicial no es suficiente.");
+                }
+                String subtipo = recursoVisual.path("datos")
+                        .path("construccion").asText("");
+                boolean muestraMediatriz = "mediatriz".equals(subtipo)
+                        || "mediatriz_y_bisectriz".equals(subtipo);
+                boolean muestraBisectriz = "bisectriz".equals(subtipo)
+                        || "mediatriz_y_bisectriz".equals(subtipo);
+                if ((requiereMediatriz && !muestraMediatriz)
+                        || (requiereBisectriz && !muestraBisectriz)) {
+                        return new ResultadoValidacion(false,
+                                "El recurso no muestra todas las construcciones finales "
+                                + "del ejemplo resuelto.");
+                }
+        }
+
         // Instrucciones específicas para revisar el diagrama.
         
         String instrucciones = """
@@ -720,6 +1370,21 @@ public class ValidadorContenidoIAService {
         - "patron_figuras_2d"
         - "plano_cartesiano"
         - "grafica_estadistica"
+        - "grafica_funcion" (y = ax² + bx + c)
+        - "modelo_proporcionalidad" (relación directa)
+        - "triangulo_rectangulo" (catetos y Pitágoras)
+        - "modelo_probabilidad" (casos equiprobables)
+        - "prisma_rectangular" (volumen, aristas)
+        - "solido_revolucion" (cilindro, cono o esfera con medidas explícitas)
+        - "sistema_lineal" (dos rectas y una intersección única)
+        - "segmento_geometrico" (segmentos de una sola dimensión)
+        - "modelo_ecuacion" (ecuación lineal ax+b=c)
+        - "tabla_valores" (pares numéricos, sucesiones, funciones)
+        - "mapa_conceptual" (conceptos extraídos de la lección)
+        - "angulo_geometrico" (grados sexagesimales)
+        - "grafica_circular" (sectores que suman 100%)
+        - "construccion_geometrica" (mediatriz, bisectriz o ambas TERMINADAS)
+        - "triangulos_congruentes" (comparación de dos triángulos mediante el criterio LLL)
 
         3. Comprueba que el recurso ayude a comprender
         un concepto central de la lección.
@@ -734,6 +1399,84 @@ public class ValidadorContenidoIAService {
         6. Verifica que el recurso sea apropiado
         para el grado escolar, objetivo y PDA,
         cuando esa información esté disponible.
+
+        6a. Un segmento es un objeto unidimensional. Rechaza cualquier
+        "rectangulo" usado para simularlo con altura artificial (por ejemplo, 0.1 cm).
+        Los porcentajes de grafica_circular deben coincidir con los valores reales.
+        Los conceptos del mapa deben aparecer y ser correctos en la lección.
+
+        6d. Para "sistema_lineal", comprueba que los coeficientes
+        y constantes correspondan exactamente a las DOS ecuaciones
+        del ejemplo, que la intersección satisface ambas y que
+        no se confunda con un par ordenado inventado.
+
+        6c. Para "solido_revolucion", comprueba si el ejemplo trata
+        realmente un cilindro, cono o esfera y respeta radio, altura
+        y unidad indicados. No inventes medidas ni confundas
+        volumen (unidades cúbicas) con área (unidades cuadradas).
+        Para una cuadrática, la gráfica de la función debe usar
+        los coeficientes exactos del ejemplo y mostrar sus raíces
+        reales como intersecciones con y=0, no como términos de factores.
+
+        6b. Si el ejemplo enseña a CONSTRUIR una mediatriz o bisectriz,
+        exige que el recurso muestre el trazo final: mediatriz
+        perpendicular por el punto medio, o semirrecta bisectriz con
+        ambas mitades del ángulo iguales. Un segmento o ángulo aislado
+        es únicamente el paso inicial y NO representa el resultado.
+        Para construccion_geometrica comprueba que cualquier longitud
+        o ángulo inicial indicado corresponda al ejemplo; si NO aparecen
+        medidas explícitas, el esquema NO debe afirmar una medida real.
+        Para temas que construyen ambas, exige mediatriz_y_bisectriz
+        con ambos resultados terminados.
+        Para mediatriz, el recurso debe mostrar las dos intersecciones
+        de los arcos de compás y la perpendicular. Para bisectriz, la
+        semirrecta final debe dividir exactamente el ángulo en dos.
+
+        6e. VALIDACIÓN DE TRIÁNGULOS CONGRUENTES:
+
+        Si el recurso es "triangulos_congruentes":
+
+        - Comprueba que la lección realmente explique
+        congruencia de triángulos mediante el criterio
+        Lado-Lado-Lado (LLL).
+
+        - Verifica que ladoAB, ladoBC y ladoAC coincidan
+        con las longitudes indicadas en el ejemplo resuelto.
+
+        - No apruebes medidas inventadas, aproximadas
+        arbitrariamente o tomadas de otro ejercicio.
+
+        - Comprueba que los tres lados formen un
+        triángulo geométricamente posible.
+
+        - El triángulo ABC y el triángulo DEF deben
+        tener los lados correspondientes iguales:
+
+                AB = DE
+                BC = EF
+                AC = DF
+
+        - Verifica que la correspondencia entre vértices
+        y lados sea coherente con el ejemplo.
+
+        - Los triángulos pueden tener orientaciones
+        diferentes sin perder la congruencia.
+
+        - No confundas congruencia con semejanza:
+        en la congruencia los lados correspondientes
+        tienen la misma longitud.
+
+        - Si el ejemplo utiliza LAL o ALA, no apruebes
+        un recurso que afirme demostrar ese criterio
+        utilizando únicamente datos LLL.
+
+        - Si las medidas no aparecen en el ejemplo
+        y no pueden deducirse con certeza,
+        devuelve aprobada=false.
+
+        - El recurso debe permitir comprender por qué
+        los triángulos son congruentes, no limitarse
+        a mostrar dos figuras sin correspondencias.
 
         7. No modifiques ni regeneres la lección.
 
@@ -803,6 +1546,51 @@ public class ValidadorContenidoIAService {
 
         Para rectángulos:
         - Comprueba la base y la altura.
+
+        VALIDACIÓN DE RECTÁNGULOS ALGEBRAICOS:
+
+        Si el recurso es "figura_geometrica_2d",
+        la figura es "rectangulo" y contiene
+        el objeto "algebra":
+
+        1. Comprueba que el ejemplo resuelto realmente
+        utilice un rectángulo con dimensiones
+        expresadas algebraicamente.
+
+        2. Verifica que "expresionBase" y
+        "expresionAltura" correspondan exactamente
+        a las expresiones del ejemplo resuelto.
+
+        3. Comprueba que la incógnita sea "x".
+
+        4. Verifica que las dimensiones numéricas
+        "base" y "altura" sean las obtenidas
+        al resolver el problema original.
+
+        5. Comprueba que "areaConocida" coincida
+        con el área indicada en la lección.
+
+        6. Verifica que:
+        base * altura = areaConocida.
+
+        7. No apruebes expresiones, dimensiones
+        ni áreas que no estén justificadas
+        por el ejemplo resuelto.
+
+        8. Si la lección utiliza únicamente
+        dimensiones numéricas, el recurso
+        no debe contener el objeto "algebra".
+
+        9. Si el recurso tiene cálculos correctos,
+        pero representa un problema diferente
+        al de la lección, devuelve aprobada=false.
+
+        10. Si no existe información suficiente
+        para comprobar las expresiones y
+        dimensiones, devuelve aprobada=false.
+
+        Para rectángulos sin "algebra", conserva
+        la validación normal de base y altura.
 
         Para triángulos:
         - Comprueba la base y la altura.

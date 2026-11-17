@@ -105,6 +105,20 @@
 
       </section>
 
+      <!-- Cierre del recorrido: sin modificar el plan ni borrar el progreso. -->
+      <section *ngIf="planCompletado" class="plan-completado" role="status">
+        <h2>¡Completaste tu plan de Matemáticas!</h2>
+        <p>
+          Terminaste todas las unidades de tu ruta personalizada. Puedes
+          repasar cualquier lección y consultar las insignias que has conseguido.
+          Tu progreso seguirá disponible.
+        </p>
+        <div class="acciones">
+          <button type="button" (click)="verLogros()">Ver mis logros</button>
+          <button type="button" (click)="volverDashboard()">Volver al dashboard</button>
+        </div>
+      </section>
+
       <!-- =====================================
            CARRUSEL DE UNIDADES
            ===================================== -->

@@ -1,12 +1,43 @@
+# Dependencias y compilación de Angular
 frontend/node_modules/
 frontend/dist/
 frontend/.angular/
+
+# Compilación del backend
 backend/target/
+
+# Entornos de desarrollo
 .vscode/
 .idea/
 *.iml
+
+# Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Variables de entorno
 .env
 .env.*
 !.env.example
+
+# Respaldos de bases de datos
+*.backup
+*.dump
+*.bak
+*.sql.gz
+
+# Configuración local sensible
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Claves privadas y credenciales
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+service-account*.json
+
+# Archivos de registro
+*.log

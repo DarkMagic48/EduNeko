@@ -653,3 +653,114 @@ button:disabled {
     margin-top: 20px;
   }
 }
+
+/* Estabilización UX: misma superficie de interacción para todos los botones.
+   No se modifican sus colores, tipografías ni las tarjetas del diagnóstico. */
+.diagnostico-container .boton-anterior,
+.diagnostico-container .boton-siguiente,
+.diagnostico-container .boton-finalizar,
+.diagnostico-container .boton-guardar-salir,
+.diagnostico-container .boton-ir-plan {
+  box-sizing: border-box;
+  width: 245px;
+  max-width: 100%;
+  height: 64px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.diagnostico-container .diagnostico-navegacion {
+  flex-wrap: wrap;
+}
+
+.diagnostico-container .diagnostico-navegacion button {
+  flex: 0 1 245px;
+}
+
+.diagnostico-container .boton-anterior:focus-visible,
+.diagnostico-container .boton-siguiente:focus-visible,
+.diagnostico-container .boton-finalizar:focus-visible {
+  outline: 3px solid #22C7B8;
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .diagnostico-container .boton-anterior,
+  .diagnostico-container .boton-siguiente,
+  .diagnostico-container .boton-finalizar,
+  .diagnostico-container .boton-guardar-salir,
+  .diagnostico-container .boton-ir-plan {
+    width: 100%;
+    max-width: 100%;
+  }
+  .diagnostico-container .diagnostico-navegacion button {
+    flex: 1 1 100%;
+  }
+}
+
+/* Navegación rápida de preguntas: conserva la tipografía y colores EduNeko. */
+.diagnostico-navegacion {
+  flex-wrap: wrap;
+}
+
+.boton-ir-final,
+.boton-pregunta-pendiente {
+  border: 2px solid #6C63FF;
+  border-radius: 14px;
+  background: #FFFFFF;
+  color: #5148C9;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.boton-ir-final:hover:not(:disabled),
+.boton-pregunta-pendiente:hover:not(:disabled) {
+  background: #F1EFFF;
+  transform: translateY(-2px);
+}
+
+.boton-ir-final:focus-visible,
+.boton-pregunta-pendiente:focus-visible {
+  outline: 3px solid #22C7B8;
+  outline-offset: 3px;
+}
+
+/* Botones de acción coherentes en alto y anchura sin cambiar la paleta. */
+.boton-anterior,
+.boton-siguiente,
+.boton-finalizar,
+.boton-ir-final,
+.boton-guardar-salir,
+.boton-pregunta-pendiente {
+  min-height: 48px;
+  min-width: 160px;
+  box-sizing: border-box;
+}
+
+.diagnostico-pendientes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 14px 0 20px;
+}
+
+@media (max-width: 480px) {
+  .diagnostico-navegacion > button {
+    flex: 1 1 100%;
+  }
+  .diagnostico-pendientes > button {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 0;
+  }
+}

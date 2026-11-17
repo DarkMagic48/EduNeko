@@ -183,9 +183,11 @@ public class LeccionService {
                 FROM plan_unidad u
                 JOIN plan_aprendizaje p
                   ON p.id = u.plan_aprendizaje_id
+                JOIN estudiante e ON e.id = p.estudiante_id
                 WHERE u.id = :unidadId
                   AND p.estudiante_id = :estudianteId
                   AND p.estado = 'ACTIVO'
+                  AND p.grado_escolar = e.grado_escolar
             )
             """;
 
@@ -203,6 +205,23 @@ public class LeccionService {
             );
         }
     }
+        /**
+         * La calidad matemática del texto se valida independientemente
+         * del recurso visual. La imagen se genera y revisa después,
+         * cuando la lección ya está aprobada y almacenada.
+         *
+         * No modifica el JSON original devuelto por OpenAI.
+         */
+        private JsonNode leccionSinRecursoVisual(JsonNode leccion) {
+                if (leccion == null || !leccion.isObject()) {
+                        return leccion;
+                }
+                var copia = ((com.fasterxml.jackson.databind.node.ObjectNode) leccion)
+                        .deepCopy();
+                copia.putNull("recursoVisual");
+                return copia;
+        }
+
         @Transactional
         public Map<String, Object> generarLeccion(
                 Long unidadId,
@@ -244,160 +263,46 @@ public class LeccionService {
 
                 var validacion = validadorContenidoIAService.validar(
                         contexto,
-                        leccion
+                        leccionSinRecursoVisual(leccion)
                 );
 
                 if (!validacion.aprobada()) {
 
                 String instruccionesCorreccion = """
-                        Eres un especialista en Matemáticas de secundaria
-                        y didáctica educativa en México.
+                        Eres especialista en Matemáticas de secundaria
+                        y didáctica educativa de México.
 
-                        Corrige la lección educativa proporcionada.
-
-                        Debes resolver todos los errores identificados
-                        por el revisor, sin introducir nuevos errores.
+                        Corrige ÚNICAMENTE el contenido académico de la
+                        lección según los errores señalados por el revisor.
 
                         REGLAS:
-                        1. Conserva el grado escolar, los PDA, la prioridad
-                        y las preferencias de aprendizaje.
-
-                        2. Mantén una explicación clara, gradual y enfocada
-                        en el concepto central de la lección.
-
-                        3. Verifica que los cálculos, procedimientos y
-                        resultados matemáticos sean correctos.
-
-                        4. El ejemplo resuelto debe corresponder
-                        con la explicación.
-
-                        RECURSOS VISUALES:
-                        5. Incluye siempre el campo recursoVisual en el JSON.
-
-                        6. Si prefiere_visual es true, prioriza un recurso
-                        visual cuando sea adecuado al contenido.
-
-                        7. Los estudiantes sin preferencia visual también
-                        pueden recibir recursos visuales útiles.
-
-                        
-                        8. Los tipos de recursos visuales permitidos son:
-                        - "barra_fraccionaria"
-                        - "recta_numerica"
-
-                        9. Utiliza "barra_fraccionaria" para representar
-                        fracciones propias, impropias, aparentes
-                        y números mixtos positivos convertidos
-                        a fracciones impropias equivalentes.
-
-                        10. Para barra_fraccionaria:
-                        - numerador y denominador deben ser enteros.
-                        - denominador debe estar entre 1 y 12.
-                        - numerador debe estar entre 0 y cuatro
-                          veces el denominador.
-                        - Se permiten hasta cuatro barras completas.
-
-                        11. Utiliza "recta_numerica" para representar
-                        la ubicación de números positivos, negativos
-                        o decimales sobre una recta numérica.
-
-                        Para recta_numerica:
-                        - minimo debe ser menor que maximo.
-                        - intervalo debe ser positivo y mayor
-                          o igual a 0.00000001.
-                        - valorDestacado debe estar comprendido
-                          entre minimo y maximo.
-                        - Todos los valores deben ser números finitos.
-                        - (maximo - minimo) / intervalo
-                          no debe superar 20.
-                        - Prioriza intervalos sencillos y legibles.
-                        - No representes desigualdades, intervalos
-                          abiertos o cerrados ni varios puntos.
-
-                        12. Conserva un recurso visual válido de
-                        la lección original cuando siga siendo
-                        coherente con el contenido corregido.
-
-                        Si el recurso original contiene errores,
-                        corrígelo o sustitúyelo por uno adecuado.
-
-                        Si no existe una representación correcta,
-                        devuelve recursoVisual como null.
-
-                        13. El recurso visual debe ser matemáticamente
-                        correcto y corresponder a la explicación
-                        y al ejemplo resuelto.
-
-                        No generes HTML, SVG, JavaScript,
-                        enlaces de imágenes ni recursos de
-                        tipos diferentes de los permitidos.
-
+                        1. Respeta el grado, PDA, objetivos, prioridad
+                           y preferencias de aprendizaje recibidos.
+                        2. Revisa los cálculos, las fórmulas y cada paso.
+                        3. Distingue factores, raíces y resultados:
+                           en (x-2)(x-3)=0 las raíces son 2 y 3,
+                           no -2 y -3.
+                        4. Conserva un ejemplo resuelto completo,
+                           correcto y coherente con la explicación.
+                        5. No añadas dibujos ni instrucciones para crearlos.
+                        6. Los recursos visuales se generan por separado.
+                           Devuelve SIEMPRE recursoVisual como null.
+                        7. Devuelve solo JSON, sin Markdown.
 
                         FORMATO:
-                        Devuelve exclusivamente un objeto JSON válido:
-
                         {
-                        "titulo": "Título corregido",
-                        "introduccion": "Introducción corregida",
-                        "explicacion": "Explicación corregida",
-                        "ejemploResuelto": "Ejemplo corregido",
-                        "recursoVisual": null
+                          "titulo": "Título corregido",
+                          "introduccion": "Introducción corregida",
+                          "explicacion": "Explicación corregida",
+                          "ejemploResuelto": "Ejemplo corregido",
+                          "recursoVisual": null
                         }
-
-                        Si corresponde una barra fraccionaria,
-                        reemplaza únicamente el valor null del campo
-                        recursoVisual por el siguiente objeto:
-
-                        {
-                        "tipo": "barra_fraccionaria",
-                        "titulo": "Representación de tres cuartos",
-                        "datos": {
-                        "numerador": 3,
-                        "denominador": 4
-                        }
-                        }
-                        
-                        Si corresponde una recta numérica,
-                        reemplaza únicamente el valor null del campo
-                        recursoVisual por el siguiente objeto:
-
-                        {
-                          "tipo": "recta_numerica",
-                          "titulo": "Ubicación del número -2",
-                          "datos": {
-                            "minimo": -5,
-                            "maximo": 5,
-                            "intervalo": 1,
-                            "valorDestacado": -2
-                          }
-                        }
-
-                        Incluye únicamente un recurso visual
-                        por lección y conserva los campos
-                        principales del JSON de la lección.
-
-                        IMPORTANTE:
-                        La respuesta debe ser siempre un único objeto JSON
-                        con los cinco campos principales:
-                        titulo, introduccion, explicacion,
-                        ejemploResuelto y recursoVisual.
-
-                        El campo recursoVisual debe contener:
-                        - Un objeto barra_fraccionaria válido.
-                        - Un objeto recta_numerica válido.
-                        - O null si no corresponde ningún recurso.
-
-                        Nunca devuelvas el recurso visual como un objeto
-                        independiente de la lección.
-
-
-                        No incluyas Markdown ni texto fuera del JSON.
                         """;
 
                 String solicitudCorreccion = objectMapper.writeValueAsString(
                         Map.of(
                                 "contexto", contexto,
-                                "leccionOriginal", leccion,
+                                "leccionOriginal", leccionSinRecursoVisual(leccion),
                                 "erroresDetectados", validacion.observaciones()
                         )
                 );
@@ -412,7 +317,7 @@ public class LeccionService {
 
                 var validacionFinal = validadorContenidoIAService.validar(
                         contexto,
-                        leccion
+                        leccionSinRecursoVisual(leccion)
                 );
 
                 if (!validacionFinal.aprobada()) {
@@ -429,11 +334,13 @@ public class LeccionService {
                 String explicacion =
                         obtenerCampo(leccion, "explicacion");
                 String ejemploResuelto =
-                        obtenerCampo(leccion, "ejemploResuelto");
+                        limpiarInstruccionesVisuales(
+                                obtenerCampo(leccion, "ejemploResuelto"));
 
-                //Valida el recurso visual generado por OpenAI.
-                //Si el recurso es una barra fraccionaria valida, devuelve su representacion JSON normalizada.
-                String recursoVisualJson = validarRecursoVisual(leccion);
+                // No guardar aquí el recurso sugerido por la IA.
+                // El enriquecimiento posterior valida el diagrama contra
+                // la lección ya aprobada, sin bloquear su generación.
+                String recursoVisualJson = null;
 
                 Long leccionId = leccionRepository.crearLeccion(
                         unidadId,
@@ -471,6 +378,71 @@ public class LeccionService {
          *
          * No modifica actividades, intentos ni progreso.
          */
+        /**
+         * Reintento manual de un recurso visual previamente descartado.
+         * No modifica el contenido académico y exige que la unidad sea del estudiante.
+         * Puede consumir llamadas adicionales a la IA, por eso nunca es automático.
+         */
+        public Map<String, Object> reintentarRecursoVisual(
+                Long unidadId, String correo) {
+            validarAccesoUnidad(unidadId, correo);
+            Long leccionId = leccionRepository.buscarLeccionPorUnidad(unidadId)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "La unidad no tiene una lección"));
+            leccionRepository.reiniciarRecursoVisualDescartado(leccionId);
+            return enriquecerLeccionVisualmente(unidadId, correo);
+        }
+
+        /**
+         * Identifica lecciones que requieren una representación
+         * geométrica específica y no solamente tarjetas de texto.
+         *
+         * No modifica la lección ni sus recursos almacenados.
+         */
+        private boolean requiereDiagramaGeometricoEspecifico(
+                Map<String, Object> leccion) {
+
+        String titulo = String.valueOf(
+                leccion.getOrDefault("titulo", ""));
+
+        String ejemplo = String.valueOf(
+                leccion.getOrDefault("ejemplo_resuelto", ""));
+
+        String contenido = (titulo + " " + ejemplo)
+                .toLowerCase(java.util.Locale.ROOT);
+
+        return contenido.contains("congruen")
+                || contenido.contains("semejan")
+                || contenido.contains("mediatr")
+                || contenido.contains("bisectr");
+        }
+
+        /**
+         * Devuelve el motivo del rechazo o null si el recurso es válido.
+         * Primero valida estructura sin llamar a IA y después la coherencia
+         * con el ejemplo real. Jamás modifica datos ni lecciones existentes.
+         */
+        private String diagnosticarRecursoVisual(
+                Map<String, Object> leccion, JsonNode recurso) {
+            if (recurso == null || recurso.isNull()) {
+                return "No existe un recurso visual específico para el ejemplo.";
+            }
+            if (requiereDiagramaGeometricoEspecifico(leccion)
+                        && "mapa_conceptual".equals(
+                                recurso.path("tipo").asText())) {
+
+                return "El tema requiere una representación geométrica "
+                        + "específica relacionada con el ejemplo resuelto. "
+                        + "No se aceptan tarjetas de texto como sustituto.";
+            }
+            if (!validadorContenidoIAService.validarEstructuraRecursoVisual(recurso)) {
+                return "El recurso visual no cumple el formato ni los límites admitidos.";
+            }
+            var validacion = validadorContenidoIAService
+                    .validarRecursoVisualExistente(leccion, recurso);
+            return validacion.aprobada() ? null : validacion.observaciones();
+        }
+
         public Map<String, Object> enriquecerLeccionVisualmente(
                 Long unidadId,
                 String correo) {
@@ -534,87 +506,85 @@ public class LeccionService {
 
                 // Envía el contenido existente como contexto.
                 // No solicita una nueva lección ni actividades.
+                // El enriquecimiento considera las preferencias reales del estudiante.
+                // Los recursos siguen disponibles para todos, pero se priorizan los
+                // visuales y los explorables cuando las preferencias lo indican.
                 String contenido = objectMapper.writeValueAsString(
-                        Map.of("leccion", leccion)
+                        Map.of(
+                                "leccion", leccion,
+                                "contexto", obtenerContextoUnidad(unidadId, correo)
+                        )
                 );
 
                 String respuestaIA = generadorContenidoIAService
                         .generarTexto(instrucciones, contenido);
 
-                // La IA puede devolver un objeto visual o null.
+                // La generación del texto ya fue aprobada. Un recurso visual
+                // defectuoso no debe invalidarla ni modificar sus resultados.
                 JsonNode recursoVisual = objectMapper.readTree(respuestaIA);
+                String motivoRechazo = diagnosticarRecursoVisual(leccion, recursoVisual);
 
-                // Si no hay una representación adecuada,
-                // conserva la lección sin modificaciones.
-                if (recursoVisual == null || recursoVisual.isNull()) {
+                // Un ÚNICO reintento guiado por el error, solamente si la IA
+                // propuso un recurso incorrecto. No repetir lecciones, planes
+                // ni actividades y evitar ciclos indefinidos de llamadas.
+                if (motivoRechazo != null
+                        && recursoVisual != null && !recursoVisual.isNull()) {
+                    String instruccionesCorreccion = instrucciones + """
 
-                // La IA no encontró una representación visual adecuada.
-                // Registramos el resultado para evitar nuevos intentos
-                // automáticos al abrir esta misma lección.
-                leccionRepository.actualizarEstadoRecursoVisual(
-                        leccionId,
-                        "NO_APLICABLE"
-                );
-
-                // La IA determinó que no existe un recurso visual
-                // compatible con el contenido de esta lección.
-                System.out.println(
-                        "[EDUNEKO VISUAL] Lección " + leccionId
-                        + ": OpenAI devolvió null."
-                );
-
-                return prepararRespuestaLeccion(leccion);
-                }
-
-                // Rechaza recursos con datos incompatibles
-                // con los componentes implementados en Angular.
-                if (!validadorContenidoIAService
-                        .validarEstructuraRecursoVisual(recursoVisual)) {
-
-                // El recurso generado no cumple la estructura
-                // requerida por los componentes de Angular.
-                leccionRepository.actualizarEstadoRecursoVisual(
-                        leccionId,
-                        "RECHAZADO"
-                );
-
-                // El recurso no cumple la estructura requerida
-                // por los componentes visuales de Angular.
-                System.out.println(
-                        "[EDUNEKO VISUAL] Lección " + leccionId
-                        + ": recurso rechazado por estructura."
-                );
-
-                return prepararRespuestaLeccion(leccion);
-                }
-
-                // Comprueba que el recurso represente correctamente
-                // un concepto explicado en la lección.
-                var validacion = validadorContenidoIAService
-                        .validarRecursoVisualExistente(
-                                leccion,
-                                recursoVisual
+                        CORRECCIÓN DEL RECURSO VISUAL:
+                        El primer recurso NO superó la validación.
+                        Utiliza las observaciones recibidas para devolver
+                        solamente un recurso visual corregido, compatible
+                        con el ejemplo resuelto y los tipos permitidos.
+                        Mantén los valores de la lección, no inventes datos.
+                        En ecuaciones cuadráticas distingue los factores de
+                        las soluciones: los puntos señalados deben ser raíces.
+                        Si no hay una representación matemática fiel,
+                        devuelve exclusivamente el JSON null.
+                        """;
+                    try {
+                        String solicitudCorreccion = objectMapper.writeValueAsString(
+                                Map.of(
+                                        "leccion", leccion,
+                                        "contexto", obtenerContextoUnidad(unidadId, correo),
+                                        "recursoPropuesto", recursoVisual,
+                                        "problemaDetectado", motivoRechazo
+                                )
                         );
+                        JsonNode corregido = objectMapper.readTree(
+                                generadorContenidoIAService.generarTexto(
+                                        instruccionesCorreccion, solicitudCorreccion));
+                        String errorCorreccion = diagnosticarRecursoVisual(leccion, corregido);
+                        if (errorCorreccion == null) {
+                            recursoVisual = corregido;
+                            motivoRechazo = null;
+                            System.out.println("[EDUNEKO VISUAL] Lección " + leccionId
+                                    + ": recurso corregido y validado.");
+                        } else {
+                            motivoRechazo = errorCorreccion;
+                        }
+                    } catch (JsonProcessingException | RuntimeException errorJson) {
+                        // La corrección falló: nunca guardar
+                        // ese resultado ni arriesgar la lección ya aprobada.
+                        motivoRechazo = "La corrección del recurso visual no es JSON válido.";
+                    }
+                }
 
-                // Si el revisor encuentra errores matemáticos
-                // o pedagógicos, no guarda el recurso.
-                if (!validacion.aprobada()) {
+                if (motivoRechazo != null) {
+                    // Conservar el texto y las actividades. Si existe una
+                    // alternativa segura, usar únicamente conceptos reales
+                    // de la lección en lugar de un diagrama falso.
+                    Map<String, Object> respaldo =
+                            guardarMapaDeEstudioSiEsPosible(leccionId, leccion);
+                    if (respaldo != null) return respaldo;
 
-                // El recurso no superó la revisión matemática
-                // o su representación no corresponde a la lección.
-                leccionRepository.actualizarEstadoRecursoVisual(
-                        leccionId,
-                        "RECHAZADO"
-                );
-
-                // El revisor encontró un problema matemático
-                // o de correspondencia con el contenido.
-                System.out.println(
-                        "[EDUNEKO VISUAL] Lección " + leccionId
-                        + ": recurso rechazado por validación pedagógica."
-                );
-
-                return prepararRespuestaLeccion(leccion);
+                    String estado = (recursoVisual == null || recursoVisual.isNull())
+                            ? "NO_APLICABLE" : "RECHAZADO";
+                    leccionRepository.actualizarEstadoRecursoVisual(leccionId, estado);
+                    System.out.println("[EDUNEKO VISUAL] Lección " + leccionId
+                            + ": recurso no guardado. " + motivoRechazo);
+                    return prepararRespuestaLeccion(
+                            leccionRepository.obtenerLeccion(leccionId).orElseThrow());
                 }
 
                 // Guarda exclusivamente el JSON del recurso visual.
@@ -651,13 +621,73 @@ public class LeccionService {
 
                 } catch (JsonProcessingException e) {
 
-                // Una respuesta JSON inválida no debe modificar
-                // el contenido educativo existente.
-                throw new IllegalStateException(
-                        "No fue posible interpretar el recurso visual generado.",
-                        e
-                );
+                // El recurso de IA es inválido; la lección académica permanece
+                // almacenada. Evitamos convertir un fallo visual en fallo de lección.
+                Map<String, Object> respaldo =
+                        guardarMapaDeEstudioSiEsPosible(leccionId, leccion);
+                if (respaldo != null) return respaldo;
+                leccionRepository.actualizarEstadoRecursoVisual(leccionId, "RECHAZADO");
+                return prepararRespuestaLeccion(
+                        leccionRepository.obtenerLeccion(leccionId).orElseThrow());
             }
+        }
+
+        /**
+         * Alternativa verificable cuando la IA no consigue un diagrama matemático.
+         * Resume fragmentos LITERALES de la lección ya validada; no inventa
+         * medidas, ecuaciones ni resultados, y no modifica el contenido original.
+         * Se almacena solo si no hay otro recurso y el estado sigue PENDIENTE.
+         */
+        private Map<String, Object> guardarMapaDeEstudioSiEsPosible(
+                Long leccionId, Map<String, Object> leccion) {
+
+                // Para mediatrices y bisectrices, un mapa genérico NO
+                // sustituye el trazo geométrico final del ejemplo.
+                // Se conserva el estado de reintento en lugar de guardar
+                // una ilustración incompleta como si fuera correcta.
+                if (requiereDiagramaGeometricoEspecifico(leccion)) {
+                        return null;
+                }
+
+                var recurso = objectMapper.createObjectNode();
+                recurso.put("tipo", "mapa_conceptual");
+                recurso.put("titulo", "Ideas clave de esta lección");
+                var datos = recurso.putObject("datos");
+                var conceptos = datos.putArray("conceptos");
+
+                agregarFragmentoVerificado(conceptos, "Situación inicial",
+                        leccion.get("introduccion"));
+                agregarFragmentoVerificado(conceptos, "Explicación",
+                        leccion.get("explicacion"));
+                agregarFragmentoVerificado(conceptos, "Ejemplo resuelto",
+                        leccion.get("ejemplo_resuelto"));
+
+                // El validador conserva la misma estructura exigida a la IA.
+                if (!validadorContenidoIAService.validarEstructuraRecursoVisual(recurso)) {
+                        return null;
+                }
+
+                leccionRepository.guardarRecursoVisual(leccionId, recurso.toString());
+                return prepararRespuestaLeccion(
+                        leccionRepository.obtenerLeccion(leccionId).orElseThrow());
+        }
+
+        /** Conserva texto exacto sin añadir afirmaciones matemáticas nuevas. */
+        private void agregarFragmentoVerificado(
+                com.fasterxml.jackson.databind.node.ArrayNode conceptos,
+                String etiqueta, Object contenido) {
+                if (!(contenido instanceof String texto)) return;
+                String limpio = ("Ejemplo resuelto".equals(etiqueta)
+                        ? limpiarInstruccionesVisuales(texto) : texto)
+                        .replaceAll("\\s+", " ").trim();
+                if (limpio.isBlank()) return;
+                if (limpio.length() > 220) {
+                        int espacio = limpio.lastIndexOf(' ', 215);
+                        limpio = limpio.substring(0, espacio > 65 ? espacio : 215).trim() + "…";
+                }
+                var concepto = conceptos.addObject();
+                concepto.put("etiqueta", etiqueta);
+                concepto.put("detalle", limpio);
         }
 
         private String obtenerCampo(JsonNode leccion, String campo) {
@@ -674,139 +704,6 @@ public class LeccionService {
                 return valor.asText().trim();
         }
 
-        private String validarRecursoVisual(JsonNode leccion) {
-
-        // Recupera el recurso visual generado por la IA.
-        JsonNode recurso = leccion.path("recursoVisual");
-
-        // Las lecciones pueden no necesitar un recurso visual.
-        if (!recurso.isObject()) {
-                return null;
-        }
-
-        // Verifica el tipo y el título del recurso.
-        JsonNode tipo = recurso.path("tipo");
-        JsonNode titulo = recurso.path("titulo");
-        JsonNode datos = recurso.path("datos");
-
-        if (!tipo.isTextual()
-                || !titulo.isTextual()
-                || titulo.asText().isBlank()
-                || !datos.isObject()) {
-                return null;
-        }
-
-        String tipoRecurso = tipo.asText();
-        String tituloRecurso = titulo.asText().trim();
-
-        // Construye un recurso normalizado.
-        // Solo se almacenarán los campos autorizados.
-        var recursoValidado = objectMapper.createObjectNode();
-        var datosValidados = objectMapper.createObjectNode();
-
-        switch (tipoRecurso) {
-
-                case "barra_fraccionaria" -> {
-
-                JsonNode numerador = datos.path("numerador");
-                JsonNode denominador = datos.path("denominador");
-
-                // Los valores deben ser enteros compatibles con int.
-                if (!numerador.isIntegralNumber()
-                        || !denominador.isIntegralNumber()
-                        || !numerador.canConvertToInt()
-                        || !denominador.canConvertToInt()) {
-                        return null;
-                }
-
-                int valorNumerador = numerador.intValue();
-                int valorDenominador = denominador.intValue();
-
-                // Se permiten hasta cuatro barras completas.
-                if (valorDenominador < 1
-                        || valorDenominador > 12
-                        || valorNumerador < 0
-                        || valorNumerador > valorDenominador * 4) {
-                        return null;
-                }
-
-                datosValidados.put("numerador", valorNumerador);
-                datosValidados.put("denominador", valorDenominador);
-                }
-
-                case "recta_numerica" -> {
-
-                JsonNode minimo = datos.path("minimo");
-                JsonNode maximo = datos.path("maximo");
-                JsonNode intervalo = datos.path("intervalo");
-                JsonNode valorDestacado = datos.path("valorDestacado");
-
-                // Todos los campos deben contener números JSON.
-                if (!minimo.isNumber()
-                        || !maximo.isNumber()
-                        || !intervalo.isNumber()
-                        || !valorDestacado.isNumber()) {
-                        return null;
-                }
-
-                double valorMinimo = minimo.doubleValue();
-                double valorMaximo = maximo.doubleValue();
-                double valorIntervalo = intervalo.doubleValue();
-                double valorPunto = valorDestacado.doubleValue();
-
-                // Rechaza números no finitos o rangos inválidos.
-                if (!Double.isFinite(valorMinimo)
-                        || !Double.isFinite(valorMaximo)
-                        || !Double.isFinite(valorIntervalo)
-                        || !Double.isFinite(valorPunto)
-                        || valorMinimo >= valorMaximo
-                        || valorIntervalo <= 0
-                        || valorPunto < valorMinimo
-                        || valorPunto > valorMaximo) {
-                        return null;
-                }
-
-                // Limita la cantidad de marcas del componente.
-                double cantidadIntervalos =
-                        (valorMaximo - valorMinimo) / valorIntervalo;
-
-                if (!Double.isFinite(cantidadIntervalos)
-                        || cantidadIntervalos > 20) {
-                        return null;
-                }
-
-                // Evita valores que puedan producir posiciones
-                // o marcas incompatibles con los cálculos de Angular.
-                if (!Double.isFinite(valorMaximo - valorMinimo)) {
-                        return null;
-                }
-
-                // Angular redondea las marcas a ocho decimales.
-                // Restringimos la precisión para mantener coherencia.
-                if (valorIntervalo < 0.00000001) {
-                        return null;
-                }
-
-                datosValidados.put("minimo", valorMinimo);
-                datosValidados.put("maximo", valorMaximo);
-                datosValidados.put("intervalo", valorIntervalo);
-                datosValidados.put("valorDestacado", valorPunto);
-                }
-
-                // Los componentes todavía no implementados
-                // se omiten sin impedir la generación de la lección.
-                default -> {
-                return null;
-                }
-        }
-
-        recursoValidado.put("tipo", tipoRecurso);
-        recursoValidado.put("titulo", tituloRecurso);
-        recursoValidado.set("datos", datosValidados);
-
-        return recursoValidado.toString();
-        }
-
         private String limpiarInstruccionesVisuales(
                 String ejemploResuelto) {
 
@@ -820,13 +717,32 @@ public class LeccionService {
         //
         // No elimina menciones de diagramas dentro
         // de explicaciones matemáticas normales.
-        String patron = "(?im)^\\s*"
-                + "(?:Diagrama sugerido|Imagen sugerida)"
-                + "\\s*:\\s*[^\\r\\n]*";
+        // También elimina "Visualización sugerida" y sus variantes,
+        // incluso si la IA las escribió al final de un paso numerado.
+        // Conserva el procedimiento anterior a la etiqueta en esa línea.
+        String patron = "(?im)[ \\t]*"
+                + "(?:\\*\\*|\\*)?"
+                + "(?:Visualizaci[oó]n sugerida|"
+                + "Representaci[oó]n visual sugerida|"
+                + "Diagrama sugerido|Imagen sugerida)"
+                + "(?:\\*\\*|\\*)?"
+                + "[ \\t]*:[ \\t]*[^\\r\\n]*";
 
         // Elimina únicamente las líneas identificadas.
         String resultado = ejemploResuelto.replaceAll(
                 patron,
+                ""
+        );
+
+        // Quitar también encabezados aislados que quedaron al retirar
+        // una indicación gráfica (sin borrar pasos con contenido).
+        resultado = resultado.replaceAll(
+                "(?im)^[ \\t]*Paso[ \\t]+\\d+[ \\t]*[:.)-][ \\t]*(?:\\r?\\n|$)",
+                ""
+        );
+        // Algunos textos históricos almacenan solo la etiqueta, sin dos puntos.
+        resultado = resultado.replaceAll(
+                "(?im)^[ \\t]*(?:\\*\\*|\\*)?Visualizaci[oó]n sugerida(?:\\*\\*|\\*)?[ \\t]*$",
                 ""
         );
 

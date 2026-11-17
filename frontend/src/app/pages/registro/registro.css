@@ -407,3 +407,25 @@
     transition: none;
   }
 }
+
+/* Ayuda textual a la contraseña; conserva la identidad visual existente. */
+.registro-ayuda-password {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #697386;
+}
+
+/* Regreso a login sin modificar el botón principal de registro. */
+.registro-volver {
+  margin-bottom: 16px;
+  padding: 9px 14px;
+  border: 1px solid #6C63FF;
+  border-radius: 12px;
+  background: transparent;
+  color: #5148C9;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.registro-volver:focus-visible { outline: 3px solid #22C7B8; outline-offset: 2px; }

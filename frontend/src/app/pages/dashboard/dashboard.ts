@@ -24,6 +24,11 @@ export class Dashboard implements OnInit {
   rachaMaxima = 0;
   cargandoRachas = false;
   errorRachas = '';
+  // Permite mostrar el regreso a materias sin depender del nombre de una ruta.
+  get tieneMatematicas(): boolean {
+    return this.materiasSeleccionadas.some(materia => materia.nombre === 'Matemáticas');
+  }
+
   materiasSeleccionadas: Materia[] = [];
   cargandoMaterias = false;
   errorMaterias = '';

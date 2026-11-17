@@ -1,4 +1,3 @@
-import { interval } from "rxjs";
 
 export type EstadoLeccion =
   | 'BLOQUEADA'
@@ -64,24 +63,50 @@ export interface PatronFiguras2DDatos {
   regla: string;
 }
 
+
 /**
- * Datos de una figura geométrica.
+ * Información algebraica opcional para resolver
+ * una dimensión desconocida de un rectángulo.
  *
- * Solo se utilizan las dimensiones que correspondan
- * al tipo de figura seleccionado.
+ * Solo se utiliza cuando el ejercicio realmente
+ * contiene una incógnita.
+ */
+export interface AlgebraRectanguloDatos {
+
+  // Variable utilizada en el procedimiento algebraico.
+  incognita: 'x';
+
+  // Expresión algebraica de la base.
+  expresionBase: string;
+
+  // Expresión algebraica de la altura.
+  expresionAltura: string;
+
+  // Área conocida indicada en el problema.
+  areaConocida: number;
+}
+
+/**
+ * Representación de figuras geométricas de EduNeko.
+ *
+ * Conserva la compatibilidad con los recursos
+ * visuales que ya están implementados.
  */
 export interface FiguraGeometrica2DDatos {
   figura: TipoFigura2D;
 
-  // Dimensiones expresadas en la unidad indicada.
   lado?: number;
   base?: number;
   altura?: number;
   radio?: number;
 
-  // Unidad de medida, por ejemplo: cm, m.
   unidad: string;
+
+  // Información opcional para ejercicios algebraicos.
+  // Los recursos anteriores funcionan sin ella.
+  algebra?: AlgebraRectanguloDatos;
 }
+
 
 export interface PuntoCartesiano {
   x: number;
@@ -108,6 +133,46 @@ export interface GraficaEstadisticaDatos {
   unidad: string;
   elementos: DatosEstadistico[];
 }
+/** Gráfica de funciones lineales y cuadráticas: y = ax² + bx + c. */
+export interface GraficaFuncionDatos {
+  a: number;
+  b: number;
+  c: number;
+  minimoX: number;
+  maximoX: number;
+  valorX: number;
+}
+
+/** Modelo de proporcionalidad directa con cantidades positivas. */
+export interface ModeloProporcionalidadDatos {
+  cantidadBase: number;
+  cantidadCorrespondiente: number;
+  unidadBase: string;
+  unidadCorrespondiente: string;
+}
+
+/** Triángulo rectángulo: la hipotenusa se calcula con Pitágoras. */
+export interface TrianguloRectanguloDatos {
+  catetoA: number;
+  catetoB: number;
+  unidad: string;
+}
+
+/** Modelo de probabilidad clásica con casos equiprobables. */
+export interface ModeloProbabilidadDatos {
+  favorables: number;
+  total: number;
+  evento: string;
+}
+
+/** Prisma rectangular con dimensiones reales y volumen. */
+export interface PrismaRectangularDatos {
+  largo: number;
+  ancho: number;
+  alto: number;
+  unidad: string;
+}
+
 /**
  * Recursos visuales compatibles con EduNeko.
  *
@@ -115,6 +180,73 @@ export interface GraficaEstadisticaDatos {
  * de datos, lo que permite que Angular identifique
  * correctamente las propiedades correspondientes.
  */
+
+/** Segmento: longitud unidimensional, nunca se dibuja como rectángulo. */
+export interface SegmentoGeometricoDatos { longitud: number; unidad: string; }
+
+/** Ecuación de primer grado ax + b = c, con solución única. */
+export interface ModeloEcuacionDatos { a: number; b: number; c: number; }
+
+/** Tabla de pares numéricos: patrones, proporcionalidad, funciones o conversiones. */
+export interface TablaValoresDatos {
+  encabezadoX: string; encabezadoY: string;
+  pares: { x: number; y: number }[];
+}
+
+/** Diagrama conceptual para temas sin representación geométrica válida. */
+export interface MapaConceptualDatos {
+  conceptos: { etiqueta: string; detalle: string }[];
+}
+
+/** Ángulo medido en grados sexagesimales. */
+export interface AnguloGeometricoDatos { grados: number; }
+
+/** Distribución porcentual de un total (suma 100). */
+export interface GraficaCircularDatos {
+  segmentos: { etiqueta: string; porcentaje: number }[];
+}
+
+/** Construcciones trazadas hasta el resultado final, no solo el segmento o ángulo inicial. */
+export type ConstruccionGeometricaDatos = {
+  construccion: 'mediatriz' | 'bisectriz' | 'mediatriz_y_bisectriz';
+  // Opcionales: la construcción también puede explicarse sin medidas dadas.
+  // Nunca se muestra una medida predeterminada como si fuese del ejemplo.
+  longitud?: number;
+  unidad?: string;
+  grados?: number;
+};
+
+/** Sólidos de revolución: dimensiones explícitas del ejemplo. */
+export interface SolidoRevolucionDatos {
+  forma: 'cilindro' | 'cono' | 'esfera';
+  radio: number;
+  altura?: number; // Requerida para cono y cilindro; no se usa en esfera.
+  unidad: string;
+}
+
+/** Dos rectas ax + by = c con una intersección única. */
+export interface SistemaLinealDatos {
+  a1: number; b1: number; c1: number;
+  a2: number; b2: number; c2: number;
+  minimoX: number; maximoX: number;
+  minimoY: number; maximoY: number;
+}
+
+export interface TriangulosCongruentesDatos {
+
+  // Primera versión: criterio Lado-Lado-Lado.
+  criterio: 'LLL';
+
+  // Longitudes del triángulo ABC.
+  // Correspondencias: AB=DE, BC=EF y AC=DF.
+  ladoAB: number;
+  ladoBC: number;
+  ladoAC: number;
+
+  // Unidad de medida utilizada en la lección.
+  unidad: 'mm' | 'cm' | 'm' | 'km';
+}
+
 export type RecursoVisualLeccion =
   | {
       tipo: 'barra_fraccionaria';
@@ -132,11 +264,6 @@ export type RecursoVisualLeccion =
     datos: FiguraGeometrica2DDatos;
     }
   | {
-    tipo: 'patron_figuras_2d';
-    titulo: string;
-    datos: PatronFiguras2DDatos;
-    }
-  | {
       tipo: 'patron_figuras_2d';
       titulo: string;
       datos: PatronFiguras2DDatos;
@@ -150,6 +277,45 @@ export type RecursoVisualLeccion =
       tipo: 'grafica_estadistica';
       titulo: string;
       datos: GraficaEstadisticaDatos;
+    }
+  | {
+      tipo: 'grafica_funcion';
+      titulo: string;
+      datos: GraficaFuncionDatos;
+    }
+  | {
+      tipo: 'modelo_proporcionalidad';
+      titulo: string;
+      datos: ModeloProporcionalidadDatos;
+    }
+  | {
+      tipo: 'triangulo_rectangulo';
+      titulo: string;
+      datos: TrianguloRectanguloDatos;
+    }
+  | {
+      tipo: 'modelo_probabilidad';
+      titulo: string;
+      datos: ModeloProbabilidadDatos;
+    }
+  | {
+      tipo: 'prisma_rectangular';
+      titulo: string;
+      datos: PrismaRectangularDatos;
+    }
+  | { tipo: 'segmento_geometrico'; titulo: string; datos: SegmentoGeometricoDatos }
+  | { tipo: 'modelo_ecuacion'; titulo: string; datos: ModeloEcuacionDatos }
+  | { tipo: 'tabla_valores'; titulo: string; datos: TablaValoresDatos }
+  | { tipo: 'mapa_conceptual'; titulo: string; datos: MapaConceptualDatos }
+  | { tipo: 'angulo_geometrico'; titulo: string; datos: AnguloGeometricoDatos }
+  | { tipo: 'grafica_circular'; titulo: string; datos: GraficaCircularDatos }
+  | { tipo: 'construccion_geometrica'; titulo: string; datos: ConstruccionGeometricaDatos }
+  | { tipo: 'solido_revolucion'; titulo: string; datos: SolidoRevolucionDatos }
+  | { tipo: 'sistema_lineal'; titulo: string; datos: SistemaLinealDatos }
+  | {
+      tipo: 'triangulos_congruentes';
+      titulo: string;
+      datos: TriangulosCongruentesDatos;
     };
 
 export interface LeccionResponse {
@@ -162,15 +328,15 @@ export interface LeccionResponse {
   orden: number;
   estado: EstadoLeccion;
 
-  /**
-   * Recurso visual personalizado.
-   *
-   * Puede ser null cuando la lección no necesita
-   * un diagrama o fue generada anteriormente.
-   *
-   * El signo ? mantiene la compatibilidad si
-   * alguna respuesta antigua omite el campo.
-   *//**
-   */ 
+/**
+ * Recurso visual personalizado de la lección.
+ *
+ * Puede ser null cuando la lección no necesita
+ * un diagrama o todavía no tiene uno generado.
+ *
+ * Es opcional para mantener compatibilidad
+ * con respuestas anteriores del backend.
+ */
   recurso_visual?: RecursoVisualLeccion | null;
+  estado_recurso_visual?: 'PENDIENTE' | 'GENERADO' | 'NO_APLICABLE' | 'RECHAZADO';
 }

@@ -1101,3 +1101,211 @@ button:focus-visible {
   }
 }
 
+
+/* Confirmación pedagógica al completar todas las unidades, paleta existente. */
+.plan-completado {
+  margin: 24px 0;
+  padding: 24px;
+  border: 1px solid #E8E6FF;
+  border-radius: 20px;
+  background: #FFFFFF;
+  color: #243047;
+  text-align: center;
+  line-height: 1.6;
+}
+.plan-completado h2 { margin-top: 0; color: #6C63FF; }
+.plan-completado .acciones { flex-wrap: wrap; }
+
+/* Botones para generar plan e ir al diagnóstico */
+.mensaje .acciones button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 190px;
+  min-height: 48px;
+  padding: 12px 22px;
+
+  background: #6C63FF;
+  color: #FFFFFF;
+  border: 2px solid #6C63FF;
+  border-radius: 12px;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.16);
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Efecto al pasar el cursor */
+@media (hover: hover) {
+  .mensaje .acciones button:hover:not(:disabled) {
+    background: #5146E5;
+    border-color: #5146E5;
+    box-shadow: 0 6px 16px rgba(108, 99, 255, 0.25);
+  }
+}
+
+/* Efecto al presionar */
+.mensaje .acciones button:active:not(:disabled) {
+  translate: 0 0;
+  transform: scale(0.97);
+}
+
+/* Navegación por teclado */
+.mensaje .acciones button:focus-visible {
+  outline: 3px solid #22C7B8;
+  outline-offset: 3px;
+}
+
+/* Botones deshabilitados */
+.mensaje .acciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .mensaje .acciones button {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .mensaje .acciones button {
+    transition: none;
+    transform: none;
+  }
+
+  .mensaje .acciones button:active {
+    transform: none;
+  }
+}
+
+/* =====================================================
+   EDUNEKO V1 - BOTONES DE MENSAJES Y FINALIZACIÓN
+   Estilos oficiales para éxito y errores del plan.
+   ===================================================== */
+
+/* Botones principales de finalización y reintento */
+.plan-completado .acciones button,
+.mensaje.error button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 170px;
+  min-height: 48px;
+  padding: 12px 22px;
+
+  border: 2px solid var(--color-primary);
+  border-radius: 14px;
+
+  background: var(--color-primary);
+  color: #FFFFFF;
+
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(108, 99, 255, 0.18);
+
+  /* Evita duplicar el desplazamiento global */
+  translate: none;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Botón secundario: regresar al dashboard */
+.plan-completado .acciones button:last-child {
+  background: #F2F0FF;
+  border-color: #DDD9FF;
+  color: #5146E5;
+  box-shadow: none;
+}
+
+/* Animación al pasar el cursor */
+@media (hover: hover) {
+  .plan-completado .acciones button:hover:not(:disabled),
+  .mensaje.error button:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.25);
+  }
+
+  .plan-completado .acciones button:last-child:hover:not(:disabled) {
+    background: #E8E5FF;
+    border-color: #C8C2FF;
+    color: #5146E5;
+  }
+}
+
+/* Efecto al presionar */
+.plan-completado .acciones button:active:not(:disabled),
+.mensaje.error button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Accesibilidad con teclado */
+.plan-completado .acciones button:focus-visible,
+.mensaje.error button:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+/* Entrada suave del mensaje de finalización */
+.plan-completado {
+  animation: entradaPlanCompletado 0.45s ease-out both;
+}
+
+@keyframes entradaPlanCompletado {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+  .plan-completado .acciones button,
+  .mensaje.error button {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+/* Respetar preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .plan-completado {
+    animation: none;
+  }
+
+  .plan-completado .acciones button,
+  .mensaje.error button {
+    transition: none;
+    transform: none;
+  }
+}

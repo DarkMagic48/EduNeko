@@ -10,6 +10,7 @@ import { DiagnosticoMatematicas } from './pages/diagnostico-matematicas/diagnost
 import { PlanAprendizaje } from './pages/plan-aprendizaje/plan-aprendizaje';
 import { Leccion } from './pages/leccion/leccion';
 import { Logros } from './pages/logros/logros';
+import { Perfil } from './pages/perfil/perfil';
 
 export const routes: Routes = [
     {
@@ -43,6 +44,11 @@ export const routes: Routes = [
     {
         path: 'lecciones/unidades/:unidadId',
         component: Leccion,
+        canActivate: [authGuard]
+    },
+    {
+        path: 'perfil',
+        component: Perfil,
         canActivate: [authGuard]
     },
     {

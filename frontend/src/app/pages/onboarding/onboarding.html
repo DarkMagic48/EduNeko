@@ -7,6 +7,11 @@
 
 <main class="onboarding-container">
 
+  <!-- Volver sin perder los datos que ya fueron guardados. -->
+  <button type="button" class="onboarding-volver" (click)="volverPasoAnterior()" [disabled]="cargando">
+    ← {{ modoEdicionMaterias ? 'Volver al dashboard' : 'Volver' }}
+  </button>
+
   <!-- Indicador de progreso -->
   <div class="onboarding-progreso">
     <span>Paso {{ pasoActual }} de 3</span>
@@ -142,7 +147,7 @@
 
           <div class="campo-formulario">
             <label for="nivelRetoPreferido">
-              ¿Cuánto te gusta que te reten las actividades?
+              ¿Qué nivel de dificultad te gusta en tus las actividades?
             </label>
 
             <select
@@ -341,6 +346,10 @@
         Selecciona las materias que quieres aprender
         con EduNeko. Puedes elegir una o varias.
       </p>
+      <p class="materias-aviso-disponibilidad">
+        Por ahora, el diagnóstico inicial y el plan personalizado solo
+        están disponibles para Matemáticas. Las otras materias están en preparación.
+      </p>
     </header>
 
     <!-- Neko acompaña al estudiante en la selección -->
@@ -421,21 +430,42 @@
       -->
       @if (materiasGuardadas) {
 
+        @if (matematicasSeleccionada) {
+          <div class="onboarding-acciones">
+            <button type="button" class="boton-continuar"
+              (click)="irAlDiagnostico()" [disabled]="cargando">
+              Comenzar diagnóstico de Matemáticas
+            </button>
+          </div>
+        } @else {
+          <p class="materias-aviso-disponibilidad" role="status">
+            Guardaste tus materias sin Matemáticas. Actualmente ninguna de ellas
+            tiene diagnóstico inicial. Puedes cambiar tu selección o ir al dashboard.
+          </p>
+          <div class="onboarding-acciones">
+            <button type="button" class="boton-continuar"
+              (click)="volverSeleccionMaterias()" [disabled]="cargando">
+              Volver a seleccionar materias
+            </button>
+          </div>
+        }
+
         <div class="onboarding-acciones">
-
-          <button
-            type="button"
-            class="boton-continuar"
-            (click)="irAlDiagnostico()"
-            [disabled]="cargando"
-          >
-            Comenzar diagnóstico
+          <button type="button" class="boton-continuar"
+            (click)="irDashboard()" [disabled]="cargando">
+            Ir al dashboard
           </button>
-
         </div>
-
       }
 
+    }
+
+    @if (modoEdicionMaterias && mensajeError && materiasDisponibles.length === 0) {
+      <div class="onboarding-acciones">
+        <button type="button" class="boton-continuar" (click)="cargarMaterias()" [disabled]="cargando">
+          Reintentar cargar materias
+        </button>
+      </div>
     }
 
     <!-- Errores de selección o guardado -->

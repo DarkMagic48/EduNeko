@@ -1,11 +1,7 @@
 package com.eduneko.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,9 +14,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.eduneko.security.JwtAuthenticationFilter;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.DispatcherType;
-import java.util.List;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration 
 public class SecurityConfig {
@@ -78,7 +73,10 @@ public class SecurityConfig {
                 new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-                List.of("http://localhost:4200"));
+                List.of("http://localhost:4200",
+                        "http://192.168.1.70:4200"
+                )
+        );
         
         configuration.setAllowedMethods(
                 List.of(

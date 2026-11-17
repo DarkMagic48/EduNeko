@@ -22,6 +22,17 @@
         ¡Neko está listo para acompañarte!
       </p>
 
+      <!-- Perfil accesible como tarjeta compacta, sin cambiar el encabezado oficial. -->
+      <a routerLink="/perfil" class="dashboard-perfil-acceso"
+         aria-label="Abrir mi perfil y editar preferencias de aprendizaje">
+        <span class="dashboard-perfil-avatar" aria-hidden="true">👤</span>
+        <span class="dashboard-perfil-textos">
+          <strong>Mi perfil</strong>
+          <small>Editar grado y preferencias</small>
+        </span>
+        <span aria-hidden="true">›</span>
+      </a>
+
     </div>
 
     <!-- Mascota oficial de EduNeko -->
@@ -146,8 +157,9 @@
                         } @else {
 
                             <p>
-                                Estamos preparando nuevas experiencias
-                                de aprendizaje para esta materia.
+                                El diagnóstico inicial de esta materia
+                                aún no está disponible. Por ahora, solo
+                                Matemáticas cuenta con diagnóstico y plan personalizado.
                             </p>
 
                             <span class="materia-proximamente">
@@ -169,6 +181,17 @@
             Todavía no tienes materias seleccionadas.
         </p>
     }
+
+    <!-- Ruta de vuelta a selección cuando no existe Matemáticas en el perfil. -->
+    @if (!cargandoMaterias && !errorMaterias && !tieneMatematicas) {
+      <div class="dashboard-volver-materias">
+        <p>Si quieres realizar el diagnóstico inicial, puedes añadir Matemáticas.</p>
+        <a class="enlace-logros" routerLink="/onboarding" [queryParams]="{ editarMaterias: '1' }">
+          Volver a la selección de materias
+        </a>
+      </div>
+    }
+
 
 
   </section>

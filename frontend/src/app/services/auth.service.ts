@@ -47,7 +47,21 @@ export class AuthService {
     }
 
     estaAutenticado(): boolean {
-        return this.obtenerToken() !== null;
+        const token = this.obtenerToken();
+        if (!token) return false;
+
+        try {
+            // Esta lectura solo evita navegar con un token evidentemente vencido.
+            // No verifica la firma: esa responsabilidad sigue siendo del backend.
+            const partes = token.split('.');
+            if (partes.length !== 3) return false;
+            const base64 = partes[1].replace(/-/g, '+').replace(/_/g, '/');
+            const contenido = JSON.parse(atob(base64)) as { exp?: number };
+            return typeof contenido.exp === 'number' &&
+                contenido.exp * 1000 > Date.now();
+        } catch {
+            return false;
+        }
     }
 
     logout(): void {

@@ -1,0 +1,89 @@
+<main class="perfil-container">
+  <!-- La navegación de regreso conserva todos los datos ya guardados. -->
+  <a routerLink="/dashboard" class="perfil-volver">← Volver al dashboard</a>
+  <header class="perfil-encabezado">
+    <div>
+      <span class="perfil-etiqueta">MI ESPACIO DE APRENDIZAJE</span>
+      <h1>Mi perfil</h1>
+      <p>Actualiza tu información académica y cómo prefieres aprender.</p>
+    </div>
+    <img src="/images/neko/poses/neko_estudiando.png" alt="Neko estudiando" />
+  </header>
+
+  @if (cargando) {
+    <p role="status">Cargando tu perfil...</p>
+  } @else if (error) {
+    <p class="perfil-error" role="alert">{{ error }}</p>
+    <button type="button" class="perfil-boton" (click)="cargarDatos()">Reintentar</button>
+  } @else {
+    <section class="perfil-tarjeta">
+      <h2>Perfil académico</h2>
+      <p>El grado determina las preguntas y contenidos de Matemáticas.</p>
+      <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()">
+        <div class="perfil-campos">
+          <label for="perfil-edad">Edad
+            <input id="perfil-edad" type="number" formControlName="edad" min="10" max="18" />
+          </label>
+          <label for="perfil-grado">Grado escolar
+            <select id="perfil-grado" formControlName="gradoEscolar">
+              <option [ngValue]="1">1.º de secundaria</option>
+              <option [ngValue]="2">2.º de secundaria</option>
+              <option [ngValue]="3">3.º de secundaria</option>
+            </select>
+          </label>
+        </div>
+        <p class="perfil-nota">Al cambiar de grado, los diagnósticos pendientes del grado anterior se cancelarán. Los planes y avances anteriores se conservarán, pero para estudiar el nuevo grado necesitarás un diagnóstico y plan correspondientes.</p>
+        @if (perfilForm.invalid && perfilForm.touched) {
+          <p class="perfil-error" role="alert">Indica una edad entre 10 y 18 años y un grado entre 1.º y 3.º.</p>
+        }
+        @if (errorPerfil) { <p class="perfil-error" role="alert">{{ errorPerfil }}</p> }
+        @if (exitoPerfil) { <p class="perfil-exito" role="status">{{ exitoPerfil }}</p> }
+        <button type="submit" class="perfil-boton" [disabled]="guardandoPerfil">
+          {{ guardandoPerfil ? 'Guardando...' : 'Guardar perfil' }}
+        </button>
+      </form>
+    </section>
+
+    <section class="perfil-tarjeta">
+      <h2>Preferencias de aprendizaje</h2>
+      <p>Selecciona cómo prefieres estudiar y el tipo de explicaciones.</p>
+      <p class="perfil-nota">Las nuevas preferencias se usan en las próximas lecciones que se generen. Las lecciones existentes conservan su contenido y los controles visuales o prácticos disponibles se ajustan al volver a abrirlas.</p>
+      <form [formGroup]="preferenciasForm" (ngSubmit)="guardarPreferencias()">
+        <div class="perfil-modalidades">
+          <label><input type="checkbox" formControlName="prefiereLecturaEscritura" /> Leer y escribir</label>
+          <label><input type="checkbox" formControlName="prefiereVisual" /> Aprender viendo</label>
+          <label><input type="checkbox" formControlName="prefiereAuditivo" /> Aprender escuchando</label>
+          <label><input type="checkbox" formControlName="prefierePractica" /> Aprender practicando</label>
+        </div>
+        <div class="perfil-campos">
+          <label for="perfil-explicaciones">Explicaciones
+            <select id="perfil-explicaciones" formControlName="nivelExplicacion">
+              <option value="BREVE">Breves</option>
+              <option value="EQUILIBRADA">Equilibradas</option>
+              <option value="DETALLADA">Detalladas</option>
+            </select>
+          </label>
+          <label for="perfil-reto">Nivel de reto
+            <select id="perfil-reto" formControlName="nivelRetoPreferido">
+              <option value="BAJO">Bajo</option>
+              <option value="EQUILIBRADO">Equilibrado</option>
+              <option value="ALTO">Alto</option>
+            </select>
+          </label>
+          <label for="perfil-ritmo">Ritmo de estudio
+            <select id="perfil-ritmo" formControlName="ritmoEstudio">
+              <option value="TRANQUILO">Tranquilo</option>
+              <option value="NORMAL">Normal</option>
+              <option value="INTENSIVO">Intensivo</option>
+            </select>
+          </label>
+        </div>
+        @if (errorPreferencias) { <p class="perfil-error" role="alert">{{ errorPreferencias }}</p> }
+        @if (exitoPreferencias) { <p class="perfil-exito" role="status">{{ exitoPreferencias }}</p> }
+        <button type="submit" class="perfil-boton" [disabled]="guardandoPreferencias">
+          {{ guardandoPreferencias ? 'Guardando...' : 'Guardar preferencias' }}
+        </button>
+      </form>
+    </section>
+  }
+</main>

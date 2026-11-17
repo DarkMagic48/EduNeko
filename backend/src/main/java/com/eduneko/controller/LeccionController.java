@@ -77,6 +77,14 @@ public class LeccionController {
          * Este endpoint solo se ejecutará mediante
          * una solicitud POST explícita.
          */
+        /** Reintentar solo cuando el estudiante lo solicite de forma explícita. */
+        @PostMapping("/unidades/{unidadId}/reintentar-visual")
+        public ResponseEntity<Map<String, Object>> reintentarVisual(
+                @PathVariable Long unidadId, Authentication authentication) {
+            return ResponseEntity.ok(leccionService.reintentarRecursoVisual(
+                    unidadId, authentication.getName()));
+        }
+
         @PostMapping("/unidades/{unidadId}/enriquecer-visual")
         public ResponseEntity<Map<String, Object>> enriquecerVisual(
                 @PathVariable Long unidadId,

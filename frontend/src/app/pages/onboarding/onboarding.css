@@ -524,3 +524,27 @@
     transition: none;
   }
 }
+
+/* Navegación añadida sin alterar tarjetas, colores ni disposición existente. */
+.onboarding-volver {
+  margin-bottom: 14px;
+  padding: 10px 16px;
+  border: 1px solid #6c63ff;
+  border-radius: 12px;
+  background: transparent;
+  color: #5148C9;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
+.onboarding-volver:focus-visible {
+  outline: 3px solid #22c7b8;
+  outline-offset: 2px;
+}
+.materias-aviso-disponibilidad {
+  margin: 14px auto;
+  max-width: 660px;
+  line-height: 1.6;
+  text-align: center;
+  color: #596174;
+}

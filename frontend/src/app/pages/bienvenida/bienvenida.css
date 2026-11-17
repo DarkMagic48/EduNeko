@@ -288,3 +288,17 @@
     transition: none;
   }
 }
+
+/* Acción secundaria de regreso, independiente de Comenzar mi aventura. */
+.bienvenida-volver {
+  margin: 0 auto 20px;
+  padding: 10px 16px;
+  border: 1px solid #6c63ff;
+  border-radius: 12px;
+  background: transparent;
+  color: #5146e5;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
+.bienvenida-volver:focus-visible { outline: 3px solid #22c7b8; outline-offset: 2px; }

@@ -4,6 +4,8 @@ import { Observable } from "rxjs";
 
 import {
     ActualizarPerfilEstudianteRequest,
+    PerfilEstudianteResponse,
+    PreferenciasEstudianteResponse,
     ActualizarPerfilEstudianteResponse,
     ActualizarPreferenciasRequest,
     ActualizarPreferenciasResponse,
@@ -24,6 +26,18 @@ export class EstudianteService {
     private readonly estudianteUrl = 'http://localhost:8080/api/estudiante';
 
     constructor(private readonly http: HttpClient) {}
+
+    obtenerPerfil(): Observable<PerfilEstudianteResponse> {
+        return this.http.get<PerfilEstudianteResponse>(
+            `${this.estudianteUrl}/perfil`
+        );
+    }
+
+    obtenerPreferencias(): Observable<PreferenciasEstudianteResponse> {
+        return this.http.get<PreferenciasEstudianteResponse>(
+            `${this.estudianteUrl}/preferencias`
+        );
+    }
 
     actualizarPerfil(
         datos: ActualizarPerfilEstudianteRequest

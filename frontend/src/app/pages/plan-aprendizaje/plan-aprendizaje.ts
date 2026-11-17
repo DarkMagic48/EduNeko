@@ -148,6 +148,17 @@ pistaUnidades?: ElementRef<HTMLDivElement>;
     });
   }
 
+  // Cierre educativo sin regenerar ni sustituir el plan del estudiante.
+  // Las unidades completadas siguen disponibles para repaso.
+  get planCompletado(): boolean {
+    return !!this.plan && this.plan.unidades.length > 0 &&
+      this.plan.unidades.every(unidad => unidad.estado === 'COMPLETADA');
+  }
+
+  verLogros(): void {
+    void this.router.navigate(['/logros']);
+  }
+
   calcularProgresoGeneral(): number {
   if (!this.plan || this.plan.unidades.length === 0) {
     return 0;

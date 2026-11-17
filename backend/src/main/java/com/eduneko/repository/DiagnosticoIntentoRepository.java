@@ -25,6 +25,11 @@ public interface DiagnosticoIntentoRepository
             String estado
         );
 
+    /** Bloquea los intentos pendientes del estudiante durante el cambio de grado. */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<DiagnosticoIntento> findByEstudianteIdAndEstado(
+            Long estudianteId, String estado);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT i FROM DiagnosticoIntento i WHERE i.id = :intentoId")
     Optional<DiagnosticoIntento> findByIdParaFinalizar(

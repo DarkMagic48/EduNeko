@@ -443,16 +443,6 @@
           </p>
         </ng-template>
 
-        <!--
-          Texto introductorio o contenido que no
-          utiliza encabezados numerados.
-        -->
-        <ng-template #textoEjemploNormal>
-          <p class="ejemplo-paso-texto">
-            {{ bloque }}
-          </p>
-        </ng-template>
-
         </div>
 
       </div>
@@ -461,7 +451,836 @@
             *ngIf="leccionActual.recurso_visual as recurso"
             class="seccion-leccion recurso-visual"
           >
-            
+
+            <!-- =====================================================
+                RECURSO 21: TRIÁNGULOS CONGRUENTES — LLL
+
+                Representa dos triángulos con lados correspondientes
+                iguales. Los puntos se calculan en leccion.ts.
+
+                La representación es visible para todos.
+                La interacción solo aparece con prefierePractica.
+                ===================================================== -->
+
+            <ng-container *ngIf="recurso.tipo === 'triangulos_congruentes'">
+
+              <h3>📐 Observa dos triángulos congruentes</h3>
+
+              <p class="titulo-recurso-visual">
+                {{ recurso.titulo }}
+              </p>
+
+              <p class="descripcion-fraccion">
+                Dos triángulos son congruentes por el criterio
+                <strong>Lado-Lado-Lado (LLL)</strong> cuando sus
+                tres pares de lados correspondientes tienen
+                exactamente la misma longitud.
+              </p>
+
+              <!-- Calcular las coordenadas a partir de las
+                  longitudes originales almacenadas. -->
+              <ng-container
+                *ngIf="geometriaTriangulosCongruentes(recurso.datos) as figura">
+
+                <svg
+                  class="eduneko-visual-ampliado"
+                  viewBox="0 0 720 320"
+                  role="img"
+                  [attr.aria-label]="
+                    'Triángulos ABC y DEF congruentes por LLL. ' +
+                    'AB y DE miden ' + recurso.datos.ladoAB + ', ' +
+                    'BC y EF miden ' + recurso.datos.ladoBC + ', ' +
+                    'AC y DF miden ' + recurso.datos.ladoAC + ' ' +
+                    recurso.datos.unidad
+                  ">
+
+                  <!-- Títulos de los dos triángulos. -->
+                  <text
+                    x="180" y="30"
+                    text-anchor="middle"
+                    fill="#5148C9"
+                    font-size="19"
+                    font-weight="bold">
+                    Triángulo ABC
+                  </text>
+
+                  <text
+                    x="540" y="30"
+                    text-anchor="middle"
+                    fill="#0D9488"
+                    font-size="19"
+                    font-weight="bold">
+                    Triángulo DEF
+                  </text>
+
+                  <!-- Superficies de los triángulos.
+                      Los polígonos tienen las mismas dimensiones. -->
+                  <polygon
+                    [attr.points]="figura.trianguloABC"
+                    fill="#F1EFFF"
+                    stroke="none">
+                  </polygon>
+
+                  <polygon
+                    [attr.points]="figura.trianguloDEF"
+                    fill="#DDF8F3"
+                    stroke="none">
+                  </polygon>
+
+                  <!-- Dibujar cada pareja de lados correspondientes.
+                      El resaltado es solo visual: no cambia medidas. -->
+                  <ng-container *ngFor="let lado of figura.lados">
+
+                    <!-- Lado del triángulo ABC. -->
+                    <line
+                      [attr.x1]="lado.a1.x"
+                      [attr.y1]="lado.a1.y"
+                      [attr.x2]="lado.b1.x"
+                      [attr.y2]="lado.b1.y"
+                      [attr.stroke]="
+                        ladoCongruenciaSeleccionado === lado.id
+                          ? '#5148C9'
+                          : '#6C63FF'
+                      "
+                      [attr.stroke-width]="
+                        ladoCongruenciaSeleccionado === lado.id ? 7 : 3.5
+                      "
+                      [attr.opacity]="
+                        ladoCongruenciaSeleccionado === null ||
+                        ladoCongruenciaSeleccionado === lado.id ? 1 : 0.3
+                      "
+                      stroke-linecap="round">
+                    </line>
+
+                    <!-- Lado correspondiente del triángulo DEF. -->
+                    <line
+                      [attr.x1]="lado.a2.x"
+                      [attr.y1]="lado.a2.y"
+                      [attr.x2]="lado.b2.x"
+                      [attr.y2]="lado.b2.y"
+                      [attr.stroke]="
+                        ladoCongruenciaSeleccionado === lado.id
+                          ? '#5148C9'
+                          : '#22C7B8'
+                      "
+                      [attr.stroke-width]="
+                        ladoCongruenciaSeleccionado === lado.id ? 7 : 3.5
+                      "
+                      [attr.opacity]="
+                        ladoCongruenciaSeleccionado === null ||
+                        ladoCongruenciaSeleccionado === lado.id ? 1 : 0.3
+                      "
+                      stroke-linecap="round">
+                    </line>
+
+                    <!-- Medida del lado de ABC. -->
+                    <text
+                      [attr.x]="lado.etiquetaABC.x"
+                      [attr.y]="lado.etiquetaABC.y"
+                      text-anchor="middle"
+                      fill="#5148C9"
+                      font-size="15"
+                      font-weight="bold">
+                      {{ lado.medida }} {{ recurso.datos.unidad }}
+                    </text>
+
+                    <!-- Misma medida en el lado correspondiente de DEF. -->
+                    <text
+                      [attr.x]="lado.etiquetaDEF.x"
+                      [attr.y]="lado.etiquetaDEF.y"
+                      text-anchor="middle"
+                      fill="#0D9488"
+                      font-size="15"
+                      font-weight="bold">
+                      {{ lado.medida }} {{ recurso.datos.unidad }}
+                    </text>
+
+                  </ng-container>
+
+                  <!-- Vértices del primer triángulo. -->
+                  <text
+                    [attr.x]="figura.vertices.A.x - 12"
+                    [attr.y]="figura.vertices.A.y + 23"
+                    fill="#2F3545" font-size="17">A</text>
+
+                  <text
+                    [attr.x]="figura.vertices.B.x + 6"
+                    [attr.y]="figura.vertices.B.y + 23"
+                    fill="#2F3545" font-size="17">B</text>
+
+                  <text
+                    [attr.x]="figura.vertices.C.x"
+                    [attr.y]="figura.vertices.C.y - 13"
+                    text-anchor="middle"
+                    fill="#2F3545" font-size="17">C</text>
+
+                  <!-- Vértices del segundo triángulo. -->
+                  <text
+                    [attr.x]="figura.vertices.D.x - 12"
+                    [attr.y]="figura.vertices.D.y + 23"
+                    fill="#2F3545" font-size="17">D</text>
+
+                  <text
+                    [attr.x]="figura.vertices.E.x + 6"
+                    [attr.y]="figura.vertices.E.y + 23"
+                    fill="#2F3545" font-size="17">E</text>
+
+                  <text
+                    [attr.x]="figura.vertices.F.x"
+                    [attr.y]="figura.vertices.F.y - 13"
+                    text-anchor="middle"
+                    fill="#2F3545" font-size="17">F</text>
+
+                  <!-- Conclusión geométrica. -->
+                  <text
+                    x="360" y="310"
+                    text-anchor="middle"
+                    fill="#5148C9"
+                    font-size="18"
+                    font-weight="bold">
+                    △ABC ≅ △DEF
+                  </text>
+
+                </svg>
+
+                <!-- Correspondencias matemáticas del ejemplo. -->
+                <p class="descripcion-fraccion">
+                  <strong>Lados correspondientes:</strong>
+                  AB = DE = {{ recurso.datos.ladoAB }} {{ recurso.datos.unidad }};
+                  BC = EF = {{ recurso.datos.ladoBC }} {{ recurso.datos.unidad }};
+                  AC = DF = {{ recurso.datos.ladoAC }} {{ recurso.datos.unidad }}.
+                </p>
+
+                <p class="eduneko-control-observacion">
+                  Como los tres pares de lados correspondientes son iguales,
+                  los triángulos ABC y DEF son congruentes por LLL.
+                </p>
+
+                <!-- EXPLORACIÓN PRÁCTICA:
+                    Solo visible si el estudiante tiene esta preferencia. -->
+                <div
+                  *ngIf="prefierePractica"
+                  class="eduneko-visual-controles">
+
+                  <p>
+                    🖐️ Selecciona una pareja de lados para
+                    identificar su correspondencia.
+                  </p>
+
+                  <!-- Utilizar los lados ya calculados.
+                      Cada botón permite destacar o desmarcar una pareja. -->
+                  <button
+                    *ngFor="let lado of figura.lados"
+                    type="button"
+                    [class.eduneko-visual-resaltado]="
+                      ladoCongruenciaSeleccionado === lado.id
+                    "
+                    [attr.aria-pressed]="
+                      ladoCongruenciaSeleccionado === lado.id
+                    "
+                    (click)="seleccionarLadoCongruencia(lado.id)">
+
+                    {{ lado.id }} = {{ lado.par }}
+                    ({{ lado.medida }} {{ recurso.datos.unidad }})
+
+                  </button>
+
+                  <!-- Mostrar la pareja explorada. -->
+                  <p
+                    *ngIf="ladoCongruenciaSeleccionado !== null"
+                    class="eduneko-control-observacion"
+                    aria-live="polite">
+
+                    Los lados {{ ladoCongruenciaSeleccionado }}
+                    y su correspondiente en el segundo triángulo
+                    tienen exactamente la misma longitud.
+
+                  </p>
+
+                  <!-- Volver a mostrar todos los lados sin resaltar. -->
+                  <button
+                    type="button"
+                    (click)="ladoCongruenciaSeleccionado = null">
+                    ↩️ Volver al ejemplo original
+                  </button>
+
+                </div>
+
+              </ng-container>
+
+            </ng-container>
+
+
+            <!-- Construcción con trazo FINAL: mediatriz o bisectriz.
+                 Siempre se ve completa; la exploración es solo para preferencia práctica. -->
+            <ng-container *ngIf="recurso.tipo === 'construccion_geometrica'">
+              <h3>📐 Observa el trazo terminado</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+
+              <ng-container *ngIf="recurso.datos.construccion === 'mediatriz' ||
+                                   recurso.datos.construccion === 'mediatriz_y_bisectriz'">
+                <svg class="eduneko-visual-ampliado eduneko-construccion-svg" viewBox="0 0 600 390"
+                     role="img" [attr.aria-label]="'Mediatriz terminada de AB: recta perpendicular por el punto medio, con arcos de compás'">
+                  <!-- Segmento AB y sus dos extremos. -->
+                  <line x1="150" y1="190" x2="450" y2="190" stroke="#5148C9" stroke-width="4" />
+                  <circle cx="150" cy="190" r="5" fill="#5148C9" />
+                  <circle cx="450" cy="190" r="5" fill="#5148C9" />
+                  <text x="136" y="214" fill="#2F3545">A</text>
+                  <text x="453" y="214" fill="#2F3545">B</text>
+                  <!-- Arcos trazados desde A y B con un mismo radio > AB/2. -->
+                  <path [attr.d]="arcoMediatriz('izquierdo', radioCompasMediatriz ?? 0.65)"
+                        fill="none" stroke="#22C7B8" stroke-width="2.5" stroke-dasharray="6 5" />
+                  <path [attr.d]="arcoMediatriz('derecho', radioCompasMediatriz ?? 0.65)"
+                        fill="none" stroke="#22C7B8" stroke-width="2.5" stroke-dasharray="6 5" />
+                  <circle cx="300" [attr.cy]="190 - alturaCruceMediatriz(radioCompasMediatriz ?? 0.65)"
+                          r="5" fill="#5148C9" />
+                  <circle cx="300" [attr.cy]="190 + alturaCruceMediatriz(radioCompasMediatriz ?? 0.65)"
+                          r="5" fill="#5148C9" />
+                  <text x="310" [attr.y]="184 - alturaCruceMediatriz(radioCompasMediatriz ?? 0.65)" fill="#2F3545">P</text>
+                  <text x="310" [attr.y]="207 + alturaCruceMediatriz(radioCompasMediatriz ?? 0.65)" fill="#2F3545">Q</text>
+                  <!-- La mediatriz final une ambas intersecciones y corta AB a 90°. -->
+                  <line x1="300" y1="12" x2="300" y2="375" stroke="#6C63FF" stroke-width="4" />
+                  <polyline points="300,174 316,174 316,190" fill="none" stroke="#2F3545" stroke-width="2" />
+                  <circle cx="300" cy="190" r="6" fill="#5148C9" />
+                  <text x="285" y="215" fill="#5148C9">M</text>
+                  <text x="380" y="35" fill="#5148C9" font-size="17" font-weight="bold">Mediatriz final</text>
+                </svg>
+                <p class="descripcion-fraccion eduneko-construccion-resumen">
+                  <ng-container *ngIf="recurso.datos.longitud != null">
+                    AB = {{ recurso.datos.longitud }} {{ recurso.datos.unidad }}.
+                    AM = MB = {{ recurso.datos.longitud / 2 | number:'1.0-2' }} {{ recurso.datos.unidad }}.
+                  </ng-container>
+                  <ng-container *ngIf="recurso.datos.longitud == null">
+                    Esquema sin escala: AM = MB.
+                  </ng-container>
+                  La línea morada pasa por M y es perpendicular a AB.
+                </p>
+                <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                  <label for="radio-compas">🖐️ Cambia la abertura del compás:
+                    {{ (radioCompasMediatriz ?? 0.65) * 100 | number:'1.0-0' }} % de AB
+                    <ng-container *ngIf="recurso.datos.longitud != null">
+                      ({{ (radioCompasMediatriz ?? 0.65) * recurso.datos.longitud | number:'1.0-2' }} {{ recurso.datos.unidad }})
+                    </ng-container>
+                  </label>
+                  <input id="radio-compas" type="range" min="0.55" max="0.75" step="0.01"
+                         [value]="radioCompasMediatriz ?? 0.65"
+                         (input)="radioCompasMediatriz = +$any($event.target).value" />
+                  <p class="eduneko-control-observacion" aria-live="polite">
+                    Los puntos P y Q cambian, pero la mediatriz sigue siendo perpendicular
+                    y pasando por el punto medio M.
+                  </p>
+                  <button type="button" (click)="radioCompasMediatriz = null">↩️ Volver al ejemplo original</button>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="recurso.datos.construccion === 'bisectriz' ||
+                                   recurso.datos.construccion === 'mediatriz_y_bisectriz'">
+                <svg class="eduneko-visual-ampliado eduneko-construccion-svg" viewBox="0 0 600 390"
+                     role="img" [attr.aria-label]="'Bisectriz terminada de un ángulo de ' +
+                       (gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) +
+                       ' grados en el esquema, dividido en dos ángulos iguales'">
+                  <!-- Rayos del ángulo original. -->
+                  <line x1="300" y1="325" x2="558" y2="325" stroke="#5148C9" stroke-width="4" />
+                  <line x1="300" y1="325"
+                        [attr.x2]="puntoRayoBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80, 255).x"
+                        [attr.y2]="puntoRayoBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80, 255).y"
+                        stroke="#5148C9" stroke-width="4" />
+                  <!-- Primer arco desde el vértice: corta ambos lados en C y D. -->
+                  <path [attr.d]="arcoAnguloBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80, 120)"
+                        fill="none" stroke="#22C7B8" stroke-width="2.5" stroke-dasharray="6 5" />
+                  <!-- Dos arcos de igual radio desde C y D, con intersección E. -->
+                  <circle cx="420" cy="325" r="135" fill="none" stroke="#22C7B8"
+                          stroke-width="1.5" stroke-dasharray="5 6" opacity="0.55" />
+                  <circle [attr.cx]="puntoRayoBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80,120).x"
+                          [attr.cy]="puntoRayoBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80,120).y"
+                          r="135" fill="none" stroke="#22C7B8" stroke-width="1.5"
+                          stroke-dasharray="5 6" opacity="0.55" />
+                  <circle cx="420" cy="325" r="5" fill="#5148C9" />
+                  <circle [attr.cx]="puntoRayoBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80,120).x"
+                          [attr.cy]="puntoRayoBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80,120).y"
+                          r="5" fill="#5148C9" />
+                  <circle [attr.cx]="interseccionArcosBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80).x"
+                          [attr.cy]="interseccionArcosBisectriz(gradosBisectrizExploracion ?? recurso.datos.grados ?? 80).y"
+                          r="5" fill="#5148C9" />
+                  <!-- La semirrecta final O-E es exactamente la bisectriz. -->
+                  <line x1="300" y1="325"
+                        [attr.x2]="puntoRayoBisectriz((gradosBisectrizExploracion ?? recurso.datos.grados ?? 80)/2, 255).x"
+                        [attr.y2]="puntoRayoBisectriz((gradosBisectrizExploracion ?? recurso.datos.grados ?? 80)/2, 255).y"
+                        stroke="#6C63FF" stroke-width="4" />
+                  <circle cx="300" cy="325" r="6" fill="#5148C9" />
+                  <text x="285" y="351" fill="#2F3545">O</text>
+                  
+                  <!-- La etiqueta sigue la posición de la bisectriz. -->
+                  <text
+                    [attr.x]="puntoRayoBisectriz((gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 2, 235).x"
+                    [attr.y]="puntoRayoBisectriz((gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 2, 235).y - 18"
+                    text-anchor="middle"
+                    fill="#5148C9"
+                    font-size="16"
+                    font-weight="bold">
+                    Bisectriz final
+                  </text>
+
+                  <!-- Mostrar las dos mitades del ángulo original. -->
+                  <ng-container *ngIf="recurso.datos.grados != null || gradosBisectrizExploracion != null">
+
+                    <!-- Primer ángulo -->
+                    <text
+                      [attr.x]="puntoRayoBisectriz((gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 4, 88).x"
+                      [attr.y]="puntoRayoBisectriz((gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 4, 88).y + 4"
+                      text-anchor="middle"
+                      fill="#5148C9"
+                      font-size="15"
+                      font-weight="bold">
+                      {{ (gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 2 | number:'1.0-1' }}°
+                    </text>
+
+                    <!-- Segundo ángulo -->
+                    <text
+                      [attr.x]="puntoRayoBisectriz(3 * (gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 4, 145).x"
+                      [attr.y]="puntoRayoBisectriz(3 * (gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 4, 145).y + 4"
+                      text-anchor="middle"
+                      fill="#5148C9"
+                      font-size="15"
+                      font-weight="bold">
+                      {{ (gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 2 | number:'1.0-1' }}°
+                    </text>
+
+                  </ng-container>
+
+                </svg>
+                <p class="descripcion-fraccion eduneko-construccion-resumen">
+                  <ng-container *ngIf="recurso.datos.grados != null || gradosBisectrizExploracion != null; else bisectrizSinMedida">
+                    Ángulo {{ gradosBisectrizExploracion == null ? 'del ejemplo' : 'explorado' }}:
+                    {{ gradosBisectrizExploracion ?? recurso.datos.grados ?? 80 | number:'1.0-0' }}°.
+                    La bisectriz forma dos ángulos de
+                    {{ (gradosBisectrizExploracion ?? recurso.datos.grados ?? 80) / 2 | number:'1.0-1' }}° cada uno.
+                  </ng-container>
+                  <ng-template #bisectrizSinMedida>
+                    Esquema sin escala: la semirrecta morada divide el ángulo en dos partes iguales.
+                  </ng-template>
+                </p>
+                <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                  <label for="abrir-angulo-bisectriz">🖐️ Abre o cierra el ángulo:
+                    {{ gradosBisectrizExploracion ?? recurso.datos.grados ?? 80 | number:'1.0-0' }}°
+                  </label>
+                  <input id="abrir-angulo-bisectriz" type="range" min="30" max="150" step="1"
+                         [value]="gradosBisectrizExploracion ?? recurso.datos.grados ?? 80"
+                         (input)="gradosBisectrizExploracion = +$any($event.target).value" />
+                  <p class="eduneko-control-observacion" aria-live="polite">
+                    La semirrecta morada mantiene las dos mitades iguales aunque cambie el ángulo.
+                  </p>
+                  <button type="button" (click)="gradosBisectrizExploracion = null">↩️ Volver al ejemplo original</button>
+                </div>
+              </ng-container>
+            </ng-container>
+
+            <!-- SEGMENTO REAL: una sola dimensión, nunca un rectángulo delgado. -->
+            <ng-container *ngIf="recurso.tipo === 'segmento_geometrico'">
+              <h3>📏 Explora un segmento</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 600 160" role="img"
+                   [attr.aria-label]="'Segmento de ' + (recurso.datos.longitud * factorSegmento) + ' ' + recurso.datos.unidad">
+                <line x1="70" y1="75" [attr.x2]="70 + 420 * factorSegmento / 3" y2="75"
+                      stroke="#6C63FF" stroke-width="4" />
+                <circle cx="70" cy="75" r="6" fill="#5148C9" />
+                <circle [attr.cx]="70 + 420 * factorSegmento / 3" cy="75" r="6" fill="#5148C9" />
+                <text x="70" y="106" fill="#2F3545">A</text>
+                <text [attr.x]="70 + 420 * factorSegmento / 3" y="106" text-anchor="middle" fill="#2F3545">B</text>
+                <text x="300" y="35" text-anchor="middle" fill="#5148C9">
+                  Longitud: {{ recurso.datos.longitud * factorSegmento | number:'1.0-2' }} {{ recurso.datos.unidad }}
+                </text>
+              </svg>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="escala-segmento">🖐️ Escala del segmento: {{ factorSegmento }}</label>
+                <input id="escala-segmento" type="range" min="0.5" max="3" step="0.25"
+                       [value]="factorSegmento" (input)="factorSegmento = +$any($event.target).value" />
+                <button type="button" (click)="factorSegmento = 1">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Ecuación: diferencia entre ambos miembros, sin alterar los coeficientes. -->
+            <ng-container *ngIf="recurso.tipo === 'modelo_ecuacion'">
+              <h3>⚖️ Explora una ecuación lineal</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <div class="eduneko-proporcion-pares">
+                <div><strong>{{ recurso.datos.a * (valorEcuacion ?? ((recurso.datos.c - recurso.datos.b) / recurso.datos.a)) + recurso.datos.b | number:'1.0-2' }}</strong>
+                     <span>ax + b</span></div>
+                <span aria-hidden="true">= ?</span>
+                <div><strong>{{ recurso.datos.c }}</strong><span>c</span></div>
+              </div>
+              <p class="descripcion-fraccion">
+                {{ recurso.datos.a }}x + ({{ recurso.datos.b }}) = {{ recurso.datos.c }}.
+                Valor explorado de x = {{ valorEcuacion ?? ((recurso.datos.c - recurso.datos.b) / recurso.datos.a) | number:'1.0-2' }}.
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="x-ecuacion">🖐️ Prueba otros valores de x</label>
+                <input id="x-ecuacion" type="range" min="-20" max="20" step="0.5"
+                       [value]="valorEcuacion ?? ((recurso.datos.c - recurso.datos.b) / recurso.datos.a)"
+                       (input)="valorEcuacion = +$any($event.target).value" />
+                <button type="button" (click)="valorEcuacion = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Tablas para sucesiones, funciones, conversiones y relaciones numéricas. -->
+            <ng-container *ngIf="recurso.tipo === 'tabla_valores'">
+              <h3>🔢 Explora una tabla de valores</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <table class="eduneko-tabla-visual">
+                <thead><tr><th>{{ recurso.datos.encabezadoX }}</th><th>{{ recurso.datos.encabezadoY }}</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let par of recurso.datos.pares; let i = index"
+                      [class.eduneko-visual-resaltado]="indiceTabla === i">
+                    <td>{{ par.x }}</td><td>{{ par.y }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="indice-tabla">🖐️ Examina una fila: {{ (indiceTabla ?? 0) + 1 }}</label>
+                <input id="indice-tabla" type="range" min="0" [max]="recurso.datos.pares.length - 1" step="1"
+                       [value]="indiceTabla ?? 0" (input)="indiceTabla = +$any($event.target).value" />
+                <p class="descripcion-fraccion">{{ recurso.datos.pares[indiceTabla ?? 0].x }} → {{ recurso.datos.pares[indiceTabla ?? 0].y }}</p>
+                <button type="button" (click)="indiceTabla = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Diagrama conceptual: permite representar temas sin geometría artificial. -->
+            <ng-container *ngIf="recurso.tipo === 'mapa_conceptual'">
+              <h3>🧠 Explora los conceptos de la lección</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <ol class="eduneko-mapa-conceptual">
+                <li *ngFor="let concepto of recurso.datos.conceptos; let i = index"
+                    [class.eduneko-visual-resaltado]="indiceConcepto === i">
+                  <strong>{{ concepto.etiqueta }}</strong>
+                  <span>{{ concepto.detalle }}</span>
+                </li>
+              </ol>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="indice-concepto">🖐️ Explora cada idea</label>
+                <input id="indice-concepto" type="range" min="0" [max]="recurso.datos.conceptos.length - 1" step="1"
+                       [value]="indiceConcepto ?? 0" (input)="indiceConcepto = +$any($event.target).value" />
+                <p class="descripcion-fraccion">{{ recurso.datos.conceptos[indiceConcepto ?? 0].detalle }}</p>
+                <button type="button" (click)="indiceConcepto = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Ángulo con dos semirrectas; se calcula el extremo mediante trigonometría. -->
+            <ng-container *ngIf="recurso.tipo === 'angulo_geometrico'">
+              <h3>📐 Explora un ángulo</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 400 270" role="img"
+                   [attr.aria-label]="'Ángulo de ' + (anguloExploracion ?? recurso.datos.grados) + ' grados'">
+                <line x1="200" y1="170" x2="320" y2="170" stroke="#6C63FF" stroke-width="4" />
+                <line x1="200" y1="170"
+                      [attr.x2]="extremoAngulo(anguloExploracion ?? recurso.datos.grados).x"
+                      [attr.y2]="extremoAngulo(anguloExploracion ?? recurso.datos.grados).y"
+                      stroke="#22C7B8" stroke-width="4" />
+                <circle cx="200" cy="170" r="6" fill="#5148C9" />
+                <text x="210" y="220" fill="#5148C9">{{ anguloExploracion ?? recurso.datos.grados }}°</text>
+              </svg>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="grados-angulo">🖐️ Ajusta el ángulo: {{ anguloExploracion ?? recurso.datos.grados }}°</label>
+                <input id="grados-angulo" type="range" min="1" max="359" step="1"
+                       [value]="anguloExploracion ?? recurso.datos.grados"
+                       (input)="anguloExploracion = +$any($event.target).value" />
+                <p class="eduneko-control-observacion" aria-live="polite">El ángulo es {{ clasificacionAngulo(anguloExploracion ?? recurso.datos.grados) }}.</p>
+                <button type="button" (click)="anguloExploracion = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Porcentajes exactos en sectores circulares. -->
+            <ng-container *ngIf="recurso.tipo === 'grafica_circular'">
+              <h3>📊 Explora una gráfica circular</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 300 300" role="img"
+                   [attr.aria-label]="'Gráfica circular de ' + recurso.datos.segmentos.length + ' sectores'">
+                <path *ngFor="let segmento of recurso.datos.segmentos; let i = index"
+                      [attr.d]="sectorCircular(recurso.datos.segmentos, i)"
+                      [attr.fill]="i % 2 === 0 ? '#6C63FF' : '#22C7B8'"
+                      [attr.opacity]="indiceCircular === null || indiceCircular === i ? 1 : 0.28"
+                      stroke="#FFFFFF" stroke-width="2" />
+              </svg>
+              <ul class="eduneko-leyenda-circular">
+                <li *ngFor="let segmento of recurso.datos.segmentos; let i = index"
+                    [class.eduneko-visual-resaltado]="indiceCircular === i">
+                  {{ segmento.etiqueta }}: {{ segmento.porcentaje }} %
+                </li>
+              </ul>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="indice-circular">🖐️ Destaca un sector</label>
+                <input id="indice-circular" type="range" min="0" [max]="recurso.datos.segmentos.length - 1" step="1"
+                       [value]="indiceCircular ?? 0" (input)="indiceCircular = +$any($event.target).value" />
+                <button type="button" (click)="indiceCircular = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Función lineal o cuadrática: representación SVG y control práctico. -->
+            <ng-container *ngIf="recurso.tipo === 'grafica_funcion'">
+              <h3>📈 Aprende con una gráfica de función</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <p class="descripcion-fraccion">
+                y = {{ recurso.datos.a }}x² + ({{ recurso.datos.b }})x + ({{ recurso.datos.c }})
+              </p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 600 330" role="img"
+                   [attr.aria-label]="'Gráfica de función entre ' + recurso.datos.minimoX + ' y ' + recurso.datos.maximoX">
+                <line x1="40" [attr.y1]="posicionEjeHorizontalFuncion(recurso.datos)"
+                      x2="560" [attr.y2]="posicionEjeHorizontalFuncion(recurso.datos)"
+                      stroke="#697386" stroke-width="2" />
+                <line [attr.x1]="posicionEjeVerticalFuncion(recurso.datos)" y1="40"
+                      [attr.x2]="posicionEjeVerticalFuncion(recurso.datos)" y2="280"
+                      stroke="#697386" stroke-width="2" />
+                <polyline [attr.points]="obtenerPuntosFuncion(recurso.datos)" fill="none"
+                          stroke="#6C63FF" stroke-width="4" stroke-linecap="round" />
+                <!-- Marcar las raíces reales x cuando la función es cuadrática.
+                     Son intersecciones con y=0, no los términos de los factores. -->
+                <ng-container *ngFor="let raiz of obtenerRaicesRealesVisibles(recurso.datos); let indice = index">
+                  <circle
+                    [attr.cx]="posicionPuntoFuncion(recurso.datos, raiz).x"
+                    [attr.cy]="posicionEjeHorizontalFuncion(recurso.datos)"
+                    r="6" fill="#5148C9" stroke="#FFFFFF" stroke-width="2" />
+                  <text
+                    [attr.x]="posicionPuntoFuncion(recurso.datos, raiz).x"
+                    [attr.y]="posicionEjeHorizontalFuncion(recurso.datos) + (indice % 2 === 0 ? -15 : 25)"
+                    text-anchor="middle" fill="#5148C9" font-size="15" font-weight="bold">
+                    x = {{ raiz | number:'1.0-2' }}
+                  </text>
+                </ng-container>
+                <circle [attr.cx]="posicionPuntoFuncion(recurso.datos, xExploracionFuncion ?? recurso.datos.valorX).x"
+                        [attr.cy]="posicionPuntoFuncion(recurso.datos, xExploracionFuncion ?? recurso.datos.valorX).y"
+                        r="7" fill="#22C7B8" stroke="#FFFFFF" stroke-width="2" />
+                <text x="40" y="310" text-anchor="middle" fill="#697386">{{ recurso.datos.minimoX }}</text>
+                <text x="560" y="310" text-anchor="middle" fill="#697386">{{ recurso.datos.maximoX }}</text>
+              </svg>
+              <p class="descripcion-fraccion" *ngIf="obtenerRaicesRealesVisibles(recurso.datos).length > 0">
+                Las raíces señaladas son los valores de x donde la función vale cero.
+              </p>
+              <p class="descripcion-fraccion">
+                Para x = {{ xExploracionFuncion ?? recurso.datos.valorX }},
+                y = {{ calcularYFuncion(recurso.datos, xExploracionFuncion ?? recurso.datos.valorX) | number:'1.0-2' }}.
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="x-funcion">🖐️ Explora otros valores de x</label>
+                <input id="x-funcion" type="range" [min]="recurso.datos.minimoX"
+                       [max]="recurso.datos.maximoX" step="0.25"
+                       [value]="xExploracionFuncion ?? recurso.datos.valorX"
+                       (input)="cambiarXFuncion(+$any($event.target).value)" />
+                <button type="button" (click)="xExploracionFuncion = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Sistema de ecuaciones: ambas rectas y su intersección final.
+                 Solo la exploración cambia temporalmente la segunda recta. -->
+            <ng-container *ngIf="recurso.tipo === 'sistema_lineal'">
+              <h3>📈 Explora un sistema de ecuaciones</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <p class="descripcion-fraccion">
+                Recta morada: {{ recurso.datos.a1 }}x + ({{ recurso.datos.b1 }})y = {{ recurso.datos.c1 }}.
+                Recta turquesa: {{ recurso.datos.a2 }}x + ({{ recurso.datos.b2 }})y =
+                {{ recurso.datos.c2 + desplazamientoRectaSistema | number:'1.0-2' }}.
+              </p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 600 330" role="img"
+                   aria-label="Dos rectas y su intersección en el plano cartesiano">
+                <rect x="40" y="40" width="520" height="240" fill="#F1EFFF" stroke="#E9EAF2" />
+                <line
+                  [attr.x1]="ejesSistema(recurso.datos).x"
+                  [attr.x2]="ejesSistema(recurso.datos).x"
+                  y1="40" y2="280" stroke="#697386" stroke-width="2" />
+                <line x1="40" x2="560"
+                  [attr.y1]="ejesSistema(recurso.datos).y"
+                  [attr.y2]="ejesSistema(recurso.datos).y"
+                  stroke="#697386" stroke-width="2" />
+                <ng-container *ngIf="segmentoSistema(recurso.datos, recurso.datos.a1, recurso.datos.b1, recurso.datos.c1) as linea1">
+                  <line [attr.x1]="linea1.x1" [attr.y1]="linea1.y1" [attr.x2]="linea1.x2" [attr.y2]="linea1.y2"
+                        stroke="#6C63FF" stroke-width="4" />
+                </ng-container>
+                <ng-container *ngIf="segmentoSistema(recurso.datos, recurso.datos.a2, recurso.datos.b2, recurso.datos.c2 + desplazamientoRectaSistema) as linea2">
+                  <line [attr.x1]="linea2.x1" [attr.y1]="linea2.y1" [attr.x2]="linea2.x2" [attr.y2]="linea2.y2"
+                        stroke="#22C7B8" stroke-width="4" />
+                </ng-container>
+                <ng-container *ngIf="interseccionSistema(recurso.datos) as solucion">
+                  <ng-container *ngIf="solucion.visible">
+                    <circle [attr.cx]="posicionSistema(recurso.datos, solucion.x, solucion.y).x"
+                            [attr.cy]="posicionSistema(recurso.datos, solucion.x, solucion.y).y"
+                            r="7" fill="#5148C9" stroke="#FFFFFF" stroke-width="2" />
+                  </ng-container>
+                </ng-container>
+                <text x="40" y="310" fill="#697386">{{ recurso.datos.minimoX }}</text>
+                <text x="560" y="310" fill="#697386" text-anchor="end">{{ recurso.datos.maximoX }}</text>
+              </svg>
+              <p class="descripcion-fraccion" *ngIf="interseccionSistema(recurso.datos) as solucion">
+                Intersección: ({{ solucion.x | number:'1.0-2' }}, {{ solucion.y | number:'1.0-2' }}).
+                <ng-container *ngIf="!solucion.visible">El punto está fuera del rango mostrado.</ng-container>
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="desplazamiento-sistema">🖐️ Desplaza la segunda recta sin cambiar su inclinación</label>
+                <input id="desplazamiento-sistema" type="range" min="-3" max="3" step="0.25"
+                       [value]="desplazamientoRectaSistema"
+                       (input)="desplazamientoRectaSistema = +$any($event.target).value" />
+                <button type="button" (click)="desplazamientoRectaSistema = 0">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Sólidos de revolución: esfera, cono y cilindro con volumen real.
+                 Escala y controles exclusivos de la preferencia práctica. -->
+            <ng-container *ngIf="recurso.tipo === 'solido_revolucion'">
+              <h3>🧊 Explora un sólido de revolución</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 450 310" role="img"
+                   [attr.aria-label]="'Representación de ' + recurso.datos.forma + ' con radio ' + recurso.datos.radio + ' ' + recurso.datos.unidad">
+                <g [attr.transform]="'translate(225 145) scale(' + factorEscalaSolido + ')'">
+                  <!-- Cilindro: dos bases circulares y su superficie lateral. -->
+                  <ng-container *ngIf="recurso.datos.forma === 'cilindro'">
+                    <rect x="-75" y="-65" width="150" height="160"
+                          fill="#F1EFFF" stroke="#6C63FF" stroke-width="3" />
+                    <ellipse cx="0" cy="-65" rx="75" ry="17"
+                             fill="#E0DDFF" stroke="#5148C9" stroke-width="3" />
+                    <path d="M -75 95 A 75 17 0 0 0 75 95"
+                          fill="none" stroke="#5148C9" stroke-width="3" />
+                    <path d="M -75 95 A 75 17 0 0 1 75 95"
+                          fill="none" stroke="#5148C9" stroke-width="2" stroke-dasharray="6 5" />
+                  </ng-container>
+                  <!-- Cono: base circular y punta alineada con el centro. -->
+                  <ng-container *ngIf="recurso.datos.forma === 'cono'">
+                    <path d="M 0 -105 L -75 90 A 75 17 0 0 0 75 90 Z"
+                          fill="#F1EFFF" stroke="#6C63FF" stroke-width="3" />
+                    <path d="M -75 90 A 75 17 0 0 1 75 90"
+                          fill="none" stroke="#5148C9" stroke-width="2" stroke-dasharray="6 5" />
+                  </ng-container>
+                  <!-- Esfera: circunferencia y ecuador ilustrativo. -->
+                  <ng-container *ngIf="recurso.datos.forma === 'esfera'">
+                    <circle cx="0" cy="0" r="83" fill="#F1EFFF"
+                            stroke="#6C63FF" stroke-width="3" />
+                    <ellipse cx="0" cy="0" rx="83" ry="23" fill="none"
+                             stroke="#5148C9" stroke-width="2" stroke-dasharray="6 5" />
+                  </ng-container>
+                </g>
+              </svg>
+              <p class="descripcion-fraccion">
+                Radio: {{ recurso.datos.radio * factorEscalaSolido | number:'1.0-2' }} {{ recurso.datos.unidad }}.
+                <ng-container *ngIf="recurso.datos.forma !== 'esfera'">
+                  Altura: {{ (recurso.datos.altura ?? 0) * factorEscalaSolido | number:'1.0-2' }} {{ recurso.datos.unidad }}.
+                </ng-container>
+                Volumen: {{ volumenSolidoRevolucion(recurso.datos) | number:'1.0-2' }} {{ recurso.datos.unidad }}³.
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="escala-solido">🖐️ Cambia proporcionalmente sus dimensiones (factor {{ factorEscalaSolido | number:'1.2-2' }})</label>
+                <input id="escala-solido" type="range" min="0.65" max="1.25" step="0.05"
+                       [value]="factorEscalaSolido"
+                       (input)="factorEscalaSolido = +$any($event.target).value" />
+                <p>Observa que el volumen cambia con el cubo del factor de escala.</p>
+                <button type="button" (click)="factorEscalaSolido = 1">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Proporcionalidad directa con cantidades que se escalan en conjunto. -->
+            <ng-container *ngIf="recurso.tipo === 'modelo_proporcionalidad'">
+              <h3>⚖️ Aprende con proporcionalidad</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <div class="eduneko-proporcion-pares" role="group" aria-label="Representación de una proporción directa">
+                <div>
+                  <strong>{{ recurso.datos.cantidadBase * multiplicadorProporcionalidad | number:'1.0-2' }}</strong>
+                  <span>{{ recurso.datos.unidadBase }}</span>
+                </div>
+                <span aria-hidden="true">⇔</span>
+                <div>
+                  <strong>{{ recurso.datos.cantidadCorrespondiente * multiplicadorProporcionalidad | number:'1.0-2' }}</strong>
+                  <span>{{ recurso.datos.unidadCorrespondiente }}</span>
+                </div>
+              </div>
+              <p class="descripcion-fraccion">Al multiplicar ambas cantidades por el mismo número, la proporción se conserva.</p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="factor-proporcion">🖐️ Multiplicador: {{ multiplicadorProporcionalidad }}</label>
+                <input id="factor-proporcion" type="range" min="1" max="5" step="1"
+                       [value]="multiplicadorProporcionalidad"
+                       (input)="multiplicadorProporcionalidad = +$any($event.target).value" />
+                <button type="button" (click)="multiplicadorProporcionalidad = 1">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Triángulo rectángulo: Pitágoras y razones trigonométricas. -->
+            <ng-container *ngIf="recurso.tipo === 'triangulo_rectangulo'">
+              <h3>📐 Aprende con un triángulo rectángulo</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 450 300" role="img"
+                   aria-label="Triángulo rectángulo con sus dos catetos y su hipotenusa">
+                <ng-container *ngIf="geometriaTriangulo(recurso.datos.catetoA, recurso.datos.catetoB) as figura">
+                  <polygon [attr.points]="'65,245 ' + (65 + figura.base) + ',245 65,' + figura.inicioY"
+                           fill="#F1EFFF" stroke="#6C63FF" stroke-width="3" />
+                  <path [attr.d]="'M 65 ' + (245 - tamanoAnguloRecto(figura.base, figura.altura)) +
+                             ' L ' + (65 + tamanoAnguloRecto(figura.base, figura.altura)) +
+                             ' ' + (245 - tamanoAnguloRecto(figura.base, figura.altura)) +
+                             ' L ' + (65 + tamanoAnguloRecto(figura.base, figura.altura)) + ' 245'"
+                        fill="none" stroke="#2F3545" stroke-width="2" />
+                  <text [attr.x]="65 + figura.base / 2" y="270" fill="#5148C9" text-anchor="middle">
+                    {{ recurso.datos.catetoA * escalaTriangulo | number:'1.0-2' }} {{ recurso.datos.unidad }}
+                  </text>
+                  <text x="52" [attr.y]="245 - figura.altura / 2" fill="#5148C9" text-anchor="end">
+                    {{ recurso.datos.catetoB * escalaTriangulo | number:'1.0-2' }} {{ recurso.datos.unidad }}
+                  </text>
+                  <text [attr.x]="220" y="18" fill="#5148C9" text-anchor="middle">
+                    h = {{ (calcularHipotenusa(recurso.datos.catetoA, recurso.datos.catetoB) * escalaTriangulo) | number:'1.0-2' }}
+                  </text>
+                </ng-container>
+              </svg>
+              <p class="descripcion-fraccion">
+                Hipotenusa = √(a² + b²). Los ángulos se mantienen al escalar el triángulo.
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="escala-triangulo">🖐️ Factor de escala: {{ escalaTriangulo }}</label>
+                <input id="escala-triangulo" type="range" min="1" max="3" step="0.25"
+                       [value]="escalaTriangulo" (input)="escalaTriangulo = +$any($event.target).value" />
+                <button type="button" (click)="escalaTriangulo = 1">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Probabilidad: casos equiprobables y conteo exploratorio. -->
+            <ng-container *ngIf="recurso.tipo === 'modelo_probabilidad'">
+              <h3>🎲 Explora la probabilidad</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <p class="descripcion-fraccion">Evento: {{ recurso.datos.evento }}</p>
+              <div class="eduneko-probabilidad-casillas" role="img"
+                   [attr.aria-label]="'Casos favorables: ' + (favorablesExploracion ?? recurso.datos.favorables) + ' de ' + recurso.datos.total">
+                <span *ngFor="let indice of construirCasillasProbabilidad(recurso.datos.total)"
+                      [class.eduneko-caso-favorable]="indice < (favorablesExploracion ?? recurso.datos.favorables)"></span>
+              </div>
+              <p class="descripcion-fraccion">
+                Probabilidad = {{ favorablesExploracion ?? recurso.datos.favorables }}/{{ recurso.datos.total }}
+                = {{ (favorablesExploracion ?? recurso.datos.favorables) / recurso.datos.total * 100 | number:'1.0-2' }} %.
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="favorables-probabilidad">🖐️ Cambia el número de casos favorables</label>
+                <input id="favorables-probabilidad" type="range" min="0" [max]="recurso.datos.total" step="1"
+                       [value]="favorablesExploracion ?? recurso.datos.favorables"
+                       (input)="favorablesExploracion = +$any($event.target).value" />
+                <button type="button" (click)="favorablesExploracion = null">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
+            <!-- Prisma rectangular en perspectiva: dimensiones y volumen real. -->
+            <ng-container *ngIf="recurso.tipo === 'prisma_rectangular'">
+              <h3>🧊 Explora un prisma rectangular</h3>
+              <p class="titulo-recurso-visual">{{ recurso.titulo }}</p>
+              <svg class="eduneko-visual-ampliado" viewBox="0 0 550 310" role="img"
+                   [attr.aria-label]="'Prisma de largo ' + recurso.datos.largo + ', ancho ' + recurso.datos.ancho + ' y alto ' + (recurso.datos.alto * factorAlturaPrisma)">
+                <ng-container *ngIf="carasPrisma(recurso.datos.largo, recurso.datos.ancho, recurso.datos.alto) as caras">
+                  <polygon [attr.points]="caras.lateral" fill="#E9EAF2" stroke="#5148C9" stroke-width="2" />
+                  <polygon [attr.points]="caras.superior" fill="#F1EFFF" stroke="#5148C9" stroke-width="2" />
+                  <polygon [attr.points]="caras.frente" fill="#F1EFFF" stroke="#6C63FF" stroke-width="2" />
+                </ng-container>
+              </svg>
+              <p class="descripcion-fraccion">
+                Largo {{ recurso.datos.largo }} × ancho {{ recurso.datos.ancho }} ×
+                alto {{ recurso.datos.alto * factorAlturaPrisma | number:'1.0-2' }} {{ recurso.datos.unidad }}.
+                Volumen = {{ recurso.datos.largo * recurso.datos.ancho * recurso.datos.alto * factorAlturaPrisma | number:'1.0-2' }} {{ recurso.datos.unidad }}³.
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="altura-prisma">🖐️ Factor de altura: {{ factorAlturaPrisma }}</label>
+                <input id="altura-prisma" type="range" min="1" max="3" step="0.25"
+                       [value]="factorAlturaPrisma" (input)="factorAlturaPrisma = +$any($event.target).value" />
+                <button type="button" (click)="factorAlturaPrisma = 1">↩️ Volver al ejemplo original</button>
+              </div>
+            </ng-container>
+
             <!-- Recurso visual: barras fraccionarias con exploración interactiva -->
             <ng-container *ngIf="recurso.tipo === 'barra_fraccionaria'">
 
@@ -619,8 +1438,8 @@
                     recurso.datos.maximo,
                     recurso.datos.intervalo
                   ).length > 0 &&
-                  recurso.datos.valorDestacado >= recurso.datos.minimo &&
-                  recurso.datos.valorDestacado <= recurso.datos.maximo
+                  (valorRectaExploracion ?? recurso.datos.valorDestacado) >= recurso.datos.minimo &&
+                  (valorRectaExploracion ?? recurso.datos.valorDestacado) <= recurso.datos.maximo
                 "
                 class="recta-numerica-svg"
                 viewBox="0 0 600 150"
@@ -631,7 +1450,7 @@
                   ' hasta ' +
                   recurso.datos.maximo +
                   ', destacando el valor ' +
-                  recurso.datos.valorDestacado
+                  (valorRectaExploracion ?? recurso.datos.valorDestacado)
                 "
               >
 
@@ -710,7 +1529,7 @@
                 <circle
                   [attr.cx]="
                     40 + obtenerPosicionRectaNumerica(
-                      recurso.datos.valorDestacado,
+                      (valorRectaExploracion ?? recurso.datos.valorDestacado),
                       recurso.datos.minimo,
                       recurso.datos.maximo
                     ) * 5.2
@@ -726,7 +1545,7 @@
                 <text
                   [attr.x]="
                     40 + obtenerPosicionRectaNumerica(
-                      recurso.datos.valorDestacado,
+                      (valorRectaExploracion ?? recurso.datos.valorDestacado),
                       recurso.datos.minimo,
                       recurso.datos.maximo
                     ) * 5.2
@@ -737,11 +1556,18 @@
                   font-weight="bold"
                   fill="#0f766e"
                 >
-                  {{ recurso.datos.valorDestacado }}
+                  {{ (valorRectaExploracion ?? recurso.datos.valorDestacado) }}
                 </text>
 
               </svg>
-
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="recta-exploracion">🖐️ Mueve el número destacado</label>
+                <input id="recta-exploracion" type="range" [min]="recurso.datos.minimo"
+                       [max]="recurso.datos.maximo" [step]="recurso.datos.intervalo"
+                       [value]="valorRectaExploracion ?? recurso.datos.valorDestacado"
+                       (input)="valorRectaExploracion = +$any($event.target).value" />
+                <button type="button" (click)="valorRectaExploracion = null">↩️ Volver al ejemplo original</button>
+              </div>
             </ng-container>
 
             <!-- =====================================================
@@ -761,6 +1587,7 @@
 
               <!-- SVG adaptable al ancho disponible -->
               <svg
+                [style.scale]="factorFigura2d"
                 class="figura-geometrica-svg"
                 viewBox="0 0 400 280"
                 role="img"
@@ -778,44 +1605,48 @@
                   />
                   <text x="200" y="240" text-anchor="middle"
                         font-size="16" fill="#0f766e">
-                    Lado: {{ recurso.datos.lado }} {{ recurso.datos.unidad }}
+                    Lado: {{ recurso.datos.lado! * factorFigura2d | number:'1.0-2' }} {{ recurso.datos.unidad }}
                   </text>
                 </ng-container>
 
                 <!-- Rectángulo -->
                 <ng-container *ngIf="recurso.datos.figura === 'rectangulo'">
                   <rect
-                    x="75" y="75"
-                    width="250" height="125"
+                    [attr.x]="dimensionesFigura2D(recurso.datos).x"
+                    [attr.y]="dimensionesFigura2D(recurso.datos).y"
+                    [attr.width]="dimensionesFigura2D(recurso.datos).ancho"
+                    [attr.height]="dimensionesFigura2D(recurso.datos).alto"
                     fill="#dbeafe"
                     stroke="#2563eb"
                     stroke-width="3"
                   />
                   <text x="200" y="230" text-anchor="middle"
                         font-size="15" fill="#1d4ed8">
-                    Base: {{ recurso.datos.base }} {{ recurso.datos.unidad }}
+                    Base: {{ recurso.datos.base! * factorFigura2d | number:'1.0-2' }} {{ recurso.datos.unidad }}
                   </text>
                   <text x="200" y="252" text-anchor="middle"
                         font-size="15" fill="#1d4ed8">
-                    Altura: {{ recurso.datos.altura }} {{ recurso.datos.unidad }}
+                    Altura: {{ recurso.datos.altura! * factorFigura2d | number:'1.0-2' }} {{ recurso.datos.unidad }}
                   </text>
                 </ng-container>
 
                 <!-- Triángulo -->
                 <ng-container *ngIf="recurso.datos.figura === 'triangulo'">
                   <polygon
-                    points="200,40 80,210 320,210"
+                    [attr.points]="'200,' + dimensionesFigura2D(recurso.datos).y + ' ' +
+                      dimensionesFigura2D(recurso.datos).x + ',208 ' +
+                      (dimensionesFigura2D(recurso.datos).x + dimensionesFigura2D(recurso.datos).ancho) + ',208'"
                     fill="#fef3c7"
                     stroke="#d97706"
                     stroke-width="3"
                   />
                   <text x="200" y="238" text-anchor="middle"
                         font-size="15" fill="#92400e">
-                    Base: {{ recurso.datos.base }} {{ recurso.datos.unidad }}
+                    Base: {{ recurso.datos.base! * factorFigura2d | number:'1.0-2' }} {{ recurso.datos.unidad }}
                   </text>
                   <text x="200" y="260" text-anchor="middle"
                         font-size="15" fill="#92400e">
-                    Altura: {{ recurso.datos.altura }} {{ recurso.datos.unidad }}
+                    Altura: {{ recurso.datos.altura! * factorFigura2d | number:'1.0-2' }} {{ recurso.datos.unidad }}
                   </text>
                 </ng-container>
 
@@ -836,12 +1667,71 @@
                   <circle cx="200" cy="130" r="4" fill="#7c3aed" />
                   <text x="200" y="250" text-anchor="middle"
                         font-size="16" fill="#6d28d9">
-                    Radio: {{ recurso.datos.radio }} {{ recurso.datos.unidad }}
+                    Radio: {{ recurso.datos.radio! * factorFigura2d | number:'1.0-2' }} {{ recurso.datos.unidad }}
                   </text>
                 </ng-container>
 
               </svg>
+              <ng-container *ngIf="recurso.datos.figura === 'rectangulo'">
 
+                <!-- Mostrar únicamente si la IA proporcionó
+                    información algebraica válida. -->
+                <ng-container *ngIf="recurso.datos.algebra as algebra">
+
+                  <div class="descripcion-fraccion">
+
+                    <p>
+                      <strong>Expresiones del problema:</strong>
+                    </p>
+
+                    <p>
+                      Base = {{ algebra.expresionBase }}
+                      {{ recurso.datos.unidad }}
+                    </p>
+
+                    <p>
+                      Altura = {{ algebra.expresionAltura }}
+                      {{ recurso.datos.unidad }}
+                    </p>
+
+                    <p>
+                      Área conocida =
+                      {{ algebra.areaConocida | number:'1.0-2' }}
+                      {{ recurso.datos.unidad }}²
+                    </p>
+
+                    <p>
+                      <strong>Dimensiones obtenidas:</strong>
+                    </p>
+
+                    <p>
+                      Base = {{ recurso.datos.base }}
+                      {{ recurso.datos.unidad }}
+                    </p>
+
+                    <p>
+                      Altura = {{ recurso.datos.altura }}
+                      {{ recurso.datos.unidad }}
+                    </p>
+
+                  </div>
+
+                </ng-container>
+
+              </ng-container>
+              <p class="descripcion-fraccion eduneko-control-observacion" aria-live="polite">
+                Área: {{ areaFigura(recurso.datos) | number:'1.0-2' }} {{ recurso.datos.unidad }}².
+                <ng-container *ngIf="perimetroFigura(recurso.datos) as perimetro">
+                  Perímetro: {{ perimetro | number:'1.0-2' }} {{ recurso.datos.unidad }}.
+                </ng-container>
+              </p>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+                <label for="zoom-figura">🖐️ Modifica las medidas de la figura: {{ factorFigura2d | number:'1.2-2' }} × las originales</label>
+                <input id="zoom-figura" type="range" min="0.5" max="1.25" step="0.05"
+                       [value]="factorFigura2d" (input)="factorFigura2d = +$any($event.target).value" />
+                <p class="eduneko-control-observacion" aria-live="polite">Al cambiar una longitud, el perímetro cambia en la misma proporción y el área según el cuadrado del factor.</p>
+                <button type="button" (click)="factorFigura2d = 1">↩️ Volver al ejemplo original</button>
+              </div>
             </ng-container>
 
             <!-- =====================================================
@@ -877,7 +1767,8 @@
                 <!-- Cada elemento ocupa una tarjeta independiente
                     para adaptarse a pantallas pequeñas. -->
                 <div
-                  *ngFor="let elemento of recurso.datos.elementos"
+                  *ngFor="let elemento of recurso.datos.elementos; let i = index"
+                  [hidden]="pasosPatronVisibles !== null && i >= pasosPatronVisibles"
                   class="patron-figura-item"
                 >
 
@@ -959,7 +1850,14 @@
                 {{ recurso.datos.regla }}
               </p>
 
-            </ng-container>
+              <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+              <label for="pasos-patron">🖐️ Muestra las primeras figuras</label>
+              <input id="pasos-patron" type="range" min="1" [max]="recurso.datos.elementos.length" step="1"
+                     [value]="pasosPatronVisibles ?? recurso.datos.elementos.length"
+                     (input)="pasosPatronVisibles = +$any($event.target).value" />
+              <button type="button" (click)="pasosPatronVisibles = null">↩️ Volver al ejemplo original</button>
+            </div>
+          </ng-container>
 
           </ng-container>
 
@@ -1109,14 +2007,14 @@
                 <!-- No dibujar puntos fuera de los límites -->
                 <ng-container
                   *ngIf="
-                    punto.x >= recurso.datos.minimoX &&
-                    punto.x <= recurso.datos.maximoX &&
+                    punto.x + desplazamientoPuntos >= recurso.datos.minimoX &&
+                    punto.x + desplazamientoPuntos <= recurso.datos.maximoX &&
                     punto.y >= recurso.datos.minimoY &&
                     punto.y <= recurso.datos.maximoY
                   "
                 >
                   <circle
-                    [attr.cx]="obtenerPosicionXPlano(punto.x, recurso.datos)"
+                    [attr.cx]="obtenerPosicionXPlano(punto.x + desplazamientoPuntos, recurso.datos)"
                     [attr.cy]="obtenerPosicionYPlano(punto.y, recurso.datos)"
                     r="5"
                     fill="#0d9488"
@@ -1126,7 +2024,7 @@
 
                   <!-- Etiqueta del punto -->
                   <text
-                    [attr.x]="obtenerPosicionXPlano(punto.x, recurso.datos) + 8"
+                    [attr.x]="obtenerPosicionXPlano(punto.x + desplazamientoPuntos, recurso.datos) + 8"
                     [attr.y]="obtenerPosicionYPlano(punto.y, recurso.datos) - 8"
                     font-size="12"
                     font-weight="bold"
@@ -1139,7 +2037,12 @@
               </ng-container>
 
             </svg>
-
+            <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+              <label for="desplazamiento-plano">🖐️ Desplaza horizontalmente los puntos (fuera de escala se ocultan)</label>
+              <input id="desplazamiento-plano" type="range" min="-3" max="3" step="1"
+                     [value]="desplazamientoPuntos" (input)="desplazamientoPuntos = +$any($event.target).value" />
+              <button type="button" (click)="desplazamientoPuntos = 0">↩️ Volver al ejemplo original</button>
+            </div>
           </ng-container>
 
           <!-- =====================================================
@@ -1196,7 +2099,7 @@
                 {{ marca }}
               </text>
 
-            </ng-container>
+                </ng-container>
 
             <!-- Eje horizontal. -->
             <line
@@ -1228,7 +2131,7 @@
               >
 
                 <!-- Barra proporcional al valor. -->
-                <rect
+                <rect [attr.opacity]="indiceGraficaResaltado === null || indiceGraficaResaltado === i ? 1 : 0.2"
                   [attr.x]="
                     obtenerPosicionXGrafica(i, recurso.datos) -
                     obtenerAnchoBarra(recurso.datos) / 2
@@ -1272,7 +2175,7 @@
                 "
               >
 
-                <line
+                <line [attr.opacity]="indiceGraficaResaltado === null || indiceGraficaResaltado === i ? 1 : 0.2"
                   *ngIf="i > 0"
                   [attr.x1]="obtenerPosicionXGrafica(i - 1, recurso.datos)"
                   [attr.y1]="
@@ -1289,7 +2192,7 @@
                 />
 
                 <!-- Punto de cada categoría. -->
-                <circle
+                <circle [attr.opacity]="indiceGraficaResaltado === null || indiceGraficaResaltado === i ? 1 : 0.2"
                   [attr.cx]="obtenerPosicionXGrafica(i, recurso.datos)"
                   [attr.cy]="obtenerPosicionYGrafica(elemento.valor, recurso.datos)"
                   r="5"
@@ -1347,10 +2250,36 @@
             </text>
 
           </svg>
-
+          <div *ngIf="prefierePractica" class="eduneko-visual-controles">
+            <label for="dato-grafica">🖐️ Resalta una categoría</label>
+            <input id="dato-grafica" type="range" min="0" [max]="recurso.datos.elementos.length - 1" step="1"
+                   [value]="indiceGraficaResaltado ?? 0"
+                   (input)="indiceGraficaResaltado = +$any($event.target).value" />
+            <p class="eduneko-control-observacion" aria-live="polite">
+              {{ recurso.datos.elementos[indiceGraficaResaltado ?? 0].etiqueta }}:
+              {{ recurso.datos.elementos[indiceGraficaResaltado ?? 0].valor }} {{ recurso.datos.unidad }}.
+              Promedio del conjunto: {{ promedioGrafica(recurso.datos) | number:'1.0-2' }} {{ recurso.datos.unidad }}.
+              Diferencia con el promedio:
+              {{ recurso.datos.elementos[indiceGraficaResaltado ?? 0].valor - promedioGrafica(recurso.datos) | number:'1.0-2' }}.
+            </p>
+            <button type="button" (click)="indiceGraficaResaltado = null">↩️ Volver al ejemplo original</button>
+          </div>
         </ng-container>
 
           </section>
+
+          <!-- Reintento manual: no reemplaza lecciones ni actividades existentes. -->
+          <div *ngIf="!leccionActual.recurso_visual &&
+                       (leccionActual.estado_recurso_visual === 'NO_APLICABLE' ||
+                        leccionActual.estado_recurso_visual === 'RECHAZADO')"
+               class="eduneko-visual-controles">
+            <p>Esta lección no tiene un recurso visual disponible por ahora.</p>
+            <button type="button" [disabled]="reintentandoRecursoVisual"
+                    (click)="reintentarRecursoVisual()">
+              {{ reintentandoRecursoVisual ? 'Intentando...' : 'Intentar generar recurso visual' }}
+            </button>
+            <p *ngIf="errorReintentoVisual" role="alert">{{ errorReintentoVisual }}</p>
+          </div>
 
         <!-- ==========================================
             EDUNEKO V1 - AUDIO DE OBSERVA

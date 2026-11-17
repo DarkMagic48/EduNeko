@@ -1,6 +1,6 @@
 
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -8,7 +8,7 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 
 import { EstudianteService } from '../../services/estudiante.service';
 import { Materia } from '../../models/estudiante.models';
@@ -22,7 +22,7 @@ import { Materia } from '../../models/estudiante.models';
   templateUrl: './onboarding.html',
   styleUrl: './onboarding.css',
 })
-export class Onboarding {
+export class Onboarding implements OnInit {
 
   // Formularios existentes del onboarding.
   perfilForm: FormGroup;
@@ -39,6 +39,9 @@ export class Onboarding {
   // 3 = Materias
   pasoActual = 1;
 
+  // El estudiante puede regresar solo para editar materias desde su dashboard.
+  modoEdicionMaterias = false;
+
   materiasDisponibles: Materia[] = [];
   materiasSeleccionadas: number[] = [];
   // Indica si las materias se guardaron correctamente.
@@ -47,7 +50,8 @@ export class Onboarding {
   constructor(
     private readonly fb: FormBuilder,
     private readonly estudianteService: EstudianteService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {
 
     // Formulario del perfil académico.
@@ -77,6 +81,49 @@ export class Onboarding {
       prefiereAuditivo: [false],
       prefierePractica: [false]
     });
+  }
+
+  ngOnInit(): void {
+    this.modoEdicionMaterias =
+      this.route.snapshot.queryParamMap.get('editarMaterias') === '1';
+
+    if (this.modoEdicionMaterias) {
+      // Saltar el onboarding ya completado: no modificar grado ni preferencias.
+      this.pasoActual = 3;
+      this.cargarMaterias();
+    }
+  }
+
+  // La selección se identifica con los datos reales del catálogo.
+  get matematicasSeleccionada(): boolean {
+    return this.materiasDisponibles.some(materia =>
+      materia.nombre === 'Matemáticas' &&
+      this.materiasSeleccionadas.includes(materia.id)
+    );
+  }
+
+  volverPasoAnterior(): void {
+    if (this.cargando) return;
+    if (this.modoEdicionMaterias) {
+      void this.router.navigate(['/dashboard']);
+    } else if (this.pasoActual > 1) {
+      this.mensajeError = '';
+      this.pasoActual--;
+    } else {
+      void this.router.navigate(['/bienvenida']);
+    }
+  }
+
+  volverSeleccionMaterias(): void {
+    // La lista sigue abierta y conserva la selección para poder corregirla.
+    this.materiasGuardadas = false;
+    this.mensajeExito = '';
+  }
+
+  irDashboard(): void {
+    if (!this.cargando && (this.materiasGuardadas || this.modoEdicionMaterias)) {
+      void this.router.navigate(['/dashboard']);
+    }
   }
 
   /**
@@ -188,6 +235,26 @@ export class Onboarding {
     this.materiasDisponibles = [];
     this.materiasSeleccionadas = [];
     this.cargando = true;
+
+    if (this.modoEdicionMaterias) {
+      // Consultar ambas listas antes de habilitar cambios. Evita sobrescribir
+      // una selección previa si falla la lectura de la base de datos.
+      forkJoin({
+        disponibles: this.estudianteService.obtenerMateriasDisponibles(),
+        seleccionadas: this.estudianteService.obtenerMateriasSeleccionadas()
+      }).pipe(finalize(() => { this.cargando = false; }))
+        .subscribe({
+          next: ({ disponibles, seleccionadas }) => {
+            this.materiasDisponibles = disponibles;
+            this.materiasSeleccionadas = seleccionadas.map(materia => materia.id);
+          },
+          error: () => {
+            this.mensajeError =
+              'No fue posible recuperar tus materias. Inténtalo nuevamente.';
+          }
+        });
+      return;
+    }
 
     this.estudianteService
       .obtenerMateriasDisponibles()
@@ -339,7 +406,13 @@ export class Onboarding {
       return;
     }
 
-    // Abrir el diagnóstico existente.
+    // Evitar abrir el diagnóstico si Matemáticas no está seleccionada.
+    if (!this.matematicasSeleccionada) {
+      this.mensajeError =
+        'Para iniciar este diagnóstico, primero selecciona Matemáticas.';
+      return;
+    }
+
     this.router.navigate(['/diagnostico/matematicas']);
   }
 }

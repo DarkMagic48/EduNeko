@@ -4,8 +4,69 @@
    Paleta y tipografías oficiales
    ===================================================== */
 
-/* Fuentes oficiales de EduNeko */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;700&family=Poppins:wght@400;600;700;800&display=swap');
+/* =====================================================
+   EDUNEKO V1 - TIPOGRAFÍAS OFICIALES LOCALES
+
+   Las fuentes se cargan desde frontend/public/fonts.
+   Funcionan con internet y sin conexión.
+   ===================================================== */
+
+/* DM Sans - Textos generales de la aplicación */
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/DM_Sans/DMSans-VariableFont_opsz,wght.ttf')
+       format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Fraunces - Logotipo y elementos destacados */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/Fraunces/Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf')
+       format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Poppins - Títulos y encabezados */
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins/Poppins-Regular.ttf')
+       format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins/Poppins-SemiBold.ttf')
+       format('truetype');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins/Poppins-Bold.ttf')
+       format('truetype');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins/Poppins-ExtraBold.ttf')
+       format('truetype');
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
 
 :root {
   /* Colores principales */
@@ -70,4 +131,25 @@ h1, h2, h3, h4, h5, h6 {
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* Interacciones consistentes para botones y enlaces accionables.
+   No altera colores, fondos, tamaños ni transformaciones existentes. */
+:where(button, a[href], [role="button"]) {
+  transition: translate .2s ease, box-shadow .2s ease,
+              border-color .2s ease, opacity .2s ease;
+}
+:where(button:not(:disabled), a[href], [role="button"]):hover {
+  translate: 0 -2px;
+}
+:where(button, a[href], [role="button"]):focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+:where(button:disabled, [aria-disabled="true"]) { translate: none; }
+@media (prefers-reduced-motion: reduce) {
+  :where(button, a[href], [role="button"]) {
+    transition: none !important;
+    translate: none !important;
+  }
 }

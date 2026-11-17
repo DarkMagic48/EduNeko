@@ -34,6 +34,35 @@ public class EstudianteController {
         this.materiaService = materiaService;
     }
 
+    /** El correo se obtiene de la sesión validada, nunca del navegador. */
+    @GetMapping("/perfil")
+    public ResponseEntity<Map<String, Object>> obtenerPerfil(
+            Authentication authentication) {
+        Estudiante estudiante = estudianteService.obtenerPerfilActual(authentication.getName());
+        // HashMap admite campos sin configurar durante el onboarding.
+        Map<String, Object> perfil = new java.util.HashMap<>();
+        perfil.put("edad", estudiante.getEdad());
+        perfil.put("gradoEscolar", estudiante.getGradoEscolar());
+        return ResponseEntity.ok(perfil);
+    }
+
+    /** Obtener preferencias de la cuenta autenticada, sin acceder a otros IDs. */
+    @GetMapping("/preferencias")
+    public ResponseEntity<Map<String, Object>> obtenerPreferencias(
+            Authentication authentication) {
+        PreferenciaAprendizaje preferencias =
+                estudianteService.obtenerPreferenciasActuales(authentication.getName());
+        return ResponseEntity.ok(Map.of(
+                "nivelExplicacion", preferencias.getNivelExplicacion(),
+                "nivelRetoPreferido", preferencias.getNivelRetoPreferido(),
+                "ritmoEstudio", preferencias.getRitmoEstudio(),
+                "prefiereLecturaEscritura", preferencias.isPrefiereLecturaEscritura(),
+                "prefiereVisual", preferencias.isPrefiereVisual(),
+                "prefiereAuditivo", preferencias.isPrefiereAuditivo(),
+                "prefierePractica", preferencias.isPrefierePractica()
+        ));
+    }
+
     @PutMapping("/perfil")
     public ResponseEntity<Map<String, Object>> actualizarPerfil(
             Authentication authentication,
