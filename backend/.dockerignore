@@ -1,0 +1,33 @@
+# Archivos generados durante la compilacion local
+target/
+
+# Control de versiones
+.git
+.gitignore
+
+# Configuraciones de entornos de desarrollo
+.idea/
+.vscode/
+*.iml
+
+# Variables de entorno y archivos sensibles
+.env
+.env.*
+**/application-local.properties
+**/application-local.yml
+**/application-local.yaml
+**/*.pem
+**/*.key
+
+# Respaldos de bases de datos
+**/*.backup
+**/*.dump
+**/*.bak
+**/*.sql.gz
+
+# Archivos de registro
+**/*.log
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db

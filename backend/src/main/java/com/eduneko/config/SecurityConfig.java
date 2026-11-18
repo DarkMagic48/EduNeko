@@ -1,7 +1,9 @@
 package com.eduneko.config;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,16 +19,21 @@ import com.eduneko.security.JwtAuthenticationFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 
-@Configuration 
+@Configuration
 public class SecurityConfig {
-    
-        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-        public SecurityConfig(
-                JwtAuthenticationFilter jwtAuthenticationFilter) {
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-                this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        }
+    // Origenes permitidos para la comunicacion con el frontend.
+    // Por defecto, conserva la configuracion del entorno local.
+    @Value("${app.cors.allowed-origins:http://localhost:4200,http://192.168.1.70:4200}")
+    private String allowedOrigins;
+
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthenticationFilter) {
+
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -34,31 +41,39 @@ public class SecurityConfig {
 
         http
 
+                // Habilitar la configuracion personalizada de CORS
                 .cors(cors ->
                         cors.configurationSource(
                                 corsConfigurationSource()))
 
                 .csrf(csrf -> csrf.disable())
 
+                // Autenticacion sin sesiones mediante JWT
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
 
-                .exceptionHandling(exception -> exception.authenticationEntryPoint((request, response, authException) ->
-                        response.sendError(
-                                HttpServletResponse.SC_UNAUTHORIZED,
-                                "No autorizado")))       
+                // Responder con HTTP 401 cuando no exista autorizacion
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(
+                                (request, response, authException) ->
+                                        response.sendError(
+                                                HttpServletResponse.SC_UNAUTHORIZED,
+                                                "No autorizado")))
 
+                // Definir endpoints publicos y protegidos
                 .authorizeHttpRequests(auth -> auth
-                .dispatcherTypeMatchers(DispatcherType.ERROR)
-                .permitAll()
-                .requestMatchers(
-                        "/api/auth/register",
-                        "/api/auth/login",
-                        "/api/health")
-                .permitAll()
-                .anyRequest()
-                .authenticated())
+                        .dispatcherTypeMatchers(DispatcherType.ERROR)
+                        .permitAll()
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/health")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
 
+                // Validar el token JWT antes de procesar las solicitudes
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class);
@@ -66,18 +81,22 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean 
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
+        // Convertir los origenes configurados en una lista.
+        // Permite utilizar diferentes dominios en cada entorno.
         configuration.setAllowedOrigins(
-                List.of("http://localhost:4200",
-                        "http://192.168.1.70:4200"
-                )
+                Arrays.stream(allowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(origin -> !origin.isEmpty())
+                        .toList()
         );
-        
+
+        // Metodos HTTP permitidos
         configuration.setAllowedMethods(
                 List.of(
                         "GET",
@@ -86,12 +105,15 @@ public class SecurityConfig {
                         "DELETE",
                         "OPTIONS"));
 
+        // Encabezados HTTP permitidos
         configuration.setAllowedHeaders(
                 List.of(
                         "Authorization",
                         "Content-Type"));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Aplicar la configuracion CORS a los endpoints de la API
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
 
         source.registerCorsConfiguration("/api/**", configuration);
 
