@@ -41,3 +41,6 @@ service-account*.json
 
 # Archivos de registro
 *.log
+
+# Firebase Hosting
+frontend/.firebase/

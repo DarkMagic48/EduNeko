@@ -1,4 +1,3 @@
-
 import {
   HttpErrorResponse,
   HttpInterceptorFn
@@ -17,33 +16,28 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.obtenerToken();
 
   // =====================================================
-  // 1. ADAPTACIÓN TEMPORAL PARA PRUEBAS EN RED LOCAL
+  // 1. SELECCIÓN AUTOMÁTICA DEL ENTORNO
   // =====================================================
 
   // Dirección que utilizan actualmente los servicios.
   const prefijoLocal = 'http://localhost:8080/api/';
 
-  // Detectar automáticamente desde dónde se abrió Angular.
-  // Computadora: localhost
-  // Celular: 192.168.1.70
-  
-/* =====================================================
-   EDUNEKO V1 - SELECCIÓN AUTOMÁTICA DE ENTORNO
-   ===================================================== */
+  // Dirección del backend desplegado en Render.
+  const prefijoProduccion =
+    'https://eduneko-backend.onrender.com/api/';
 
-  // Angular ejecutándose en el puerto de desarrollo.
+  // Detectar si Angular se ejecuta en el entorno local.
   const esEntornoLocal = window.location.port === '4200';
 
   // LOCAL:
-  // Utiliza Spring Boot en la misma computadora.
-  // Funciona desde localhost y desde el celular en la red Wi-Fi.
+  // Utiliza el backend local desde la computadora
+  // o desde dispositivos conectados a la misma red Wi-Fi.
   //
   // PRODUCCIÓN:
-  // Utiliza /api/ en el dominio público.
-  // El hosting redirigirá estas peticiones al backend.
+  // Utiliza el backend desplegado en Render mediante HTTPS.
   const prefijoBackend = esEntornoLocal
     ? `http://${window.location.hostname}:8080/api/`
-    : '/api/';
+    : prefijoProduccion;
 
   // Modificar únicamente las solicitudes de EduNeko.
   const esApiEduNeko = req.url.startsWith(prefijoLocal);
